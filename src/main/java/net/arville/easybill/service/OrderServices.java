@@ -2,6 +2,7 @@ package net.arville.easybill.service;
 
 import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.OrderRequest;
+import net.arville.easybill.exception.OrderNotFoundException;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.repository.OrderDetailRepository;
 import net.arville.easybill.repository.OrderHeaderRepository;

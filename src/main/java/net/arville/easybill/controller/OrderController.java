@@ -5,7 +5,7 @@ import net.arville.easybill.dto.OrderRequest;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
-import net.arville.easybill.service.OrderNotFoundException;
+import net.arville.easybill.exception.OrderNotFoundException;
 import net.arville.easybill.service.OrderServices;
 import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.http.HttpStatus;
@@ -37,7 +37,7 @@ public class OrderController {
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
-    
+
     @PostMapping
     public ResponseEntity<ResponseStructure> addNewOrder(@RequestBody OrderRequest request) {
         ResponseStructure body;

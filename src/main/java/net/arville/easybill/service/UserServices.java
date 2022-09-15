@@ -1,7 +1,7 @@
 package net.arville.easybill.service;
 
 import lombok.AllArgsConstructor;
-import net.arville.easybill.dto.util.UserRegistrationRequest;
+import net.arville.easybill.dto.UserRegistrationRequest;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.UserRepository;

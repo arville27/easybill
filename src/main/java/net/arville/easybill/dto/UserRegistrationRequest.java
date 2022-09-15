@@ -1,7 +1,9 @@
-package net.arville.easybill.dto.util;
+package net.arville.easybill.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.arville.easybill.dto.util.ConvertableToOriginalEntity;
+import net.arville.easybill.dto.util.EnsureRequiredFields;
 import net.arville.easybill.model.User;
 
 @NoArgsConstructor
