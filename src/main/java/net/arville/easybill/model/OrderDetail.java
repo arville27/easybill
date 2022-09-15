@@ -22,9 +22,6 @@ public class OrderDetail {
     @GeneratedValue(generator = "order_detail_id_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "order_header_id", nullable = false)
-    private Long orderHeaderId;
-
     @Column(name = "user_id", nullable = false)
     private Long userId;
 

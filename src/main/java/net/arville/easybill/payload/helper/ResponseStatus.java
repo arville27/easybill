@@ -10,6 +10,7 @@ import net.arville.easybill.payload.StatusStructure;
 public enum ResponseStatus {
     SUCCESS("SUCCESS", "Success"),
     NOT_FOUND("NOT_FOUND", "Resource not found"),
+    MISSING_REQUIRED_FIELDS("BAD REQUEST", "Please verify all required fields is present"),
     UNKNOWN_ERROR("SERVER_ERROR", "Internal server error, please try again later");
 
     private final String code;
