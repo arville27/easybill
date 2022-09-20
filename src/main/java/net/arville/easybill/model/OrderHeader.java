@@ -43,6 +43,9 @@ public class OrderHeader {
     @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
     private List<OrderDetail> orderDetailList;
 
+    @Column(name = "order_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime orderAt;
     @CreationTimestamp
     @Column(name = "created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -53,13 +56,14 @@ public class OrderHeader {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public OrderHeader(Long id, User user, Double discount, String orderDescription, BigDecimal totalPayment, BigDecimal upto, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public OrderHeader(Long id, User user, Double discount, String orderDescription, BigDecimal totalPayment, BigDecimal upto, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.user = user;
         this.discount = discount;
         this.orderDescription = orderDescription;
         this.totalPayment = totalPayment;
         this.upto = upto;
+        this.orderAt = orderAt;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

@@ -1,5 +1,6 @@
 package net.arville.easybill.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.arville.easybill.dto.util.ConvertibleToOriginalEntity;
@@ -7,6 +8,7 @@ import net.arville.easybill.dto.util.EnsureRequiredFields;
 import net.arville.easybill.model.OrderHeader;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -23,6 +25,9 @@ public class AddOrderRequest implements EnsureRequiredFields, ConvertibleToOrigi
 
     private Long buyerId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime orderAt;
+
     private List<OrderDetailRequest> orderList;
 
     @Override
@@ -31,6 +36,7 @@ public class AddOrderRequest implements EnsureRequiredFields, ConvertibleToOrigi
                 && this.totalPayment != null
                 && this.upto != null
                 && this.discount != null
+                && this.orderAt != null
                 && this.buyerId != null
                 && this.orderList != null;
     }
@@ -42,6 +48,7 @@ public class AddOrderRequest implements EnsureRequiredFields, ConvertibleToOrigi
         orderHeader.setTotalPayment(totalPayment);
         orderHeader.setUpto(upto);
         orderHeader.setDiscount(discount);
+        orderHeader.setOrderAt(orderAt);
         return orderHeader;
     }
 }
