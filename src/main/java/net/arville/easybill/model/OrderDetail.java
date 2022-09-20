@@ -22,15 +22,16 @@ public class OrderDetail {
     @GeneratedValue(generator = "order_detail_id_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
-
     @Column(name = "order_menu_desc")
     private String orderMenuDesc;
 
     private BigDecimal price;
 
     private Integer qty;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
     @CreationTimestamp
     @Column(name = "created_at")

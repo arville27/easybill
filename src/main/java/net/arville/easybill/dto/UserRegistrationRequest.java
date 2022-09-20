@@ -2,13 +2,13 @@ package net.arville.easybill.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.arville.easybill.dto.util.ConvertableToOriginalEntity;
+import net.arville.easybill.dto.util.ConvertibleToOriginalEntity;
 import net.arville.easybill.dto.util.EnsureRequiredFields;
 import net.arville.easybill.model.User;
 
 @NoArgsConstructor
 @Data
-public class UserRegistrationRequest implements EnsureRequiredFields, ConvertableToOriginalEntity<User> {
+public class UserRegistrationRequest implements EnsureRequiredFields, ConvertibleToOriginalEntity<User> {
 
     private String username;
 

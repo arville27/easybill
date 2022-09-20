@@ -2,9 +2,8 @@ package net.arville.easybill.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.arville.easybill.dto.util.ConvertableToOriginalEntity;
+import net.arville.easybill.dto.util.ConvertibleToOriginalEntity;
 import net.arville.easybill.dto.util.EnsureRequiredFields;
-import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 
 import java.math.BigDecimal;
@@ -12,7 +11,7 @@ import java.util.List;
 
 @NoArgsConstructor
 @Data
-public class OrderRequest implements EnsureRequiredFields, ConvertableToOriginalEntity<OrderHeader> {
+public class AddOrderRequest implements EnsureRequiredFields, ConvertibleToOriginalEntity<OrderHeader> {
 
     private String orderDescription;
 
@@ -24,7 +23,7 @@ public class OrderRequest implements EnsureRequiredFields, ConvertableToOriginal
 
     private Long buyerId;
 
-    private List<OrderDetail> orderList;
+    private List<OrderDetailRequest> orderList;
 
     @Override
     public boolean isAllPresent() {
@@ -43,8 +42,6 @@ public class OrderRequest implements EnsureRequiredFields, ConvertableToOriginal
         orderHeader.setTotalPayment(totalPayment);
         orderHeader.setUpto(upto);
         orderHeader.setDiscount(discount);
-        orderHeader.setBuyerId(buyerId);
-        orderHeader.setOrderList(orderList);
         return orderHeader;
     }
 }

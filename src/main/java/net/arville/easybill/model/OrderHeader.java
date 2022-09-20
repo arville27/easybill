@@ -29,18 +29,19 @@ public class OrderHeader {
     @Column(name = "total_payment", nullable = false)
     private BigDecimal totalPayment;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "buyer_id", referencedColumnName = "id")
+    private User user;
+
     @Column(nullable = false)
     private BigDecimal upto;
 
     @Column(nullable = false)
     private Double discount;
 
-    @Column(name = "buyer_id", nullable = false)
-    private Long buyerId;
-
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
-    private List<OrderDetail> orderList;
+    private List<OrderDetail> orderDetailList;
 
     @CreationTimestamp
     @Column(name = "created_at")
@@ -51,4 +52,15 @@ public class OrderHeader {
     @Column(name = "updated_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+
+    public OrderHeader(Long id, User user, Double discount, String orderDescription, BigDecimal totalPayment, BigDecimal upto, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.user = user;
+        this.discount = discount;
+        this.orderDescription = orderDescription;
+        this.totalPayment = totalPayment;
+        this.upto = upto;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 }

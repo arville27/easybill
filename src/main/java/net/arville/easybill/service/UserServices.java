@@ -1,35 +1,71 @@
 package net.arville.easybill.service;
 
 import lombok.AllArgsConstructor;
-import net.arville.easybill.dto.UserRegistrationRequest;
+import net.arville.easybill.dto.*;
 import net.arville.easybill.exception.UserNotFoundException;
+import net.arville.easybill.exception.UsernameAlreadyExists;
 import net.arville.easybill.model.User;
+import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
 import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class UserServices {
 
-    UserRepository userRepository;
+    private UserRepository userRepository;
+    private OrderHeaderRepository orderHeaderRepository;
 
-    public User getUser(Long userId) {
+    public UserResponse getUser(Long userId) {
         var result = userRepository.findById(userId);
         if (result.isEmpty())
             throw new UserNotFoundException();
-        return result.get();
+        return (new UserResponse()).fromOriginalEntity(result.get());
     }
 
-    public User addNewUser(UserRegistrationRequest request) {
+    public UserWithOrderResponse getUserRelevantOrder(Long userId) {
+        var result = userRepository.findById(userId);
+        if (result.isEmpty())
+            throw new UserNotFoundException();
 
-        if (request.isAllPresent()) {
+        var relevantOrderList = orderHeaderRepository
+                .findRelevantOrderHeaderForUser(result.get().getId())
+                .stream().map(orderHeader -> (new OrderHeaderWithoutDetailOrder()).fromOriginalEntity(orderHeader))
+                .collect(Collectors.toList());
+
+        System.out.println(relevantOrderList);
+
+        var userWithOrder = (new UserWithOrderResponse()).fromOriginalEntity(result.get(), relevantOrderList);
+
+        return userWithOrder;
+    }
+
+    public UserRegistrationResponse addNewUser(UserRegistrationRequest request) {
+
+        if (!request.isAllPresent()) {
             throw new MissingRequiredPropertiesException();
+        }
+
+        if (userRepository.findUserByUsername(request.getUsername()).isPresent()) {
+            throw new UsernameAlreadyExists();
         }
 
         User newUser = request.toOriginalEntity();
 //        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
 
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+
+        return new UserRegistrationResponse().fromOriginalEntity(newUser);
+    }
+
+    public List<UserResponse> getAllUser() {
+        return userRepository.findAll()
+                .stream()
+                .map(user -> (new UserResponse()).fromOriginalEntity(user))
+                .collect(Collectors.toList());
     }
 }

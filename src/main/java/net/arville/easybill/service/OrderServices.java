@@ -1,35 +1,62 @@
 package net.arville.easybill.service;
 
 import lombok.AllArgsConstructor;
-import net.arville.easybill.dto.OrderRequest;
+import net.arville.easybill.dto.AddOrderRequest;
 import net.arville.easybill.exception.OrderNotFoundException;
+import net.arville.easybill.exception.UserNotFoundException;
+import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
-import net.arville.easybill.repository.OrderDetailRepository;
+import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
+import net.arville.easybill.repository.UserRepository;
 import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class OrderServices {
 
-    public OrderHeaderRepository orderHeaderRepository;
-    public OrderDetailRepository orderDetailRepository;
+    private OrderHeaderRepository orderHeaderRepository;
+    private UserRepository userRepository;
 
     public List<OrderHeader> getOrders() {
         return orderHeaderRepository.findAll();
     }
 
-    public OrderHeader addNewOrder(OrderRequest orderHeader) {
+    public OrderHeader addNewOrder(AddOrderRequest addOrderRequest) {
 
-        if (!orderHeader.isAllPresent()) {
+        if (!addOrderRequest.isAllPresent()) {
             throw new MissingRequiredPropertiesException();
         }
 
-        return orderHeaderRepository.save(orderHeader.toOriginalEntity());
+        Optional<User> userOptional = userRepository.findById(addOrderRequest.getBuyerId());
+
+        if (userOptional.isEmpty()) throw new UserNotFoundException();
+
+        User user = userOptional.get();
+        OrderHeader orderHeader = addOrderRequest.toOriginalEntity();
+        orderHeader.setOrderDetailList(
+                addOrderRequest.getOrderList()
+                        .stream()
+                        .map(orderDetailRequest -> {
+                            Optional<User> orderByOptional = userRepository.findById(orderDetailRequest.getUserId());
+                            if (orderByOptional.isEmpty()) throw new UserNotFoundException();
+                            OrderDetail orderDetail = orderDetailRequest.toOriginalEntity();
+                            orderDetail.setUser(orderByOptional.get());
+                            return orderDetail;
+                        })
+                        .collect(Collectors.toList())
+        );
+        orderHeader.setUser(user);
+        user.getOrderList().add(orderHeader);
+
+
+        return orderHeaderRepository.save(orderHeader);
     }
 
     public OrderHeader getOrderById(Long orderId) {

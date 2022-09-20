@@ -1,7 +1,8 @@
 package net.arville.easybill.controller;
 
 import lombok.AllArgsConstructor;
-import net.arville.easybill.dto.OrderRequest;
+import net.arville.easybill.dto.AddOrderRequest;
+import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
@@ -30,7 +31,7 @@ public class OrderController {
             body = ResponseStatus.NOT_FOUND.GenerateGeneralBody(null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
         } catch (Exception e) {
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             body = ResponseStatus.UNKNOWN_ERROR.GenerateGeneralBody(null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
         }
@@ -39,7 +40,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseStructure> addNewOrder(@RequestBody OrderRequest request) {
+    public ResponseEntity<ResponseStructure> addNewOrder(@RequestBody AddOrderRequest request) {
         ResponseStructure body;
 
         try {
@@ -48,8 +49,11 @@ public class OrderController {
         } catch (MissingRequiredPropertiesException e) {
             body = ResponseStatus.MISSING_REQUIRED_FIELDS.GenerateGeneralBody(null);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        } catch (UserNotFoundException e) {
+            body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
         } catch (Exception e) {
-            System.out.println(e.getStackTrace());
+            e.printStackTrace();
             body = ResponseStatus.UNKNOWN_ERROR.GenerateGeneralBody(null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
         }
