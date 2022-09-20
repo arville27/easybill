@@ -36,9 +36,7 @@ public class UserServices {
                 .findRelevantOrderHeaderForUser(result.get().getId())
                 .stream().map(orderHeader -> (new OrderHeaderWithoutDetailOrder()).fromOriginalEntity(orderHeader))
                 .collect(Collectors.toList());
-
-        System.out.println(relevantOrderList);
-
+        
         var userWithOrder = (new UserWithOrderResponse()).fromOriginalEntity(result.get(), relevantOrderList);
 
         return userWithOrder;

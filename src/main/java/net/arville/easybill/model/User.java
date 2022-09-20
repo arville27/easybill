@@ -38,6 +38,10 @@ public class User {
     @JsonIgnore
     private List<OrderDetail> orderDetailList;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Bill> billList;
+
     @CreationTimestamp
     @Column(name = "created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
