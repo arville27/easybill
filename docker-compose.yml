@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  easybill:
+    container_name: easybill
+    build: .
+    image: daniel-easybill:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - "SPRING_ACTIVE_PROFILES=ocp"
+      - "DB_USER=${DB_USER}"
+      - "DB_PASS=${DB_PASS}"
+      - "JDBC_URL=${JDBC_URL}"
