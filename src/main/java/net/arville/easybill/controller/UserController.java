@@ -1,10 +1,9 @@
 package net.arville.easybill.controller;
 
 import lombok.AllArgsConstructor;
-import net.arville.easybill.dto.UserRegistrationRequest;
+import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
-import net.arville.easybill.model.User;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
 import net.arville.easybill.service.UserServices;
@@ -44,7 +43,7 @@ public class UserController {
         } catch (UserNotFoundException e) {
             body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             body = ResponseStatus.UNKNOWN_ERROR.GenerateGeneralBody(null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);

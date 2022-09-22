@@ -1,4 +1,4 @@
-package net.arville.easybill.dto;
+package net.arville.easybill.dto.request;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +25,7 @@ public class OrderDetailRequest implements EnsureRequiredFields, ConvertibleToOr
     private Integer qty;
 
     private BigDecimal price;
+
     @Override
     public OrderDetail toOriginalEntity() {
         OrderDetail orderDetail = new OrderDetail();

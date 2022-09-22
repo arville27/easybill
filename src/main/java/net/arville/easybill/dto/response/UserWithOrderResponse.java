@@ -1,10 +1,9 @@
-package net.arville.easybill.dto;
+package net.arville.easybill.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.arville.easybill.dto.util.ConvertibleFromOriginalEntitiy;
-import net.arville.easybill.model.OrderHeader;
+import net.arville.easybill.dto.OrderHeaderResponse;
 import net.arville.easybill.model.User;
 
 import java.time.LocalDateTime;
@@ -24,9 +23,9 @@ public class UserWithOrderResponse {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    private List<OrderHeaderWithoutDetailOrder> orderList;
+    private List<OrderHeaderResponse> orderList;
 
-    public UserWithOrderResponse fromOriginalEntity(User userEntity, List<OrderHeaderWithoutDetailOrder> orderList) {
+    public static UserWithOrderResponse map(User userEntity, List<OrderHeaderResponse> orderList) {
         UserWithOrderResponse userWithOrderResp = new UserWithOrderResponse();
         userWithOrderResp.setId(userEntity.getId());
         userWithOrderResp.setUsername(userEntity.getUsername());

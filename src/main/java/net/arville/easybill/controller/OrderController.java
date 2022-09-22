@@ -1,7 +1,7 @@
 package net.arville.easybill.controller;
 
 import lombok.AllArgsConstructor;
-import net.arville.easybill.dto.AddOrderRequest;
+import net.arville.easybill.dto.request.AddOrderRequest;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.payload.ResponseStructure;
@@ -44,7 +44,7 @@ public class OrderController {
         ResponseStructure body;
 
         try {
-            OrderHeader newOrderHeader = orderServices.addNewOrder(request);
+            var newOrderHeader = orderServices.addNewOrder(request);
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(newOrderHeader);
         } catch (MissingRequiredPropertiesException e) {
             body = ResponseStatus.MISSING_REQUIRED_FIELDS.GenerateGeneralBody(null);

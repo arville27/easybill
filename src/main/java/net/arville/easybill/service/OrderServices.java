@@ -1,7 +1,8 @@
 package net.arville.easybill.service;
 
 import lombok.AllArgsConstructor;
-import net.arville.easybill.dto.AddOrderRequest;
+import net.arville.easybill.dto.OrderHeaderResponse;
+import net.arville.easybill.dto.request.AddOrderRequest;
 import net.arville.easybill.exception.OrderNotFoundException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.model.OrderDetail;
@@ -28,7 +29,7 @@ public class OrderServices {
         return orderHeaderRepository.findAll();
     }
 
-    public OrderHeader addNewOrder(AddOrderRequest addOrderRequest) {
+    public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
 
         if (!addOrderRequest.isAllPresent()) {
             throw new MissingRequiredPropertiesException();
@@ -56,13 +57,13 @@ public class OrderServices {
         user.getOrderList().add(orderHeader);
 
 
-        return orderHeaderRepository.save(orderHeader);
+        return OrderHeaderResponse.map(orderHeaderRepository.save(orderHeader));
     }
 
-    public OrderHeader getOrderById(Long orderId) {
+    public OrderHeaderResponse getOrderById(Long orderId) {
         var result = orderHeaderRepository.findById(orderId);
         if (result.isEmpty())
             throw new OrderNotFoundException();
-        return result.get();
+        return OrderHeaderResponse.map(result.get());
     }
 }

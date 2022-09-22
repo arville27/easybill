@@ -1,4 +1,4 @@
-package net.arville.easybill.dto;
+package net.arville.easybill.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

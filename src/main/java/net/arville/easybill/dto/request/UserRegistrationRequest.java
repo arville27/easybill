@@ -1,4 +1,4 @@
-package net.arville.easybill.dto;
+package net.arville.easybill.dto.request;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
