@@ -4,13 +4,13 @@ import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.response.UserResponse;
+import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
 import net.arville.easybill.service.manager.UserManager;
-import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,8 +41,10 @@ public class UserManagerImpl implements UserManager {
 
     public UserResponse addNewUser(UserRegistrationRequest request) {
 
-        if (!request.isAllPresent()) {
-            throw new MissingRequiredPropertiesException();
+        var missingProperties = request.getMissingProperties();
+
+        if (missingProperties.size() > 0) {
+            throw new MissingRequiredPropertiesException(missingProperties);
         }
 
         if (userRepository.findUserByUsername(request.getUsername()).isPresent()) {

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.response.OrderDetailResponse;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.request.AddOrderRequest;
+import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.OrderNotFoundException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.model.OrderDetail;
@@ -12,7 +13,6 @@ import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
 import net.arville.easybill.service.manager.OrderManager;
-import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
@@ -25,9 +25,11 @@ public class OrderManagerImpl implements OrderManager {
     private UserRepository userRepository;
 
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
+        
+        var missingProperties = addOrderRequest.getMissingProperties();
 
-        if (!addOrderRequest.isAllPresent()) {
-            throw new MissingRequiredPropertiesException();
+        if (missingProperties.size() > 0) {
+            throw new MissingRequiredPropertiesException(missingProperties);
         }
 
         User user = userRepository

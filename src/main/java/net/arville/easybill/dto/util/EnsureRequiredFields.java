@@ -1,6 +1,8 @@
 package net.arville.easybill.dto.util;
 
+import java.util.Set;
+
 public interface EnsureRequiredFields {
 
-    boolean isAllPresent();
+    Set<String> getMissingProperties();
 }

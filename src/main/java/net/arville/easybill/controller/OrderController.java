@@ -2,12 +2,12 @@ package net.arville.easybill.controller;
 
 import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.request.AddOrderRequest;
+import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
 import net.arville.easybill.exception.OrderNotFoundException;
 import net.arville.easybill.service.manager.OrderManager;
-import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +46,7 @@ public class OrderController {
             var newOrderHeader = orderManager.addNewOrder(request);
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(newOrderHeader);
         } catch (MissingRequiredPropertiesException e) {
-            body = ResponseStatus.MISSING_REQUIRED_FIELDS.GenerateGeneralBody(null);
+            body = ResponseStatus.MISSING_REQUIRED_FIELDS.GenerateGeneralBody(null, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
         } catch (UserNotFoundException e) {
             body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null);

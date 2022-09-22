@@ -9,5 +9,10 @@ public class StatusStructure {
 
     private String code;
     private String message;
+    private String extraMessage;
 
+    public StatusStructure(String code, String message) {
+        this.code = code;
+        this.message = message;
+    }
 }

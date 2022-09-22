@@ -4,15 +4,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.arville.easybill.dto.util.ConvertibleToOriginalEntity;
 import net.arville.easybill.dto.util.EnsureRequiredFields;
-import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.model.OrderDetail;
-import net.arville.easybill.model.User;
-import net.arville.easybill.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @Data
@@ -36,7 +32,12 @@ public class OrderDetailRequest implements EnsureRequiredFields, ConvertibleToOr
     }
 
     @Override
-    public boolean isAllPresent() {
-        return userId != null && orderMenuDesc != null && qty != null && price != null;
+    public Set<String> getMissingProperties() {
+        Set<String> missingProperties = new LinkedHashSet<>();
+        if (userId == null) missingProperties.add("user_id");
+        if (orderMenuDesc == null) missingProperties.add("order_menu_desc");
+        if (qty == null) missingProperties.add("qty");
+        if (price == null) missingProperties.add("price");
+        return missingProperties;
     }
 }

@@ -61,7 +61,7 @@ public class UserController {
             var newUser = userManager.addNewUser(request);
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(newUser);
         } catch (MissingRequiredPropertiesException e) {
-            body = ResponseStatus.MISSING_REQUIRED_FIELDS.GenerateGeneralBody(null);
+            body = ResponseStatus.MISSING_REQUIRED_FIELDS.GenerateGeneralBody(null, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
         } catch (UsernameAlreadyExists e) {
             body = ResponseStatus.USERNAME_ALREADY_EXISTS.GenerateGeneralBody(null);

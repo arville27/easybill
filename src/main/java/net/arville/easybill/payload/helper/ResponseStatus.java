@@ -23,7 +23,16 @@ public enum ResponseStatus {
         return new ResponseStructure(statusStructure, outputStructure);
     }
 
+    public <T extends OutputStructure<?>> ResponseStructure GenerateBody(T outputStructure, String extraMessage) {
+        StatusStructure statusStructure = new StatusStructure(this.code, this.message, extraMessage);
+        return new ResponseStructure(statusStructure, outputStructure);
+    }
+
     public ResponseStructure GenerateGeneralBody(Object data) {
         return this.GenerateBody(new GeneralOutput(data));
+    }
+
+    public ResponseStructure GenerateGeneralBody(Object data, String extraMessage) {
+        return this.GenerateBody(new GeneralOutput(data), extraMessage);
     }
 }

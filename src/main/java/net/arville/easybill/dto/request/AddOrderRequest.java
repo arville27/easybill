@@ -9,7 +9,9 @@ import net.arville.easybill.model.OrderHeader;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @Data
@@ -31,14 +33,16 @@ public class AddOrderRequest implements EnsureRequiredFields, ConvertibleToOrigi
     private List<OrderDetailRequest> orderList;
 
     @Override
-    public boolean isAllPresent() {
-        return this.orderDescription != null
-                && this.totalPayment != null
-                && this.upto != null
-                && this.discount != null
-                && this.orderAt != null
-                && this.buyerId != null
-                && this.orderList != null;
+    public Set<String> getMissingProperties() {
+        Set<String> missingProperties = new LinkedHashSet<>();
+        if (orderDescription == null) missingProperties.add("order_description");
+        if (totalPayment == null) missingProperties.add("total_payment");
+        if (upto == null) missingProperties.add("upto");
+        if (discount == null) missingProperties.add("discount");
+        if (orderAt == null) missingProperties.add("order_at");
+        if (buyerId == null) missingProperties.add("buyer_id");
+        if (orderList == null) missingProperties.add("order_list");
+        return missingProperties;
     }
 
     @Override
