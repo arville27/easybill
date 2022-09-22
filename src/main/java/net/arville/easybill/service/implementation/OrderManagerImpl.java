@@ -1,4 +1,4 @@
-package net.arville.easybill.service;
+package net.arville.easybill.service.implementation;
 
 import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.response.OrderDetailResponse;
@@ -11,6 +11,7 @@ import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
+import net.arville.easybill.service.manager.OrderManager;
 import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class OrderServices {
+public class OrderManagerImpl implements OrderManager {
 
     private OrderHeaderRepository orderHeaderRepository;
     private UserRepository userRepository;

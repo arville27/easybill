@@ -6,7 +6,7 @@ import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
-import net.arville.easybill.service.UserServices;
+import net.arville.easybill.service.manager.UserManager;
 import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +16,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 @AllArgsConstructor
 public class UserController {
-    private UserServices userServices;
+
+    private final UserManager userManager;
 
     @GetMapping
     public ResponseEntity<ResponseStructure> getAllUser() {
         ResponseStructure body;
 
         try {
-            var users = userServices.getAllUser();
+            var users = userManager.getAllUser();
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(users);
         } catch (Exception e) {
             body = ResponseStatus.UNKNOWN_ERROR.GenerateGeneralBody(null);
@@ -38,7 +39,7 @@ public class UserController {
         ResponseStructure body;
 
         try {
-            var user = userServices.getUserRelevantOrder(userId);
+            var user = userManager.getUserRelevantOrder(userId);
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
         } catch (UserNotFoundException e) {
             body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null);
@@ -57,7 +58,7 @@ public class UserController {
         ResponseStructure body;
 
         try {
-            var newUser = userServices.addNewUser(request);
+            var newUser = userManager.addNewUser(request);
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(newUser);
         } catch (MissingRequiredPropertiesException e) {
             body = ResponseStatus.MISSING_REQUIRED_FIELDS.GenerateGeneralBody(null);

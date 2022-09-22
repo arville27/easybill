@@ -1,4 +1,4 @@
-package net.arville.easybill.service;
+package net.arville.easybill.service.implementation;
 
 import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
@@ -9,6 +9,7 @@ import net.arville.easybill.exception.UsernameAlreadyExists;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
+import net.arville.easybill.service.manager.UserManager;
 import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class UserServices {
+public class UserManagerImpl implements UserManager {
 
     private UserRepository userRepository;
     private OrderHeaderRepository orderHeaderRepository;

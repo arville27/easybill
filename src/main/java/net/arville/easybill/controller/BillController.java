@@ -3,7 +3,7 @@ package net.arville.easybill.controller;
 import lombok.AllArgsConstructor;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
-import net.arville.easybill.service.BillServices;
+import net.arville.easybill.service.manager.BillManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class BillController {
 
-    private final BillServices billServices;
+    private final BillManager billManager;
 
     @GetMapping
     public ResponseEntity<ResponseStructure> getAllBills(@PathVariable Long userId) {
         ResponseStructure body;
 
         try {
-            var bills = billServices.getAllBills(userId);
+            var bills = billManager.getAllBills(userId);
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(bills);
         } catch (Exception e) {
             body = ResponseStatus.UNKNOWN_ERROR.GenerateGeneralBody(null);
