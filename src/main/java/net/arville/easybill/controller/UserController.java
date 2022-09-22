@@ -42,7 +42,7 @@ public class UserController {
             var user = userManager.getUserRelevantOrder(userId);
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
         } catch (UserNotFoundException e) {
-            body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null);
+            body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null, e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
         } catch (Exception e) {
             e.printStackTrace();

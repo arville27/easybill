@@ -1,6 +1,7 @@
 package net.arville.easybill.controller;
 
 import lombok.AllArgsConstructor;
+import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
 import net.arville.easybill.service.manager.BillManager;
@@ -25,6 +26,9 @@ public class BillController {
         try {
             var bills = billManager.getAllBills(userId);
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(bills);
+        } catch (UserNotFoundException e) {
+            body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
         } catch (Exception e) {
             body = ResponseStatus.UNKNOWN_ERROR.GenerateGeneralBody(null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);

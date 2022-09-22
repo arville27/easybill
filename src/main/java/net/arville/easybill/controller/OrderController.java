@@ -27,7 +27,7 @@ public class OrderController {
             var order = orderManager.getOrderById(orderId);
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(order);
         } catch (OrderNotFoundException e) {
-            body = ResponseStatus.NOT_FOUND.GenerateGeneralBody(null);
+            body = ResponseStatus.ORDER_NOT_FOUND.GenerateGeneralBody(null, e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,7 +49,7 @@ public class OrderController {
             body = ResponseStatus.MISSING_REQUIRED_FIELDS.GenerateGeneralBody(null, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
         } catch (UserNotFoundException e) {
-            body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null);
+            body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null, e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
         } catch (Exception e) {
             e.printStackTrace();

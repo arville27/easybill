@@ -22,7 +22,7 @@ public class BillManagerImpl implements BillManager {
 
     public UserResponse getAllBills(Long userId) {
 
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
         List<BillResponse> usersBill = billRepository.findAllUserBills(userId).stream()
                 .map(BillResponse::map)

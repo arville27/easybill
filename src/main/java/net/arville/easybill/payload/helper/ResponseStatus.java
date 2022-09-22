@@ -11,6 +11,7 @@ public enum ResponseStatus {
     SUCCESS("SUCCESS", "Success"),
     NOT_FOUND("NOT_FOUND", "Resource not found"),
     USER_NOT_FOUND("USER_NOT_FOUND", "User is doesn't exists"),
+    ORDER_NOT_FOUND("ORDER_NOT_FOUND", "Order is doesn't exists"),
     USERNAME_ALREADY_EXISTS("USERNAME_ALREADY_EXISTS", "Username is already exists"),
     MISSING_REQUIRED_FIELDS("BAD REQUEST", "Please verify all required fields is present"),
     UNKNOWN_ERROR("SERVER_ERROR", "Internal server error, please try again later");

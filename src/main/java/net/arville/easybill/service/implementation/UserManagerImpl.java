@@ -24,7 +24,7 @@ public class UserManagerImpl implements UserManager {
     private OrderHeaderRepository orderHeaderRepository;
 
     public UserResponse getUserRelevantOrder(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
         var relevantOrderList = orderHeaderRepository
                 .findRelevantOrderHeaderForUser(user.getId());

@@ -25,7 +25,7 @@ public class OrderManagerImpl implements OrderManager {
     private UserRepository userRepository;
 
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
-        
+
         var missingProperties = addOrderRequest.getMissingProperties();
 
         if (missingProperties.size() > 0) {
@@ -34,7 +34,7 @@ public class OrderManagerImpl implements OrderManager {
 
         User user = userRepository
                 .findById(addOrderRequest.getBuyerId())
-                .orElseThrow(UserNotFoundException::new);
+                .orElseThrow(() -> new UserNotFoundException(addOrderRequest.getBuyerId()));
 
         OrderHeader orderHeader = addOrderRequest.toOriginalEntity();
         orderHeader.setOrderDetailList(
@@ -43,7 +43,7 @@ public class OrderManagerImpl implements OrderManager {
                         .map(orderDetailRequest -> {
                             User orderBy = userRepository
                                     .findById(orderDetailRequest.getUserId())
-                                    .orElseThrow(UserNotFoundException::new);
+                                    .orElseThrow(() -> new UserNotFoundException(addOrderRequest.getBuyerId()));
                             OrderDetail orderDetail = orderDetailRequest.toOriginalEntity();
                             orderDetail.setUser(orderBy);
                             return orderDetail;
@@ -81,7 +81,7 @@ public class OrderManagerImpl implements OrderManager {
     public OrderHeaderResponse getOrderById(Long orderId) {
         OrderHeader orderHeader = orderHeaderRepository
                 .findById(orderId)
-                .orElseThrow(OrderNotFoundException::new);
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
         return OrderHeaderResponse.map(orderHeader);
     }
 }
