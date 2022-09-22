@@ -1,7 +1,6 @@
 package net.arville.easybill.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +23,8 @@ public class UserResponse extends BaseUserEntity {
 
     @JsonProperty("order_list")
     private List<OrderHeaderResponse> orderHeaderResponseList;
+    @JsonProperty("user_bills")
+    private List<BillResponse> billResponseList;
 
     public static UserResponse map(User entity) {
         return UserResponse.builder()
@@ -49,8 +50,9 @@ public class UserResponse extends BaseUserEntity {
     }
 
     @Builder
-    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, List<Bill> billList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList) {
+    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, List<Bill> billList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, List<BillResponse> billResponseList) {
         super(id, username, password, orderList, orderDetailList, billList, createdAt, updatedAt);
         this.orderHeaderResponseList = orderHeaderResponseList;
+        this.billResponseList = billResponseList;
     }
 }
