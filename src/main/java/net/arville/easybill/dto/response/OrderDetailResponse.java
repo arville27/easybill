@@ -12,7 +12,6 @@ import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.User;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -31,18 +30,6 @@ public class OrderDetailResponse extends BaseOrderDetailEntity {
                 .orderMenuDesc(entity.getOrderMenuDesc())
                 .price(entity.getPrice())
                 .qty(entity.getQty())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
-    }
-
-    public static OrderDetailResponse mapWithoutDate(OrderDetail entity) {
-        return OrderDetailResponse.builder()
-                .id(entity.getId())
-                .userData(UserResponse.mapWithoutDate(entity.getUser()))
-                .orderMenuDesc(entity.getOrderMenuDesc())
-                .price(entity.getPrice())
-                .qty(entity.getQty())
                 .build();
     }
 
@@ -54,8 +41,8 @@ public class OrderDetailResponse extends BaseOrderDetailEntity {
     }
 
     @Builder
-    public OrderDetailResponse(Long id, String orderMenuDesc, BigDecimal price, Integer qty, User user, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userData, Long userId) {
-        super(id, orderMenuDesc, price, qty, user, createdAt, updatedAt);
+    public OrderDetailResponse(Long id, String orderMenuDesc, BigDecimal price, Integer qty, User user, UserResponse userData, Long userId) {
+        super(id, orderMenuDesc, price, qty, user);
         this.userData = userData;
         this.userId = userId;
     }
