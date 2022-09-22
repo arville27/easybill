@@ -71,7 +71,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
 }
