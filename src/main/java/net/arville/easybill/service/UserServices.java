@@ -1,9 +1,9 @@
 package net.arville.easybill.service;
 
 import lombok.AllArgsConstructor;
-import net.arville.easybill.dto.*;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
-import net.arville.easybill.dto.response.UserWithOrderResponse;
+import net.arville.easybill.dto.response.OrderHeaderResponse;
+import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
 import net.arville.easybill.model.User;
@@ -22,29 +22,20 @@ public class UserServices {
     private UserRepository userRepository;
     private OrderHeaderRepository orderHeaderRepository;
 
-    public UserWithOrderResponse getUserRelevantOrder(Long userId) {
-        var result = userRepository.findById(userId);
-        if (result.isEmpty())
-            throw new UserNotFoundException();
+    public UserResponse getUserRelevantOrder(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 
         var relevantOrderList = orderHeaderRepository
-                .findRelevantOrderHeaderForUser(result.get().getId())
-                .stream()
-                .map(orderHeader -> OrderHeaderResponse.customMap(orderHeader, (entityBuilder, entity) ->
-                        entityBuilder.id(entity.getId())
-                                .userResponse(UserResponse.mapWithoutDate(entity.getUser()))
-                                .upto(entity.getUpto())
-                                .discount(entity.getDiscount())
-                                .orderDescription(entity.getOrderDescription())
-                                .totalPayment(entity.getTotalPayment())
-                                .orderAt(entity.getOrderAt())
-                                .createdAt(entity.getCreatedAt())
-                                .updatedAt(entity.getUpdatedAt())
-                                .build())
-                )
-                .collect(Collectors.toList());
+                .findRelevantOrderHeaderForUser(user.getId());
 
-        return UserWithOrderResponse.map(result.get(), relevantOrderList);
+        UserResponse userResponse = UserResponse.map(user);
+        userResponse.setOrderHeaderResponseList(
+                relevantOrderList.stream()
+                        .map(OrderHeaderResponse::map)
+                        .peek(orderHeaderResponse -> orderHeaderResponse.setOrderDetailResponses(null))
+                        .collect(Collectors.toList())
+        );
+        return userResponse;
     }
 
     public UserResponse addNewUser(UserRegistrationRequest request) {

@@ -1,4 +1,4 @@
-package net.arville.easybill.dto;
+package net.arville.easybill.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.arville.easybill.dto.base.BaseOrderDetailEntity;
+import net.arville.easybill.dto.helper.EntityBuilder;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.User;
 
@@ -20,6 +21,8 @@ import java.time.LocalDateTime;
 public class OrderDetailResponse extends BaseOrderDetailEntity {
     @JsonProperty("user")
     private UserResponse userData;
+
+    private Long userId;
 
     public static OrderDetailResponse map(OrderDetail entity) {
         return OrderDetailResponse.builder()
@@ -43,9 +46,17 @@ public class OrderDetailResponse extends BaseOrderDetailEntity {
                 .build();
     }
 
+    public static OrderDetailResponse customMap(
+            OrderDetail entity,
+            EntityBuilder<OrderDetailResponse, OrderDetailResponse.OrderDetailResponseBuilder, OrderDetail> builder
+    ) {
+        return builder.createCustomEntity(OrderDetailResponse.builder(), entity);
+    }
+
     @Builder
-    public OrderDetailResponse(Long id, String orderMenuDesc, BigDecimal price, Integer qty, User user, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userData) {
+    public OrderDetailResponse(Long id, String orderMenuDesc, BigDecimal price, Integer qty, User user, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userData, Long userId) {
         super(id, orderMenuDesc, price, qty, user, createdAt, updatedAt);
         this.userData = userData;
+        this.userId = userId;
     }
 }

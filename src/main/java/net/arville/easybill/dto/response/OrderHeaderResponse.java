@@ -1,4 +1,4 @@
-package net.arville.easybill.dto;
+package net.arville.easybill.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,6 +26,7 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
     @JsonProperty("user")
     private UserResponse userResponse;
 
+    private Long buyerId;
     @JsonProperty("order_list")
     private List<OrderDetailResponse> orderDetailResponses;
 
@@ -65,9 +66,10 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
     }
 
     @Builder
-    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User user, BigDecimal upto, Double discount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userResponse, List<OrderDetailResponse> orderDetailResponses) {
+    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User user, BigDecimal upto, Double discount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses) {
         super(id, orderDescription, totalPayment, user, upto, discount, orderDetailList, orderAt, createdAt, updatedAt);
         this.userResponse = userResponse;
+        this.buyerId = buyerId;
         this.orderDetailResponses = orderDetailResponses;
     }
 }

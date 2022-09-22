@@ -33,7 +33,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/{userId}/relevant-orders")
     public ResponseEntity<ResponseStructure> getUser(@PathVariable Long userId) {
         ResponseStructure body;
 

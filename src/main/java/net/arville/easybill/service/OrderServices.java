@@ -1,7 +1,8 @@
 package net.arville.easybill.service;
 
 import lombok.AllArgsConstructor;
-import net.arville.easybill.dto.OrderHeaderResponse;
+import net.arville.easybill.dto.response.OrderDetailResponse;
+import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.request.AddOrderRequest;
 import net.arville.easybill.exception.OrderNotFoundException;
 import net.arville.easybill.exception.UserNotFoundException;
@@ -13,9 +14,6 @@ import net.arville.easybill.repository.UserRepository;
 import org.springframework.core.env.MissingRequiredPropertiesException;
 import org.springframework.stereotype.Service;
 
-
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,30 +23,26 @@ public class OrderServices {
     private OrderHeaderRepository orderHeaderRepository;
     private UserRepository userRepository;
 
-    public List<OrderHeader> getOrders() {
-        return orderHeaderRepository.findAll();
-    }
-
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
 
         if (!addOrderRequest.isAllPresent()) {
             throw new MissingRequiredPropertiesException();
         }
 
-        Optional<User> userOptional = userRepository.findById(addOrderRequest.getBuyerId());
+        User user = userRepository
+                .findById(addOrderRequest.getBuyerId())
+                .orElseThrow(UserNotFoundException::new);
 
-        if (userOptional.isEmpty()) throw new UserNotFoundException();
-
-        User user = userOptional.get();
         OrderHeader orderHeader = addOrderRequest.toOriginalEntity();
         orderHeader.setOrderDetailList(
                 addOrderRequest.getOrderList()
                         .stream()
                         .map(orderDetailRequest -> {
-                            Optional<User> orderByOptional = userRepository.findById(orderDetailRequest.getUserId());
-                            if (orderByOptional.isEmpty()) throw new UserNotFoundException();
+                            User orderBy = userRepository
+                                    .findById(orderDetailRequest.getUserId())
+                                    .orElseThrow(UserNotFoundException::new);
                             OrderDetail orderDetail = orderDetailRequest.toOriginalEntity();
-                            orderDetail.setUser(orderByOptional.get());
+                            orderDetail.setUser(orderBy);
                             return orderDetail;
                         })
                         .collect(Collectors.toList())
@@ -56,14 +50,35 @@ public class OrderServices {
         orderHeader.setUser(user);
         user.getOrderList().add(orderHeader);
 
-
-        return OrderHeaderResponse.map(orderHeaderRepository.save(orderHeader));
+        return OrderHeaderResponse.customMap(orderHeaderRepository.save(orderHeader),
+                (entityBuilder, entity) ->
+                        entityBuilder
+                                .id(entity.getId())
+                                .buyerId(entity.getUser().getId())
+                                .orderDetailResponses(entity
+                                        .getOrderDetailList().stream()
+                                        .map(OrderDetailResponse::map)
+                                        .peek(orderDetailResponse -> {
+                                            orderDetailResponse.setUserId(orderDetailResponse.getUserData().getId());
+                                            orderDetailResponse.setUserData(null);
+                                        })
+                                        .collect(Collectors.toList())
+                                )
+                                .upto(entity.getUpto())
+                                .discount(entity.getDiscount())
+                                .orderDescription(entity.getOrderDescription())
+                                .totalPayment(entity.getTotalPayment())
+                                .orderAt(entity.getOrderAt())
+                                .createdAt(entity.getCreatedAt())
+                                .updatedAt(entity.getUpdatedAt())
+                                .build()
+        );
     }
 
     public OrderHeaderResponse getOrderById(Long orderId) {
-        var result = orderHeaderRepository.findById(orderId);
-        if (result.isEmpty())
-            throw new OrderNotFoundException();
-        return OrderHeaderResponse.map(result.get());
+        OrderHeader orderHeader = orderHeaderRepository
+                .findById(orderId)
+                .orElseThrow(OrderNotFoundException::new);
+        return OrderHeaderResponse.map(orderHeader);
     }
 }
