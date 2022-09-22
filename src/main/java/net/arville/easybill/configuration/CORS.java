@@ -17,44 +17,45 @@ public class CORS {
 
         corsConfiguration.setAllowedOrigins(
                 List.of(
-                    "http://10.20.158.12:4200",
-                    "http://localhost:4200"
+                        "http://10.20.158.12:4200",
+                        "http://192.168.100.96:4200",
+                        "http://localhost:4200"
                 )
         );
 
         corsConfiguration.setAllowedHeaders(
                 List.of(
-                    "Origin",
-                    "Access-Control-Allow-Origin",
-                    "Content-Type",
-                    "Accept",
-                    "Authorization",
-                    "Origin, Accept",
-                    "X-Requested-With",
-                    "Access-Control-Request-Method",
-                    "Access-Control-Request-Headers"
+                        "Origin",
+                        "Access-Control-Allow-Origin",
+                        "Content-Type",
+                        "Accept",
+                        "Authorization",
+                        "Origin, Accept",
+                        "X-Requested-With",
+                        "Access-Control-Request-Method",
+                        "Access-Control-Request-Headers"
                 )
         );
 
         corsConfiguration.setExposedHeaders(
                 List.of(
-                    "Origin",
-                    "Content-Type",
-                    "Accept",
-                    "Authorization",
-                    "Access-Control-Allow-Origin",
-                    "Access-Control-Allow-Origin",
-                    "Access-Control-Allow-Credentials"
+                        "Origin",
+                        "Content-Type",
+                        "Accept",
+                        "Authorization",
+                        "Access-Control-Allow-Origin",
+                        "Access-Control-Allow-Origin",
+                        "Access-Control-Allow-Credentials"
                 )
         );
 
         corsConfiguration.setAllowedMethods(
                 List.of(
-                    "GET",
-                    "POST",
-                    "PUT",
-                    "DELETE",
-                    "OPTIONS"
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "OPTIONS"
                 )
         );
 
