@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class UserManagerImpl implements UserManager {
 
-    private UserRepository userRepository;
-    private OrderHeaderRepository orderHeaderRepository;
+    private final UserRepository userRepository;
+    private final OrderHeaderRepository orderHeaderRepository;
 
     public UserResponse getUserRelevantOrder(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));

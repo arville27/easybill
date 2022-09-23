@@ -2,6 +2,7 @@ package net.arville.easybill.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class Bill {
     @Id
     @SequenceGenerator(name = "bill_id_seq", sequenceName = "bill_id_seq", allocationSize = 1)
@@ -31,7 +33,7 @@ public class Bill {
     private User owe;
 
     @Column(name = "owe_total")
-    private BigDecimal oweTotal;
+    private BigDecimal oweTotal = new BigDecimal(0);
 
     @CreationTimestamp
     @Column(name = "created_at")
@@ -42,4 +44,22 @@ public class Bill {
     @Column(name = "updated_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+
+    public Bill addOweTotal(Long amount) {
+        return addOweTotal(BigDecimal.valueOf(amount));
+    }
+
+    public Bill addOweTotal(BigDecimal amount) {
+        this.oweTotal = this.oweTotal.add(amount);
+        return this;
+    }
+
+    public Bill decreaseOweTotal(Long amount) {
+        return decreaseOweTotal(BigDecimal.valueOf(amount));
+    }
+
+    public Bill decreaseOweTotal(BigDecimal amount) {
+        this.oweTotal = this.oweTotal.min(amount);
+        return this;
+    }
 }

@@ -12,6 +12,7 @@ import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
+import net.arville.easybill.service.manager.BillManager;
 import net.arville.easybill.service.manager.OrderManager;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +22,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class OrderManagerImpl implements OrderManager {
 
-    private OrderHeaderRepository orderHeaderRepository;
-    private UserRepository userRepository;
+    private final OrderHeaderRepository orderHeaderRepository;
+    private final UserRepository userRepository;
+    private final BillManager billManager;
 
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
 
@@ -53,7 +55,12 @@ public class OrderManagerImpl implements OrderManager {
         orderHeader.setUser(user);
         user.getOrderList().add(orderHeader);
 
-        return OrderHeaderResponse.customMap(orderHeaderRepository.save(orderHeader),
+        var savedOrderHeader = orderHeaderRepository.save(orderHeader);
+
+        // This will process order and generate bill accordingly
+        billManager.generateBillsFromOrderHeader(orderHeader);
+
+        return OrderHeaderResponse.customMap(savedOrderHeader,
                 (entityBuilder, entity) ->
                         entityBuilder
                                 .id(entity.getId())
