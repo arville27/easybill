@@ -39,6 +39,15 @@ public class OrderHeader {
     @Column(nullable = false)
     private Double discount;
 
+    @Column(name = "total_order_amount")
+    private BigDecimal totalOrderAmount;
+
+    @Column(name = "other_fee")
+    private BigDecimal otherFee;
+
+    @Column(name = "discount_amount")
+    private BigDecimal discountAmount;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
     private List<OrderDetail> orderDetailList;

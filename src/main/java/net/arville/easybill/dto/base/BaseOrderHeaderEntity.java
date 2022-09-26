@@ -1,7 +1,6 @@
 package net.arville.easybill.dto.base;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +27,12 @@ public abstract class BaseOrderHeaderEntity {
     private BigDecimal upto;
 
     private Double discount;
+
+    private BigDecimal totalOrderAmount;
+
+    private BigDecimal otherFee;
+
+    private BigDecimal discountAmount;
 
     private List<OrderDetail> orderDetailList;
 

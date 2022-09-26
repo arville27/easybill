@@ -59,6 +59,11 @@ public class BillManagerImpl implements BillManager {
 
         BigDecimal othersFee = totalPayment.add(discountAmount).subtract(totalOrderAmount);
 
+        // Fill missing attribute in order header model
+        orderHeader.setTotalOrderAmount(totalOrderAmount);
+        orderHeader.setDiscountAmount(discountAmount);
+        orderHeader.setOtherFee(othersFee);
+
         Map<Long, Bill> billMap = new HashMap<>();
 
         AtomicBoolean isBuyerIncluded = new AtomicBoolean(false);
