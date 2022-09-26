@@ -11,6 +11,11 @@ import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
 import net.arville.easybill.service.manager.UserManager;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +23,11 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class UserManagerImpl implements UserManager {
+public class UserManagerImpl implements UserManager, UserDetailsService {
 
     private final UserRepository userRepository;
     private final OrderHeaderRepository orderHeaderRepository;
+    private final PasswordEncoder encoder;
 
     public UserResponse getUserRelevantOrder(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
@@ -52,7 +58,7 @@ public class UserManagerImpl implements UserManager {
         }
 
         User newUser = request.toOriginalEntity();
-//        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        newUser.setPassword(encoder.encode(newUser.getPassword()));
 
         userRepository.save(newUser);
 
@@ -64,5 +70,15 @@ public class UserManagerImpl implements UserManager {
                 .stream()
                 .map(UserResponse::map)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                List.of(new SimpleGrantedAuthority("USER"))
+        );
     }
 }
