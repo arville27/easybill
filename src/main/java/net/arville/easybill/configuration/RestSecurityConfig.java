@@ -4,6 +4,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import lombok.AllArgsConstructor;
 import net.arville.easybill.filter.JWTAuthenticationFilter;
 import net.arville.easybill.filter.JWTAuthorizationFilter;
+import net.arville.easybill.service.implementation.UserManagerImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -13,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -31,7 +31,7 @@ import static net.arville.easybill.constant.EasybillConstants.AUTH_PATH;
 public class RestSecurityConfig {
     private final Jackson2ObjectMapperBuilder mapperBuilder;
     private final Algorithm algorithm;
-    private final UserDetailsService userDetailsService;
+    private final UserManagerImpl userDetailsService;
     private final PasswordEncoder encoder;
     private final JWTAuthorizationFilter authorizationFilter;
 
@@ -91,7 +91,7 @@ public class RestSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authManager) throws Exception {
-        var authFilter = new JWTAuthenticationFilter(authManager, mapperBuilder, algorithm);
+        var authFilter = new JWTAuthenticationFilter(authManager, mapperBuilder, algorithm, userDetailsService);
         authFilter.setFilterProcessesUrl(AUTH_PATH);
 
         http

@@ -4,10 +4,12 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.request.UserLoginRequest;
+import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
+import net.arville.easybill.service.manager.UserManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -34,22 +35,36 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final AuthenticationManager authenticationManager;
     private final Jackson2ObjectMapperBuilder mapperBuilder;
     private final Algorithm algorithm;
+    private final UserManager userManager;
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
-        User user = (User) authResult.getPrincipal();
+        User userPrincipal = (User) authResult.getPrincipal();
+
+        var user = userManager.getUserByUser(userPrincipal.getUsername());
+
         String accessToken = JWT.create()
+                .withClaim("user_id", user.getId())
                 .withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000))
                 .withIssuer(request.getRequestURL().toString())
-                .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .withClaim(
+                        "roles",
+                        userPrincipal
+                                .getAuthorities()
+                                .stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .collect(Collectors.toList())
+                )
                 .sign(algorithm);
 
+        var tokenResponse = UserResponse.mapWithoutDate(user);
+        tokenResponse.setAccessToken(accessToken);
         ResponseStructure body = createResponseBody(
                 response,
                 ResponseStatus.SUCCESS,
                 HttpStatus.OK,
-                Map.of("access_token", accessToken)
+                tokenResponse
         );
         mapperBuilder.build().writeValue(response.getWriter(), body);
     }

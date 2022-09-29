@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.AllArgsConstructor;
+import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +35,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     private final Jackson2ObjectMapperBuilder mapper;
     private final Algorithm algorithm;
+    private final AuthenticatedUser authenticatedUser;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -56,6 +58,9 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                         .collect(Collectors.toList());
 
                 var authToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
+                
+                authenticatedUser.setUserId(decodedJWT.getClaim("user_id").asLong());
+                authenticatedUser.setUsername(decodedJWT.getSubject());
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } catch (JWTVerificationException e) {
                 var body = createResponseBody(

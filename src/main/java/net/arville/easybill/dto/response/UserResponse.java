@@ -26,6 +26,8 @@ public class UserResponse extends BaseUserEntity {
     @JsonProperty("user_bills")
     private List<BillResponse> billResponseList;
 
+    private String accessToken;
+
     public static UserResponse map(User entity) {
         return UserResponse.builder()
                 .id(entity.getId())
@@ -50,9 +52,10 @@ public class UserResponse extends BaseUserEntity {
     }
 
     @Builder
-    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, List<Bill> billList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, List<BillResponse> billResponseList) {
+    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, List<Bill> billList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, List<BillResponse> billResponseList, String accessToken) {
         super(id, username, password, orderList, orderDetailList, billList, createdAt, updatedAt);
         this.orderHeaderResponseList = orderHeaderResponseList;
         this.billResponseList = billResponseList;
+        this.accessToken = accessToken;
     }
 }
