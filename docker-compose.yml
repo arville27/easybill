@@ -1,14 +1,29 @@
 version: "3"
 
 services:
-  easybill:
+  db:
+    container_name: postgresql
+    image: postgres:14.5-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: easybill
+
+  app:
     container_name: easybill
-    build: .
-    image: daniel-easybill:latest
+    build:
+      context: .
+      args:
+        - "JAR_FILE=easybill-0.0.1-SNAPSHOT.jar"
+    image: arville27/easybill:dev
+    depends_on:
+      - db
     ports:
       - "8080:8080"
     environment:
-      - "SPRING_ACTIVE_PROFILES=ocp"
-      - "DB_USER=${DB_USER}"
-      - "DB_PASS=${DB_PASS}"
-      - "JDBC_URL=${JDBC_URL}"
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: db
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      JWT_SECRET: ${JWT_SECRET}
