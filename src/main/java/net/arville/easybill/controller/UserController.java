@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
+import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
 import net.arville.easybill.service.manager.UserManager;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserManager userManager;
+    private final AuthenticatedUser authenticatedUser;
 
     @GetMapping
     public ResponseEntity<ResponseStructure> getAllUser() {
@@ -34,12 +36,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    @GetMapping("/{userId}/relevant-orders")
-    public ResponseEntity<ResponseStructure> getUser(@PathVariable Long userId) {
+    @GetMapping("/relevant-orders")
+    public ResponseEntity<ResponseStructure> getUser() {
         ResponseStructure body;
 
         try {
-            var user = userManager.getUserRelevantOrder(userId);
+            var user = userManager.getUserRelevantOrder(authenticatedUser.getUserId());
             body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
         } catch (UserNotFoundException e) {
             body = ResponseStatus.USER_NOT_FOUND.GenerateGeneralBody(null, e.getMessage());
