@@ -39,6 +39,9 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
                 .discount(entity.getDiscount())
                 .orderDescription(entity.getOrderDescription())
                 .totalPayment(entity.getTotalPayment())
+                .totalOrderAmount(entity.getTotalOrderAmount())
+                .discountAmount(entity.getDiscountAmount())
+                .otherFee(entity.getOtherFee())
                 .orderAt(entity.getOrderAt())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -55,6 +58,9 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
                 .orderDescription(entity.getOrderDescription())
                 .totalPayment(entity.getTotalPayment())
                 .orderAt(entity.getOrderAt())
+                .totalOrderAmount(entity.getTotalOrderAmount())
+                .discountAmount(entity.getDiscountAmount())
+                .otherFee(entity.getOtherFee())
                 .build();
     }
 
@@ -66,8 +72,9 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
     }
 
     @Builder
-    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User user, BigDecimal upto, Double discount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses) {
-        super(id, orderDescription, totalPayment, user, upto, discount, orderDetailList, orderAt, createdAt, updatedAt);
+
+    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User user, BigDecimal upto, Double discount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses) {
+        super(id, orderDescription, totalPayment, user, upto, discount, totalOrderAmount, otherFee, discountAmount, orderDetailList, orderAt, createdAt, updatedAt);
         this.userResponse = userResponse;
         this.buyerId = buyerId;
         this.orderDetailResponses = orderDetailResponses;
