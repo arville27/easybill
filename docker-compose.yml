@@ -12,10 +12,7 @@ services:
 
   app:
     container_name: easybill
-    build:
-      context: .
-      args:
-        - "JAR_FILE=easybill-0.0.1-SNAPSHOT.jar"
+    build: .
     image: arville27/easybill:dev
     depends_on:
       - db

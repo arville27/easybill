@@ -7,7 +7,4 @@
 ### Prerequisite
 
 - Java JDK 11
-
-### Starting local dev server
-
-Todo :)
+- Docker and docker compose plugin (for running dev build in container)
