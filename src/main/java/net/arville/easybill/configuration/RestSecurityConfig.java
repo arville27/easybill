@@ -1,22 +1,20 @@
 package net.arville.easybill.configuration;
 
-import com.auth0.jwt.algorithms.Algorithm;
 import lombok.AllArgsConstructor;
 import net.arville.easybill.filter.ExceptionHandlerFilter;
-import net.arville.easybill.filter.JWTAuthenticationFilter;
 import net.arville.easybill.filter.JWTAuthorizationFilter;
-import net.arville.easybill.service.implementation.UserManagerImpl;
+import net.arville.easybill.service.implementation.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -33,10 +31,7 @@ import static net.arville.easybill.constant.EasybillConstants.AUTH_PATH;
 @EnableWebSecurity
 @AllArgsConstructor
 public class RestSecurityConfig {
-    private final Jackson2ObjectMapperBuilder mapperBuilder;
-    private final Algorithm algorithm;
-    private final UserManagerImpl userDetailsService;
-    private final PasswordEncoder encoder;
+    private final CustomUserDetailsService userDetailsService;
     private final JWTAuthorizationFilter authorizationFilter;
     private final ExceptionHandlerFilter exceptionHandlerFilter;
 
@@ -94,36 +89,36 @@ public class RestSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            AuthenticationManager authManager,
-            CorsConfigurationSource corsFilter
-    ) throws Exception {
-        var authFilter = new JWTAuthenticationFilter(authManager, mapperBuilder, algorithm, userDetailsService);
-        authFilter.setFilterProcessesUrl(AUTH_PATH);
-
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsFilter) throws Exception {
         http
                 .cors(httpSecurityCorsConfigurer ->
                         httpSecurityCorsConfigurer.configurationSource(corsFilter)
                 )
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
                         httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((requests) -> requests.anyRequest().authenticated())
+                .authorizeHttpRequests((requests) ->
+                        requests.antMatchers(AUTH_PATH).permitAll().anyRequest().authenticated()
+                )
                 .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
-                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilter(authFilter);
+                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManagerBean(HttpSecurity http, PasswordEncoder encoder) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
                 .userDetailsService(userDetailsService)
                 .passwordEncoder(encoder);
         return authenticationManagerBuilder.build();
     }
+
 }

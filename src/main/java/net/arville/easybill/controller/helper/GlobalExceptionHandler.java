@@ -2,10 +2,7 @@ package net.arville.easybill.controller.helper;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import net.arville.easybill.exception.MissingRequiredPropertiesException;
-import net.arville.easybill.exception.OrderNotFoundException;
-import net.arville.easybill.exception.UserNotFoundException;
-import net.arville.easybill.exception.UsernameAlreadyExists;
+import net.arville.easybill.exception.*;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
 import org.springframework.http.HttpStatus;
@@ -44,11 +41,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ResponseStructure> invalidCredentialsException(InvalidCredentialsException e) {
+        var body = ResponseStatus.INVALID_CREDENTIALS.GenerateGeneralBody(null);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
     // Filter exception
     @ExceptionHandler(JWTVerificationException.class)
     public ResponseEntity<ResponseStructure> jwtVerificationException(JWTVerificationException e) {
         var body = ResponseStatus.JWT_VERIFICATION_ERROR.GenerateGeneralBody(null, e.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+
+    @ExceptionHandler(UnauthorizedRequestException.class)
+    public ResponseEntity<ResponseStructure> unauthorizedRequestException(UnauthorizedRequestException e) {
+        var body = ResponseStatus.UNAUTHORIZED.GenerateGeneralBody(null);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
     // General exception

@@ -18,7 +18,8 @@ public enum ResponseStatus {
     USERNAME_ALREADY_EXISTS("USERNAME_ALREADY_EXISTS", "Username is already exists"),
     MISSING_REQUIRED_FIELDS("BAD REQUEST", "Please verify all required fields is present"),
     UNKNOWN_ERROR("SERVER_ERROR", "Internal server error, please try again later"),
-    METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED", "Method not allowed");
+    METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED", "Method not allowed"),
+    INVALID_CREDENTIALS("INVALID_CREDENTIALS", "Please verify provided credentials are valid");
 
     private final String code;
     private final String message;

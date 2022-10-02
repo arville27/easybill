@@ -10,7 +10,6 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 public class UserLoginRequest implements EnsureRequiredFields {
-
     private String username;
     private String password;
 
