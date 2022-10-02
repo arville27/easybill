@@ -3,6 +3,7 @@ package net.arville.easybill.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import net.arville.easybill.dto.request.UserLoginRequest;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
@@ -80,64 +81,40 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         mapperBuilder.build().writeValue(response.getWriter(), body);
     }
 
+    @SneakyThrows
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        try {
-            UserLoginRequest authRequest;
-            try {
-                authRequest = mapperBuilder.build().readValue(request.getInputStream(), UserLoginRequest.class);
-            } catch (IOException e) {
-                var body = createResponseBody(
-                        response,
-                        ResponseStatus.PARSE_ERROR,
-                        HttpStatus.BAD_REQUEST,
-                        null
-                );
-                mapperBuilder.build().writeValue(response.getWriter(), body);
-                return null;
-            }
+        UserLoginRequest authRequest = mapperBuilder.build().readValue(request.getInputStream(), UserLoginRequest.class);
 
-            var missingProperties = authRequest.getMissingProperties();
+        var missingProperties = authRequest.getMissingProperties();
 
-            if (missingProperties.size() > 0) {
-                var body = createResponseBody(
-                        response,
-                        ResponseStatus.MISSING_REQUIRED_FIELDS,
-                        HttpStatus.BAD_REQUEST,
-                        null,
-                        (new MissingRequiredPropertiesException(missingProperties)).getMessage()
-                );
-                mapperBuilder.build().writeValue(response.getWriter(), body);
-                return null;
-            }
-
-            var authToken = new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword());
-
-            Authentication auth = null;
-
-            // UserNotFoundException can only be caught in the attempt authentication method, otherwise it will output the stacktrace to stdout
-            try {
-                auth = authenticationManager.authenticate(authToken);
-            } catch (AuthenticationException e) {
-                if (e.getCause() instanceof UserNotFoundException) {
-                    var body = createResponseBody(
-                            response,
-                            ResponseStatus.USER_NOT_FOUND,
-                            HttpStatus.NOT_FOUND,
-                            null,
-                            e.getMessage()
-                    );
-                    mapperBuilder.build().writeValue(response.getWriter(), body);
-                } else {
-                    throw e;
-                }
-            }
-
-            return auth;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+        if (missingProperties.size() > 0) {
+            throw new MissingRequiredPropertiesException(missingProperties);
         }
+
+        var authToken = new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword());
+
+        Authentication auth = null;
+
+        // UserNotFoundException can only be caught in the attempt authentication method, otherwise it will output the stacktrace to stdout
+        try {
+            auth = authenticationManager.authenticate(authToken);
+        } catch (AuthenticationException e) {
+            if (e.getCause() instanceof UserNotFoundException) {
+                var body = createResponseBody(
+                        response,
+                        ResponseStatus.USER_NOT_FOUND,
+                        HttpStatus.NOT_FOUND,
+                        null,
+                        e.getMessage()
+                );
+                mapperBuilder.build().writeValue(response.getWriter(), body);
+            } else {
+                throw e;
+            }
+        }
+
+        return auth;
     }
 
     private ResponseStructure createResponseBody(HttpServletResponse response, ResponseStatus status, HttpStatus statusCode, Object data) {

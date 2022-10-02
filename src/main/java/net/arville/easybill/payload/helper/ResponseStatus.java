@@ -13,10 +13,12 @@ public enum ResponseStatus {
     USER_NOT_FOUND("USER_NOT_FOUND", "User is doesn't exists"),
     PARSE_ERROR("PARSE_ERROR", "Please check if request contain a valid body"),
     UNAUTHORIZED("UNAUTHORIZED", "Unauthorized access"),
+    JWT_VERIFICATION_ERROR("JWT_VERIFICATION_ERROR", "Error occur on JWT verification process"),
     ORDER_NOT_FOUND("ORDER_NOT_FOUND", "Order is doesn't exists"),
     USERNAME_ALREADY_EXISTS("USERNAME_ALREADY_EXISTS", "Username is already exists"),
     MISSING_REQUIRED_FIELDS("BAD REQUEST", "Please verify all required fields is present"),
-    UNKNOWN_ERROR("SERVER_ERROR", "Internal server error, please try again later");
+    UNKNOWN_ERROR("SERVER_ERROR", "Internal server error, please try again later"),
+    METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED", "Method not allowed");
 
     private final String code;
     private final String message;

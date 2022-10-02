@@ -3,7 +3,6 @@ package net.arville.easybill.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.AllArgsConstructor;
 import net.arville.easybill.helper.AuthenticatedUser;
@@ -46,43 +45,21 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            try {
-                String accessToken = authorizationHeader.substring("Bearer ".length());
-                JWTVerifier jwtVerifier = JWT.require(algorithm).build();
-                DecodedJWT decodedJWT = jwtVerifier.verify(accessToken);
+            String accessToken = authorizationHeader.substring("Bearer ".length());
+            JWTVerifier jwtVerifier = JWT.require(algorithm).build();
+            DecodedJWT decodedJWT = jwtVerifier.verify(accessToken);
 
-                String username = decodedJWT.getSubject();
-                List<GrantedAuthority> authorities = decodedJWT.getClaim("roles")
-                        .asList(String.class).stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+            String username = decodedJWT.getSubject();
+            List<GrantedAuthority> authorities = decodedJWT.getClaim("roles")
+                    .asList(String.class).stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
 
-                var authToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
-                
-                authenticatedUser.setUserId(decodedJWT.getClaim("user_id").asLong());
-                authenticatedUser.setUsername(decodedJWT.getSubject());
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            } catch (JWTVerificationException e) {
-                var body = createResponseBody(
-                        response,
-                        ResponseStatus.UNAUTHORIZED,
-                        HttpStatus.UNAUTHORIZED,
-                        null,
-                        e.getMessage()
-                );
-                mapper.build().writeValue(response.getWriter(), body);
-                return;
-            } catch (Exception e) {
-                e.printStackTrace();
-                var body = createResponseBody(
-                        response,
-                        ResponseStatus.UNKNOWN_ERROR,
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        null
-                );
-                mapper.build().writeValue(response.getWriter(), body);
-                return;
-            }
+            var authToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
+
+            authenticatedUser.setUserId(decodedJWT.getClaim("user_id").asLong());
+            authenticatedUser.setUsername(decodedJWT.getSubject());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
         } else {
             var body = createResponseBody(
                     response,
