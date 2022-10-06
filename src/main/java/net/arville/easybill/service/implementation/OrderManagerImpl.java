@@ -6,14 +6,13 @@ import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.request.AddOrderRequest;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.OrderNotFoundException;
-import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
-import net.arville.easybill.repository.UserRepository;
 import net.arville.easybill.service.manager.BillManager;
 import net.arville.easybill.service.manager.OrderManager;
+import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 public class OrderManagerImpl implements OrderManager {
 
     private final OrderHeaderRepository orderHeaderRepository;
-    private final UserRepository userRepository;
+    private final UserManager userManager;
     private final BillManager billManager;
 
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
@@ -34,18 +33,14 @@ public class OrderManagerImpl implements OrderManager {
             throw new MissingRequiredPropertiesException(missingProperties);
         }
 
-        User user = userRepository
-                .findById(addOrderRequest.getBuyerId())
-                .orElseThrow(() -> new UserNotFoundException(addOrderRequest.getBuyerId()));
+        User user = userManager.getUserByUserId(addOrderRequest.getBuyerId());
 
         OrderHeader orderHeader = addOrderRequest.toOriginalEntity();
         orderHeader.setOrderDetailList(
                 addOrderRequest.getOrderList()
                         .stream()
                         .map(orderDetailRequest -> {
-                            User orderBy = userRepository
-                                    .findById(orderDetailRequest.getUserId())
-                                    .orElseThrow(() -> new UserNotFoundException(addOrderRequest.getBuyerId()));
+                            User orderBy = userManager.getUserByUserId(orderDetailRequest.getUserId());
                             OrderDetail orderDetail = orderDetailRequest.toOriginalEntity();
                             orderDetail.setUser(orderBy);
                             return orderDetail;
@@ -60,32 +55,19 @@ public class OrderManagerImpl implements OrderManager {
         // This will process order and generate bill accordingly
         billManager.generateBillsFromOrderHeader(orderHeader);
 
-        return OrderHeaderResponse.customMap(savedOrderHeader,
-                (entityBuilder, entity) ->
-                        entityBuilder
-                                .id(entity.getId())
-                                .buyerId(entity.getUser().getId())
-                                .orderDetailResponses(entity
-                                        .getOrderDetailList().stream()
-                                        .map(OrderDetailResponse::map)
-                                        .peek(orderDetailResponse -> {
-                                            orderDetailResponse.setUserId(orderDetailResponse.getUserData().getId());
-                                            orderDetailResponse.setUserData(null);
-                                        })
-                                        .collect(Collectors.toList())
-                                )
-                                .upto(entity.getUpto())
-                                .discount(entity.getDiscount())
-                                .totalOrderAmount(entity.getTotalOrderAmount())
-                                .discountAmount(entity.getDiscountAmount())
-                                .otherFee(entity.getOtherFee())
-                                .orderDescription(entity.getOrderDescription())
-                                .totalPayment(entity.getTotalPayment())
-                                .orderAt(entity.getOrderAt())
-                                .createdAt(entity.getCreatedAt())
-                                .updatedAt(entity.getUpdatedAt())
-                                .build()
-        );
+        return OrderHeaderResponse
+                .template(savedOrderHeader)
+                .buyerId(savedOrderHeader.getUser().getId())
+                .orderDetailResponses(savedOrderHeader
+                        .getOrderDetailList().stream()
+                        .map(OrderDetailResponse::map)
+                        .peek(orderDetailResponse -> {
+                            orderDetailResponse.setUserId(orderDetailResponse.getUserData().getId());
+                            orderDetailResponse.setUserData(null);
+                        })
+                        .collect(Collectors.toList())
+                )
+                .build();
     }
 
     public OrderHeaderResponse getOrderById(Long orderId) {

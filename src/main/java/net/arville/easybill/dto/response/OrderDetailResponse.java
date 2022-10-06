@@ -23,13 +23,17 @@ public class OrderDetailResponse extends BaseOrderDetailEntity {
 
     private Long userId;
 
-    public static OrderDetailResponse map(OrderDetail entity) {
+    public static OrderDetailResponse.OrderDetailResponseBuilder template(OrderDetail entity) {
         return OrderDetailResponse.builder()
                 .id(entity.getId())
-                .userData(UserResponse.mapWithoutDate(entity.getUser()))
                 .orderMenuDesc(entity.getOrderMenuDesc())
                 .price(entity.getPrice())
-                .qty(entity.getQty())
+                .qty(entity.getQty());
+    }
+
+    public static OrderDetailResponse map(OrderDetail entity) {
+        return OrderDetailResponse.template(entity)
+                .userData(UserResponse.mapWithoutDate(entity.getUser()))
                 .build();
     }
 

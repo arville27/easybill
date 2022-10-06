@@ -3,14 +3,13 @@ package net.arville.easybill.service.implementation;
 import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.response.BillResponse;
 import net.arville.easybill.dto.response.UserResponse;
-import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.model.Bill;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.BillRepository;
-import net.arville.easybill.repository.UserRepository;
 import net.arville.easybill.service.manager.BillManager;
+import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,11 +25,11 @@ import java.util.stream.Collectors;
 public class BillManagerImpl implements BillManager {
 
     private final BillRepository billRepository;
-    private final UserRepository userRepository;
+    private final UserManager userManager;
 
     public UserResponse getAllBills(Long userId) {
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        User user = userManager.getUserByUserId(userId);
 
         List<BillResponse> usersBill = billRepository.findAllUserBills(userId).stream()
                 .map(BillResponse::map)

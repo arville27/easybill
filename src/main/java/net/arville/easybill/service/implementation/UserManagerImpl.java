@@ -25,7 +25,7 @@ public class UserManagerImpl implements UserManager {
     private final PasswordEncoder encoder;
 
     public UserResponse getUserRelevantOrder(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        User user = this.getUserByUserId(userId);
 
         var relevantOrderList = orderHeaderRepository
                 .findRelevantOrderHeaderForUser(user.getId());
@@ -42,6 +42,10 @@ public class UserManagerImpl implements UserManager {
 
     public User getUserByUser(String username) {
         return userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+    }
+
+    public User getUserByUserId(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     public UserResponse addNewUser(UserRegistrationRequest request) {

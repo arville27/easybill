@@ -6,10 +6,9 @@ import net.arville.easybill.dto.request.UserLoginRequest;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.InvalidCredentialsException;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
-import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.helper.JwtUtils;
-import net.arville.easybill.repository.UserRepository;
 import net.arville.easybill.service.manager.AuthManager;
+import net.arville.easybill.service.manager.UserManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Data
 @Service
 public class AuthManagerImpl implements AuthManager {
-    private final UserRepository userRepository;
+    private final UserManager userManager;
     private final org.springframework.security.authentication.AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
@@ -31,9 +30,7 @@ public class AuthManagerImpl implements AuthManager {
         }
 
         // TODO: Optimize login query, with current setup, this service and custom user details service will perform same query.
-        var user = userRepository
-                .findUserByUsername(authRequest.getUsername())
-                .orElseThrow(() -> new UserNotFoundException(authRequest.getUsername()));
+        var user = userManager.getUserByUser(authRequest.getUsername());
 
         var authToken = new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword());
 

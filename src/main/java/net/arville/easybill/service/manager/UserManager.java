@@ -14,4 +14,6 @@ public interface UserManager {
     List<UserResponse> getAllUser();
 
     User getUserByUser(String username);
+
+    User getUserByUserId(Long userId);
 }

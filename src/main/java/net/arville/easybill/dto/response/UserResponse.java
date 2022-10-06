@@ -28,20 +28,21 @@ public class UserResponse extends BaseUserEntity {
 
     private String accessToken;
 
-    public static UserResponse map(User entity) {
+    public static UserResponse.UserResponseBuilder template(User entity) {
         return UserResponse.builder()
                 .id(entity.getId())
-                .username(entity.getUsername())
+                .username(entity.getUsername());
+    }
+
+    public static UserResponse map(User entity) {
+        return UserResponse.template(entity)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
     public static UserResponse mapWithoutDate(User entity) {
-        return UserResponse.builder()
-                .id(entity.getId())
-                .username(entity.getUsername())
-                .build();
+        return UserResponse.template(entity).build();
     }
 
     public static UserResponse customMap(

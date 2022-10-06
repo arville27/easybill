@@ -26,24 +26,23 @@ public class BillResponse extends BaseBillEntity {
     @JsonProperty("owe")
     private UserResponse oweUser;
 
-    public static BillResponse map(Bill entity) {
+    public static BillResponse.BillResponseBuilder template(Bill entity) {
         return BillResponse.builder()
                 .id(entity.getId())
                 .userData(UserResponse.mapWithoutDate(entity.getUser()))
                 .oweUser(UserResponse.mapWithoutDate(entity.getOwe()))
-                .oweTotal(entity.getOweTotal())
+                .oweTotal(entity.getOweTotal());
+    }
+
+    public static BillResponse map(Bill entity) {
+        return BillResponse.template(entity)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
     public static BillResponse mapWithoutDate(Bill entity) {
-        return BillResponse.builder()
-                .id(entity.getId())
-                .userData(UserResponse.mapWithoutDate(entity.getUser()))
-                .oweUser(UserResponse.mapWithoutDate(entity.getOwe()))
-                .oweTotal(entity.getOweTotal())
-                .build();
+        return BillResponse.template(entity).build();
     }
 
     public static BillResponse customMap(

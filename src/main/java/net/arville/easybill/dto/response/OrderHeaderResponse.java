@@ -25,16 +25,13 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
 
     @JsonProperty("user")
     private UserResponse userResponse;
-
     private Long buyerId;
     @JsonProperty("order_list")
     private List<OrderDetailResponse> orderDetailResponses;
 
-    public static OrderHeaderResponse map(OrderHeader entity) {
+    public static OrderHeaderResponse.OrderHeaderResponseBuilder template(OrderHeader entity) {
         return OrderHeaderResponse.builder()
                 .id(entity.getId())
-                .userResponse(UserResponse.mapWithoutDate(entity.getUser()))
-                .orderDetailResponses(entity.getOrderDetailList().stream().map(OrderDetailResponse::map).collect(Collectors.toList()))
                 .upto(entity.getUpto())
                 .discount(entity.getDiscount())
                 .orderDescription(entity.getOrderDescription())
@@ -42,25 +39,22 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
                 .totalOrderAmount(entity.getTotalOrderAmount())
                 .discountAmount(entity.getDiscountAmount())
                 .otherFee(entity.getOtherFee())
-                .orderAt(entity.getOrderAt())
+                .orderAt(entity.getOrderAt());
+    }
+
+    public static OrderHeaderResponse map(OrderHeader entity) {
+        return OrderHeaderResponse.template(entity)
+                .userResponse(UserResponse.mapWithoutDate(entity.getUser()))
+                .orderDetailResponses(entity.getOrderDetailList().stream().map(OrderDetailResponse::map).collect(Collectors.toList()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
     public static OrderHeaderResponse mapWithoutDate(OrderHeader entity) {
-        return OrderHeaderResponse.builder()
-                .id(entity.getId())
+        return OrderHeaderResponse.template(entity)
                 .userResponse(UserResponse.mapWithoutDate(entity.getUser()))
                 .orderDetailResponses(entity.getOrderDetailList().stream().map(OrderDetailResponse::map).collect(Collectors.toList()))
-                .upto(entity.getUpto())
-                .discount(entity.getDiscount())
-                .orderDescription(entity.getOrderDescription())
-                .totalPayment(entity.getTotalPayment())
-                .orderAt(entity.getOrderAt())
-                .totalOrderAmount(entity.getTotalOrderAmount())
-                .discountAmount(entity.getDiscountAmount())
-                .otherFee(entity.getOtherFee())
                 .build();
     }
 
