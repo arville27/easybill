@@ -98,11 +98,10 @@ public class RestSecurityConfig {
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
                         httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests((requests) ->
-                        requests.antMatchers(AUTH_PATH).permitAll().anyRequest().authenticated()
-                )
                 .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
-                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(requests -> requests.antMatchers(AUTH_PATH, "/api/docs/**", "/swagger-ui/**").permitAll())
+                .authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
 
         return http.build();
     }

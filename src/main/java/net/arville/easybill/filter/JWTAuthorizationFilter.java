@@ -27,12 +27,15 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().equals(AUTH_PATH)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI().toLowerCase();
+        return path.startsWith("/swagger-ui")
+                || path.startsWith("/api/docs")
+                || path.equalsIgnoreCase(AUTH_PATH);
+    }
 
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer "))
             throw new UnauthorizedRequestException();

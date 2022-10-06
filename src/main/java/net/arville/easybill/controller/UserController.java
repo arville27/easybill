@@ -1,5 +1,7 @@
 package net.arville.easybill.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.helper.AuthenticatedUser;
@@ -7,11 +9,14 @@ import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping(path = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "User", description = "User resource")
+@SecurityRequirement(name = "Access Token")
 @AllArgsConstructor
 public class UserController {
     private final UserManager userManager;

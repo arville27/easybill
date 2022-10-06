@@ -16,8 +16,8 @@
 
     <properties>
         <java.version>11</java.version>
-        <dockerfile-maven-version>1.4.13</dockerfile-maven-version>
         <auth0-jwt-version>4.0.0</auth0-jwt-version>
+        <openapi-ui-version>1.6.11</openapi-ui-version>
     </properties>
 
     <dependencies>
@@ -55,6 +55,18 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>${openapi-ui-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-security</artifactId>
+            <version>${openapi-ui-version}</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -76,7 +88,7 @@
                     </excludes>
                 </configuration>
             </plugin>
-            
+
         </plugins>
     </build>
 

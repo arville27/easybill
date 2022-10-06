@@ -1,16 +1,21 @@
 package net.arville.easybill.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.request.AddOrderRequest;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
 import net.arville.easybill.service.manager.OrderManager;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping(path = "/api/orders", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "User's orders", description = "User order related resource")
+@SecurityRequirement(name = "Access Token")
 @AllArgsConstructor
 public class OrderController {
     private final OrderManager orderManager;
