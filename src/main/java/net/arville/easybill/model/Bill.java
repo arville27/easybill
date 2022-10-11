@@ -24,14 +24,13 @@ public class Bill {
     @GeneratedValue(generator = "bill_id_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "owe_to", referencedColumnName = "id")
     private User owe;
-
     @Column(name = "owe_total")
     private BigDecimal oweTotal = new BigDecimal(0);
 

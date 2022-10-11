@@ -25,7 +25,9 @@ public class OrderDetail {
 
     private Integer qty;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    private BigDecimal itemDiscount;
+
+    @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 }
