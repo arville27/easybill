@@ -33,6 +33,7 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
         return OrderHeaderResponse.builder()
                 .id(entity.getId())
                 .upto(entity.getUpto())
+                .participatingUserCount(entity.getParticipatingUserCount())
                 .discount(entity.getDiscount())
                 .orderDescription(entity.getOrderDescription())
                 .totalPayment(entity.getTotalPayment())
@@ -67,8 +68,8 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
 
     @Builder
 
-    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User user, BigDecimal upto, Double discount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses) {
-        super(id, orderDescription, totalPayment, user, upto, discount, totalOrderAmount, otherFee, discountAmount, orderDetailList, orderAt, createdAt, updatedAt);
+    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User user, BigDecimal upto, Double discount, Integer participatingUserCount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses) {
+        super(id, orderDescription, totalPayment, user, upto, discount, participatingUserCount, totalOrderAmount, otherFee, discountAmount, orderDetailList, orderAt, createdAt, updatedAt);
         this.userResponse = userResponse;
         this.buyerId = buyerId;
         this.orderDetailResponses = orderDetailResponses;

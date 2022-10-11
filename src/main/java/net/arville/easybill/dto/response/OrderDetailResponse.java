@@ -26,6 +26,7 @@ public class OrderDetailResponse extends BaseOrderDetailEntity {
     public static OrderDetailResponse.OrderDetailResponseBuilder template(OrderDetail entity) {
         return OrderDetailResponse.builder()
                 .id(entity.getId())
+                .itemDiscount(entity.getItemDiscount())
                 .orderMenuDesc(entity.getOrderMenuDesc())
                 .price(entity.getPrice())
                 .qty(entity.getQty());
@@ -45,8 +46,9 @@ public class OrderDetailResponse extends BaseOrderDetailEntity {
     }
 
     @Builder
-    public OrderDetailResponse(Long id, String orderMenuDesc, BigDecimal price, Integer qty, User user, UserResponse userData, Long userId) {
-        super(id, orderMenuDesc, price, qty, user);
+
+    public OrderDetailResponse(Long id, String orderMenuDesc, BigDecimal price, BigDecimal itemDiscount, Integer qty, User user, UserResponse userData, Long userId) {
+        super(id, orderMenuDesc, price, itemDiscount, qty, user);
         this.userData = userData;
         this.userId = userId;
     }

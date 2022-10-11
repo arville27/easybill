@@ -43,6 +43,8 @@ public class OrderHeader {
     @Column(name = "discount_amount")
     private BigDecimal discountAmount;
 
+    private Integer participatingUserCount;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
     private List<OrderDetail> orderDetailList;

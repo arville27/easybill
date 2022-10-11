@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -63,42 +61,56 @@ public class BillManagerImpl implements BillManager {
         orderHeader.setDiscountAmount(discountAmount);
         orderHeader.setOtherFee(othersFee);
 
-        Map<Long, Bill> billMap = new HashMap<>();
+//        Map<Long, Bill> billMap = new HashMap<>();
+        Set<User> participatedUser = new HashSet<>();
 
         AtomicBoolean isBuyerIncluded = new AtomicBoolean(false);
 
         orderList.forEach(order -> {
             User currentUser = order.getUser();
 
-            if (currentUser.getId().equals(buyer.getId())) {
-                isBuyerIncluded.set(true);
-                return;
-            }
+            participatedUser.add(currentUser);
 
-            var currentUserBill = billMap.getOrDefault(
-                    currentUser.getId(),
-                    Bill.builder().user(currentUser).owe(buyer).oweTotal(BigDecimal.valueOf(0)).build()
-            );
+//            var currentUserBill = billMap.getOrDefault(
+//                    currentUser.getId(),
+//                    Bill.builder().user(currentUser).owe(buyer).oweTotal(BigDecimal.valueOf(0)).build()
+//            );
 
             // TODO: Consider existing bill from buyer side to the current user
-            BigDecimal orderDiscount = order.getPrice().multiply(discountAmount).divide(totalOrderAmount, 3, RoundingMode.HALF_UP);
+            BigDecimal orderDiscount = this.calculateDiscount(order, discountAmount, totalOrderAmount);
 
-            currentUserBill.addOweTotal(order.getPrice().subtract(orderDiscount));
+            // Fill missing attribute in order detail model
+            order.setItemDiscount(orderDiscount);
 
-            billMap.putIfAbsent(currentUser.getId(), currentUserBill);
+//            currentUserBill.addOweTotal(order.getPrice().subtract(orderDiscount));
+//
+//            billMap.putIfAbsent(currentUser.getId(), currentUserBill);
 
         });
 
-        int participantCount = billMap.size() + (isBuyerIncluded.get() ? 1 : 0);
+        int participantCount = participatedUser.size();
+
+        // Fill missing attribute in order header model
+        orderHeader.setParticipatingUserCount(participantCount);
 
         BigDecimal perUserFee = othersFee.divide(BigDecimal.valueOf(participantCount), 3, RoundingMode.HALF_UP);
 
-        var bills = billMap.values().stream()
-                .map(bill -> bill.addOweTotal(perUserFee))
-                .map(bill -> this.getExistingBill(bill.getUser(), bill.getOwe()).addOweTotal(bill.getOweTotal()))
-                .collect(Collectors.toList());
+//        var bills = billMap.values().stream()
+//                .map(bill -> bill.addOweTotal(perUserFee))
+//                .map(bill -> this.getExistingBill(bill.getUser(), bill.getOwe()).addOweTotal(bill.getOweTotal()))
+//                .collect(Collectors.toList());
 
-        return billRepository.saveAll(bills);
+//        return billRepository.saveAll(bills);
+        return List.of(new Bill());
+    }
+
+    private BigDecimal calculateDiscount(
+            OrderDetail order,
+            BigDecimal totalDiscountAmount,
+            BigDecimal totalOrderAmount
+    ) {
+        var totalOrderDetail = BigDecimal.valueOf(order.getQty()).multiply(order.getPrice());
+        return totalOrderDetail.multiply(totalDiscountAmount).divide(totalOrderAmount, 3, RoundingMode.HALF_UP);
     }
 
     private Bill getExistingBill(User user, User oweTo) {

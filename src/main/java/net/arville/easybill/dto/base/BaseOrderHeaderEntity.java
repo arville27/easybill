@@ -28,6 +28,8 @@ public abstract class BaseOrderHeaderEntity {
 
     private Double discount;
 
+    private Integer participatingUserCount;
+
     private BigDecimal totalOrderAmount;
 
     private BigDecimal otherFee;

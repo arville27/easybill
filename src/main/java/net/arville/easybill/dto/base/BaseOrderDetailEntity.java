@@ -18,6 +18,8 @@ public abstract class BaseOrderDetailEntity {
 
     private BigDecimal price;
 
+    private BigDecimal itemDiscount;
+
     private Integer qty;
 
     private User user;
