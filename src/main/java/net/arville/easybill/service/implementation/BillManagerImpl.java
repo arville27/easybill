@@ -50,7 +50,7 @@ public class BillManagerImpl implements BillManager {
         List<OrderDetail> orderList = orderHeader.getOrderDetailList();
 
         BigDecimal totalOrderAmount = orderList.stream()
-                .map(OrderDetail::getPrice)
+                .map(order -> order.getPrice().multiply(BigDecimal.valueOf(order.getQty())))
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
 
         BigDecimal discountAmountBeforeUpto = totalOrderAmount.multiply(BigDecimal.valueOf(discount));
