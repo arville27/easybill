@@ -44,7 +44,8 @@ public class RestSecurityConfig {
                 List.of(
                         "http://10.20.158.12:4200",
                         "http://192.168.100.96:4200",
-                        "http://localhost:4200"
+                        "http://localhost:4200",
+                        "https://easybill.arville.net"
                 )
         );
 
