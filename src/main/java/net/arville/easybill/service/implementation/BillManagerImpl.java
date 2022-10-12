@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,8 +41,6 @@ public class BillManagerImpl implements BillManager {
     }
 
     public List<Bill> generateBillsFromOrderHeader(OrderHeader orderHeader) {
-
-        User buyer = orderHeader.getUser();
         Double discount = orderHeader.getDiscount();
         BigDecimal upto = orderHeader.getUpto();
         BigDecimal totalPayment = orderHeader.getTotalPayment();
@@ -61,19 +60,19 @@ public class BillManagerImpl implements BillManager {
         orderHeader.setDiscountAmount(discountAmount);
         orderHeader.setOtherFee(othersFee);
 
-//        Map<Long, Bill> billMap = new HashMap<>();
+//        Map<Long, Status> statusMap = new HashMap<>();
         Set<User> participatedUser = new HashSet<>();
 
-        AtomicBoolean isBuyerIncluded = new AtomicBoolean(false);
+//        AtomicBoolean isBuyerIncluded = new AtomicBoolean(false);
 
         orderList.forEach(order -> {
             User currentUser = order.getUser();
 
             participatedUser.add(currentUser);
 
-//            var currentUserBill = billMap.getOrDefault(
+//            var currentUserStatus = statusMap.getOrDefault(
 //                    currentUser.getId(),
-//                    Bill.builder().user(currentUser).owe(buyer).oweTotal(BigDecimal.valueOf(0)).build()
+//                    Status.builder().user(currentUser).oweTotal(BigDecimal.valueOf(0)).build()
 //            );
 
             // TODO: Consider existing bill from buyer side to the current user
@@ -93,7 +92,7 @@ public class BillManagerImpl implements BillManager {
         // Fill missing attribute in order header model
         orderHeader.setParticipatingUserCount(participantCount);
 
-        BigDecimal perUserFee = othersFee.divide(BigDecimal.valueOf(participantCount), 3, RoundingMode.HALF_UP);
+//        BigDecimal perUserFee = othersFee.divide(BigDecimal.valueOf(participantCount), 3, RoundingMode.HALF_UP);
 
 //        var bills = billMap.values().stream()
 //                .map(bill -> bill.addOweTotal(perUserFee))

@@ -22,18 +22,19 @@ import java.util.stream.Collectors;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderHeaderResponse extends BaseOrderHeaderEntity {
-
     @JsonProperty("user")
     private UserResponse userResponse;
     private Long buyerId;
     @JsonProperty("order_list")
     private List<OrderDetailResponse> orderDetailResponses;
 
+    @JsonProperty("status")
+    private List<StatusResponse> statusResponses;
+
     public static OrderHeaderResponse.OrderHeaderResponseBuilder template(OrderHeader entity) {
         return OrderHeaderResponse.builder()
                 .id(entity.getId())
                 .upto(entity.getUpto())
-                .participatingUserCount(entity.getParticipatingUserCount())
                 .discount(entity.getDiscount())
                 .orderDescription(entity.getOrderDescription())
                 .totalPayment(entity.getTotalPayment())
@@ -67,11 +68,11 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
     }
 
     @Builder
-
-    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User user, BigDecimal upto, Double discount, Integer participatingUserCount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses) {
+    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User user, BigDecimal upto, Double discount, Integer participatingUserCount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses, List<StatusResponse> statusResponses) {
         super(id, orderDescription, totalPayment, user, upto, discount, participatingUserCount, totalOrderAmount, otherFee, discountAmount, orderDetailList, orderAt, createdAt, updatedAt);
         this.userResponse = userResponse;
         this.buyerId = buyerId;
         this.orderDetailResponses = orderDetailResponses;
+        this.statusResponses = statusResponses;
     }
 }

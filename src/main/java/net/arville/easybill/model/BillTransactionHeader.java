@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 @Data
 public class BillTransactionHeader {
     @Id
+    @SequenceGenerator(name = "bill_transaction_header_id_seq", sequenceName = "bill_transaction_header_id_seq", allocationSize = 1)
+    @GeneratedValue(generator = "bill_transaction_header_id_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

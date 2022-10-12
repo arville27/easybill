@@ -15,6 +15,8 @@ import java.util.List;
 @Data
 public class BillTransaction {
     @Id
+    @SequenceGenerator(name = "bill_transaction_id_seq", sequenceName = "bill_transaction_id_seq", allocationSize = 1)
+    @GeneratedValue(generator = "bill_transaction_id_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @ManyToOne

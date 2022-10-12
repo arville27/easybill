@@ -1,9 +1,10 @@
 package net.arville.easybill.service.implementation;
 
 import lombok.AllArgsConstructor;
+import net.arville.easybill.dto.request.AddOrderRequest;
 import net.arville.easybill.dto.response.OrderDetailResponse;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
-import net.arville.easybill.dto.request.AddOrderRequest;
+import net.arville.easybill.dto.response.StatusResponse;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.OrderNotFoundException;
 import net.arville.easybill.model.OrderDetail;
@@ -12,6 +13,7 @@ import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.service.manager.BillManager;
 import net.arville.easybill.service.manager.OrderManager;
+import net.arville.easybill.service.manager.StatusManager;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ public class OrderManagerImpl implements OrderManager {
     private final OrderHeaderRepository orderHeaderRepository;
     private final UserManager userManager;
     private final BillManager billManager;
+    private final StatusManager statusManager;
 
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
 
@@ -54,6 +57,7 @@ public class OrderManagerImpl implements OrderManager {
 
         // This will process order and generate bill accordingly
         billManager.generateBillsFromOrderHeader(orderHeader);
+        statusManager.createCorrespondingStatusFromOrderHeader(orderHeader);
 
         return OrderHeaderResponse
                 .template(savedOrderHeader)
@@ -74,6 +78,14 @@ public class OrderManagerImpl implements OrderManager {
         OrderHeader orderHeader = orderHeaderRepository
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
-        return OrderHeaderResponse.map(orderHeader);
+
+        return OrderHeaderResponse
+                .template(orderHeader)
+                .statusResponses(orderHeader.getStatusList()
+                        .stream()
+                        .map(StatusResponse::map)
+                        .collect(Collectors.toList())
+                )
+                .build();
     }
 }
