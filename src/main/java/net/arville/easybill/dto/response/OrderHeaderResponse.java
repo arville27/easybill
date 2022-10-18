@@ -33,6 +33,8 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
     @JsonProperty("order_detail_group_by_user")
     private List<UserResponse> relatedOrderDetail;
 
+    @JsonProperty("user_other_fee")
+    private BigDecimal userOtherFee;
     @JsonProperty("order_header_status")
     private BillStatus relevantStatus;
     @JsonProperty("status")
@@ -75,12 +77,13 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
     }
 
     @Builder
-    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User buyer, BigDecimal upto, Double discount, Integer participatingUserCount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse buyerResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses, List<UserResponse> relatedOrderDetail, BillStatus relevantStatus, List<StatusResponse> statusResponses) {
+    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User buyer, BigDecimal upto, Double discount, Integer participatingUserCount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse buyerResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses, List<UserResponse> relatedOrderDetail, BigDecimal userOtherFee, BillStatus relevantStatus, List<StatusResponse> statusResponses) {
         super(id, orderDescription, totalPayment, buyer, upto, discount, participatingUserCount, totalOrderAmount, otherFee, discountAmount, orderDetailList, orderAt, createdAt, updatedAt);
         this.buyerResponse = buyerResponse;
         this.buyerId = buyerId;
         this.orderDetailResponses = orderDetailResponses;
         this.relatedOrderDetail = relatedOrderDetail;
+        this.userOtherFee = userOtherFee;
         this.relevantStatus = relevantStatus;
         this.statusResponses = statusResponses;
     }

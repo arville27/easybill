@@ -61,7 +61,6 @@ public class Status {
                 .getOtherFee()
                 .divide(
                         BigDecimal.valueOf(this.orderHeader.getParticipatingUserCount()),
-                        3,
                         RoundingMode.HALF_UP
                 );
 

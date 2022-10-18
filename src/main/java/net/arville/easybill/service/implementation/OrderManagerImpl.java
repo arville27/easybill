@@ -82,12 +82,17 @@ public class OrderManagerImpl implements OrderManager {
                 .template(orderHeader)
                 .buyerResponse(UserResponse.mapWithoutDate(orderHeader.getBuyer()))
                 .participatingUserCount(orderHeader.getParticipatingUserCount())
+                .userOtherFee(orderHeader.getPerUserFee())
                 .relatedOrderDetail(orderDetailListGroupByUser.entrySet()
                         .stream()
                         .map(userListEntry -> {
                             var orderOwner = userListEntry.getKey();
                             var orderDetails = userListEntry.getValue();
+                            var orderSummary = orderHeader.getRelevantOrderSummarization(orderOwner);
                             return UserResponse.template(orderOwner)
+                                    .totalOrder(orderSummary.getTotalOrder())
+                                    .discountTotal(orderSummary.getTotalDiscount())
+                                    .totalOrderAfterDiscount(orderSummary.getTotalOrderAfterDiscount())
                                     .userOrders(orderDetails
                                             .stream()
                                             .map(orderDetail -> OrderDetailResponse.template(orderDetail).build())

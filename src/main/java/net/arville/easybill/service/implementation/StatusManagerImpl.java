@@ -175,7 +175,7 @@ public class StatusManagerImpl implements StatusManager {
         }
 
         User targetUser = userManager.getUserByUserId(payBillRequest.getUserId());
-        
+
         return null;
     }
 
@@ -185,7 +185,7 @@ public class StatusManagerImpl implements StatusManager {
             BigDecimal totalOrderAmount
     ) {
         var totalOrderDetail = BigDecimal.valueOf(order.getQty()).multiply(order.getPrice());
-        return totalOrderDetail.multiply(totalDiscountAmount).divide(totalOrderAmount, 3, RoundingMode.HALF_UP);
+        return totalOrderDetail.multiply(totalDiscountAmount).divide(totalOrderAmount, RoundingMode.HALF_UP);
     }
 
 }

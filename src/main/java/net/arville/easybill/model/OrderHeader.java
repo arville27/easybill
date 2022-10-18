@@ -9,9 +9,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "order_headers")
@@ -76,6 +78,28 @@ public class OrderHeader {
         return status.isEmpty() ? null : status.get().getStatus();
     }
 
+    public BigDecimal getPerUserFee() {
+        return this.otherFee.divide(BigDecimal.valueOf(this.participatingUserCount), RoundingMode.HALF_UP);
+    }
+
+    public OrderHeaderSummary getRelevantOrderSummarization(User user) {
+        var userOrderDetails = this.orderDetailList
+                .stream()
+                .filter(order -> Objects.equals(order.getUser().getId(), user.getId()))
+                .collect(Collectors.toList());
+        var totalOrder = userOrderDetails.stream()
+                .map(order -> order.getPrice().multiply(BigDecimal.valueOf(order.getQty())))
+                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+        var totalDiscount = userOrderDetails.stream()
+                .map(OrderDetail::getItemDiscount)
+                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+        return OrderHeaderSummary.builder()
+                .totalOrder(totalOrder)
+                .totalDiscount(totalDiscount)
+                .totalOrderAfterDiscount(totalOrder.subtract(totalDiscount))
+                .build();
+    }
+
     public OrderHeader(Long id, User buyer, Double discount, String orderDescription, BigDecimal totalPayment, BigDecimal upto, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.buyer = buyer;
@@ -99,5 +123,14 @@ public class OrderHeader {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @Builder
+    public static class OrderHeaderSummary {
+        private final BigDecimal totalOrder;
+        private final BigDecimal totalDiscount;
+        private final BigDecimal totalOrderAfterDiscount;
     }
 }
