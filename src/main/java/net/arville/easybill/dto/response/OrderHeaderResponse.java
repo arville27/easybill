@@ -11,6 +11,7 @@ import net.arville.easybill.dto.helper.EntityBuilder;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
+import net.arville.easybill.model.helper.BillStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,12 +23,18 @@ import java.util.stream.Collectors;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrderHeaderResponse extends BaseOrderHeaderEntity {
-    @JsonProperty("user")
-    private UserResponse userResponse;
+
+    @JsonProperty("buyer")
+    private UserResponse buyerResponse;
     private Long buyerId;
     @JsonProperty("order_list")
     private List<OrderDetailResponse> orderDetailResponses;
 
+    @JsonProperty("order_detail_group_by_user")
+    private List<UserResponse> relatedOrderDetail;
+
+    @JsonProperty("order_header_status")
+    private BillStatus relevantStatus;
     @JsonProperty("status")
     private List<StatusResponse> statusResponses;
 
@@ -46,7 +53,7 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
 
     public static OrderHeaderResponse map(OrderHeader entity) {
         return OrderHeaderResponse.template(entity)
-                .userResponse(UserResponse.mapWithoutDate(entity.getUser()))
+                .buyerResponse(UserResponse.mapWithoutDate(entity.getBuyer()))
                 .orderDetailResponses(entity.getOrderDetailList().stream().map(OrderDetailResponse::map).collect(Collectors.toList()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
@@ -55,7 +62,7 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
 
     public static OrderHeaderResponse mapWithoutDate(OrderHeader entity) {
         return OrderHeaderResponse.template(entity)
-                .userResponse(UserResponse.mapWithoutDate(entity.getUser()))
+                .buyerResponse(UserResponse.mapWithoutDate(entity.getBuyer()))
                 .orderDetailResponses(entity.getOrderDetailList().stream().map(OrderDetailResponse::map).collect(Collectors.toList()))
                 .build();
     }
@@ -68,11 +75,13 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
     }
 
     @Builder
-    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User user, BigDecimal upto, Double discount, Integer participatingUserCount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses, List<StatusResponse> statusResponses) {
-        super(id, orderDescription, totalPayment, user, upto, discount, participatingUserCount, totalOrderAmount, otherFee, discountAmount, orderDetailList, orderAt, createdAt, updatedAt);
-        this.userResponse = userResponse;
+    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User buyer, BigDecimal upto, Double discount, Integer participatingUserCount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse buyerResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses, List<UserResponse> relatedOrderDetail, BillStatus relevantStatus, List<StatusResponse> statusResponses) {
+        super(id, orderDescription, totalPayment, buyer, upto, discount, participatingUserCount, totalOrderAmount, otherFee, discountAmount, orderDetailList, orderAt, createdAt, updatedAt);
+        this.buyerResponse = buyerResponse;
         this.buyerId = buyerId;
         this.orderDetailResponses = orderDetailResponses;
+        this.relatedOrderDetail = relatedOrderDetail;
+        this.relevantStatus = relevantStatus;
         this.statusResponses = statusResponses;
     }
 }

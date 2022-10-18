@@ -5,13 +5,13 @@ import net.arville.easybill.dto.request.AddOrderRequest;
 import net.arville.easybill.dto.response.OrderDetailResponse;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.response.StatusResponse;
+import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.OrderNotFoundException;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
-import net.arville.easybill.service.manager.BillManager;
 import net.arville.easybill.service.manager.OrderManager;
 import net.arville.easybill.service.manager.StatusManager;
 import net.arville.easybill.service.manager.UserManager;
@@ -22,10 +22,8 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class OrderManagerImpl implements OrderManager {
-
     private final OrderHeaderRepository orderHeaderRepository;
     private final UserManager userManager;
-    private final BillManager billManager;
     private final StatusManager statusManager;
 
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
@@ -50,25 +48,22 @@ public class OrderManagerImpl implements OrderManager {
                         })
                         .collect(Collectors.toList())
         );
-        orderHeader.setUser(user);
+        orderHeader.setBuyer(user);
         user.getOrderList().add(orderHeader);
 
-        var savedOrderHeader = orderHeaderRepository.save(orderHeader);
-
         // This will process order and generate bill accordingly
-        billManager.generateBillsFromOrderHeader(orderHeader);
-        statusManager.createCorrespondingStatusFromOrderHeader(orderHeader);
+        var statuses = statusManager.createCorrespondingStatusFromOrderHeader(orderHeader);
+        orderHeader.setStatusList(statuses);
+        var savedOrderHeader = orderHeaderRepository.save(orderHeader);
 
         return OrderHeaderResponse
                 .template(savedOrderHeader)
-                .buyerId(savedOrderHeader.getUser().getId())
-                .orderDetailResponses(savedOrderHeader
-                        .getOrderDetailList().stream()
-                        .map(OrderDetailResponse::map)
-                        .peek(orderDetailResponse -> {
-                            orderDetailResponse.setUserId(orderDetailResponse.getUserData().getId());
-                            orderDetailResponse.setUserData(null);
-                        })
+                .buyerResponse(UserResponse.mapWithoutDate(savedOrderHeader.getBuyer()))
+                .participatingUserCount(savedOrderHeader.getParticipatingUserCount())
+                .orderDetailResponses(savedOrderHeader.getOrderDetailList().stream().map(OrderDetailResponse::map).collect(Collectors.toList()))
+                .statusResponses(savedOrderHeader.getStatusList()
+                        .stream()
+                        .map(StatusResponse::map)
                         .collect(Collectors.toList())
                 )
                 .build();
@@ -79,8 +74,29 @@ public class OrderManagerImpl implements OrderManager {
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
+        var orderDetailListGroupByUser = orderHeader.getOrderDetailList()
+                .stream()
+                .collect(Collectors.groupingBy(OrderDetail::getUser));
+
         return OrderHeaderResponse
                 .template(orderHeader)
+                .buyerResponse(UserResponse.mapWithoutDate(orderHeader.getBuyer()))
+                .participatingUserCount(orderHeader.getParticipatingUserCount())
+                .relatedOrderDetail(orderDetailListGroupByUser.entrySet()
+                        .stream()
+                        .map(userListEntry -> {
+                            var orderOwner = userListEntry.getKey();
+                            var orderDetails = userListEntry.getValue();
+                            return UserResponse.template(orderOwner)
+                                    .userOrders(orderDetails
+                                            .stream()
+                                            .map(orderDetail -> OrderDetailResponse.template(orderDetail).build())
+                                            .collect(Collectors.toList())
+                                    )
+                                    .build();
+                        })
+                        .collect(Collectors.toList())
+                )
                 .statusResponses(orderHeader.getStatusList()
                         .stream()
                         .map(StatusResponse::map)

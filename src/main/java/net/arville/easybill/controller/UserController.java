@@ -32,9 +32,18 @@ public class UserController {
     }
 
     @GetMapping("/relevant-orders")
-    public ResponseEntity<ResponseStructure> getUser() {
+    public ResponseEntity<ResponseStructure> getRelevantOrders() {
 
-        var user = userManager.getUserRelevantOrder(authenticatedUser.getUserId());
+        var user = userManager.getUserRelevantOrder(authenticatedUser.getUser());
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
+    @GetMapping("/users-orders")
+    public ResponseEntity<ResponseStructure> getUsersOrders() {
+
+        var user = userManager.getUsersOrder(authenticatedUser.getUser());
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);

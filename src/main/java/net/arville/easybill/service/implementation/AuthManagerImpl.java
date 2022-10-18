@@ -30,7 +30,7 @@ public class AuthManagerImpl implements AuthManager {
         }
 
         // TODO: Optimize login query, with current setup, this service and custom user details service will perform same query.
-        var user = userManager.getUserByUser(authRequest.getUsername());
+        var user = userManager.getUserByUsername(authRequest.getUsername());
 
         var authToken = new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword());
 

@@ -1,8 +1,9 @@
 package net.arville.easybill.dto.base;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.*;
-import net.arville.easybill.model.Bill;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 
@@ -23,8 +24,6 @@ public abstract class BaseUserEntity {
     private List<OrderHeader> orderList;
 
     private List<OrderDetail> orderDetailList;
-
-    private List<Bill> billList;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;

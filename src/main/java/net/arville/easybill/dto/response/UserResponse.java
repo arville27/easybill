@@ -1,13 +1,13 @@
 package net.arville.easybill.dto.response;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.arville.easybill.dto.base.BaseUserEntity;
 import net.arville.easybill.dto.helper.EntityBuilder;
-import net.arville.easybill.model.Bill;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
@@ -23,10 +23,12 @@ public class UserResponse extends BaseUserEntity {
 
     @JsonProperty("order_list")
     private List<OrderHeaderResponse> orderHeaderResponseList;
-    @JsonProperty("user_bills")
-    private List<BillResponse> billResponseList;
 
+    @JsonProperty("user_orders")
+    private List<OrderDetailResponse> userOrders;
     private String accessToken;
+    @JsonProperty("users_bills")
+    private List<StatusResponse> statusResponseList;
 
     public static UserResponse.UserResponseBuilder template(User entity) {
         return UserResponse.builder()
@@ -53,10 +55,11 @@ public class UserResponse extends BaseUserEntity {
     }
 
     @Builder
-    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, List<Bill> billList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, List<BillResponse> billResponseList, String accessToken) {
-        super(id, username, password, orderList, orderDetailList, billList, createdAt, updatedAt);
+    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, List<OrderDetailResponse> userOrders, String accessToken, List<StatusResponse> statusResponseList) {
+        super(id, username, password, orderList, orderDetailList, createdAt, updatedAt);
         this.orderHeaderResponseList = orderHeaderResponseList;
-        this.billResponseList = billResponseList;
+        this.userOrders = userOrders;
         this.accessToken = accessToken;
+        this.statusResponseList = statusResponseList;
     }
 }

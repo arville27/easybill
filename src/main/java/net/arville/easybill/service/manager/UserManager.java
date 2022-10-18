@@ -7,13 +7,15 @@ import net.arville.easybill.model.User;
 import java.util.List;
 
 public interface UserManager {
-    UserResponse getUserRelevantOrder(Long userId);
+    UserResponse getUserRelevantOrder(User user);
 
     UserResponse addNewUser(UserRegistrationRequest request);
 
+    UserResponse getUsersOrder(User user);
+
     List<UserResponse> getAllUser();
 
-    User getUserByUser(String username);
+    User getUserByUsername(String username);
 
     User getUserByUserId(Long userId);
 }

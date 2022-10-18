@@ -46,7 +46,6 @@ public class OrderDetailResponse extends BaseOrderDetailEntity {
     }
 
     @Builder
-
     public OrderDetailResponse(Long id, String orderMenuDesc, BigDecimal price, BigDecimal itemDiscount, Integer qty, User user, UserResponse userData, Long userId) {
         super(id, orderMenuDesc, price, itemDiscount, qty, user);
         this.userData = userData;

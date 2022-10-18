@@ -1,9 +1,9 @@
 package net.arville.easybill.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import net.arville.easybill.model.helper.BillStatus;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -11,12 +11,15 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "order_headers")
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
+@ToString
 public class OrderHeader {
     @Id
     @SequenceGenerator(name = "order_header_id_seq", sequenceName = "order_header_id_seq", allocationSize = 1)
@@ -28,7 +31,7 @@ public class OrderHeader {
     private BigDecimal totalPayment;
     @ManyToOne
     @JoinColumn(name = "buyer_id", referencedColumnName = "id")
-    private User user;
+    private User buyer;
     @Column(nullable = false)
     private BigDecimal upto;
     @Column(nullable = false)
@@ -45,11 +48,12 @@ public class OrderHeader {
 
     private Integer participatingUserCount;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
+    @ToString.Exclude
     private List<OrderDetail> orderDetailList;
-
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ToString.Exclude
     private List<Status> statusList;
     @Column(name = "order_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -63,9 +67,18 @@ public class OrderHeader {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
-    public OrderHeader(Long id, User user, Double discount, String orderDescription, BigDecimal totalPayment, BigDecimal upto, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public BillStatus getRelevantStatus(User user) {
+        var status = this.statusList
+                .stream()
+                .filter(s -> Objects.equals(s.getUser().getId(), user.getId()))
+                .findAny();
+
+        return status.isEmpty() ? null : status.get().getStatus();
+    }
+
+    public OrderHeader(Long id, User buyer, Double discount, String orderDescription, BigDecimal totalPayment, BigDecimal upto, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
-        this.user = user;
+        this.buyer = buyer;
         this.discount = discount;
         this.orderDescription = orderDescription;
         this.totalPayment = totalPayment;
@@ -73,5 +86,18 @@ public class OrderHeader {
         this.orderAt = orderAt;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        OrderHeader that = (OrderHeader) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -22,7 +22,7 @@ public abstract class BaseOrderHeaderEntity {
 
     private BigDecimal totalPayment;
 
-    private User user;
+    private User buyer;
 
     private BigDecimal upto;
 
