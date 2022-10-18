@@ -1,9 +1,13 @@
 package net.arville.easybill.service.implementation;
 
 import lombok.AllArgsConstructor;
+import net.arville.easybill.dto.request.PayBillRequest;
+import net.arville.easybill.dto.response.BillTransactionResponse;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.response.StatusResponse;
 import net.arville.easybill.dto.response.UserResponse;
+import net.arville.easybill.exception.InvalidPropertiesValue;
+import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.Status;
@@ -11,20 +15,19 @@ import net.arville.easybill.model.User;
 import net.arville.easybill.model.helper.BillStatus;
 import net.arville.easybill.repository.StatusRepository;
 import net.arville.easybill.service.manager.StatusManager;
+import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class StatusManagerImpl implements StatusManager {
     private final StatusRepository statusRepository;
+    private final UserManager userManager;
 
     @Override
     public List<Status> createCorrespondingStatusFromOrderHeader(OrderHeader orderHeader) {
@@ -157,6 +160,23 @@ public class StatusManagerImpl implements StatusManager {
                         .collect(Collectors.toList())
                 )
                 .build();
+    }
+
+    public BillTransactionResponse payUnpaidStatus(User user, PayBillRequest payBillRequest) {
+        var missingProperties = payBillRequest.getMissingProperties();
+        if (missingProperties.size() > 0) {
+            throw new MissingRequiredPropertiesException(missingProperties);
+        }
+
+        if (payBillRequest.getAmount().compareTo(BigDecimal.valueOf(0)) <= 0) {
+            throw new InvalidPropertiesValue(
+                    Map.of("amount", "should be more than 0")
+            );
+        }
+
+        User targetUser = userManager.getUserByUserId(payBillRequest.getUserId());
+        
+        return null;
     }
 
     private BigDecimal calculateDiscount(

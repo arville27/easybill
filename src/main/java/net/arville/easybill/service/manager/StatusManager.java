@@ -1,5 +1,7 @@
 package net.arville.easybill.service.manager;
 
+import net.arville.easybill.dto.request.PayBillRequest;
+import net.arville.easybill.dto.response.BillTransactionResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.Status;
@@ -13,4 +15,6 @@ public interface StatusManager {
     UserResponse getAllUsersBill(User user);
 
     UserResponse getAllUsersBillToUser(User user);
+
+    BillTransactionResponse payUnpaidStatus(User user, PayBillRequest payBillRequest);
 }

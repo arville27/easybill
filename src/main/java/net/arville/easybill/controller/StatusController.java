@@ -3,6 +3,7 @@ package net.arville.easybill.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import net.arville.easybill.dto.request.PayBillRequest;
 import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
@@ -10,9 +11,7 @@ import net.arville.easybill.service.manager.StatusManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/bills", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,6 +44,15 @@ public class StatusController {
     public ResponseEntity<ResponseStructure> getAllStatusTransaction() {
 
         var status = statusManager.getAllUsersBillToUser(authenticatedUser.getUser());
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(status);
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
+    @PostMapping
+    public ResponseEntity<ResponseStructure> addBillTransaction(@RequestBody PayBillRequest payBillRequest) {
+
+        var status = statusManager.payUnpaidStatus(authenticatedUser.getUser(), payBillRequest);
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(status);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);

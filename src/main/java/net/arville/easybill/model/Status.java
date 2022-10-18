@@ -36,7 +36,7 @@ public class Status {
     @Enumerated(EnumType.STRING)
     private BillStatus status;
 
-    @OneToMany(mappedBy = "billTransaction")
+    @OneToMany(mappedBy = "billTransaction", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @ToString.Exclude
     private List<BillTransactionHeader> billTransactionHeaderList;
 
