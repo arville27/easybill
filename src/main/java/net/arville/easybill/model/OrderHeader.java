@@ -53,10 +53,10 @@ public class OrderHeader {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
     @ToString.Exclude
-    private List<OrderDetail> orderDetailList;
+    private Set<OrderDetail> orderDetailList;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @ToString.Exclude
-    private List<Status> statusList;
+    private Set<Status> statusList;
     @Column(name = "order_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderAt;

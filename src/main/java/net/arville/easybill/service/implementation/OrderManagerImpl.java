@@ -46,7 +46,7 @@ public class OrderManagerImpl implements OrderManager {
                             orderDetail.setUser(orderBy);
                             return orderDetail;
                         })
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toSet())
         );
         orderHeader.setBuyer(user);
         user.getOrderList().add(orderHeader);

@@ -7,10 +7,10 @@ import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.Status;
 import net.arville.easybill.model.User;
 
-import java.util.List;
+import java.util.Set;
 
 public interface StatusManager {
-    List<Status> createCorrespondingStatusFromOrderHeader(OrderHeader orderHeader);
+    Set<Status> createCorrespondingStatusFromOrderHeader(OrderHeader orderHeader);
 
     UserResponse getAllUsersBill(User user);
 

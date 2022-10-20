@@ -30,11 +30,11 @@ public class StatusManagerImpl implements StatusManager {
     private final BillTransactionRepository billTransactionRepository;
 
     @Override
-    public List<Status> createCorrespondingStatusFromOrderHeader(OrderHeader orderHeader) {
+    public Set<Status> createCorrespondingStatusFromOrderHeader(OrderHeader orderHeader) {
         Double discount = orderHeader.getDiscount();
         BigDecimal upto = orderHeader.getUpto();
         BigDecimal totalPayment = orderHeader.getTotalPayment();
-        List<OrderDetail> orderList = orderHeader.getOrderDetailList();
+        Set<OrderDetail> orderList = orderHeader.getOrderDetailList();
 
         BigDecimal totalOrderAmount = orderList.stream()
                 .map(order -> order.getPrice().multiply(BigDecimal.valueOf(order.getQty())))
@@ -66,7 +66,7 @@ public class StatusManagerImpl implements StatusManager {
                         .user(user)
                         .build()
                 )
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     @Override

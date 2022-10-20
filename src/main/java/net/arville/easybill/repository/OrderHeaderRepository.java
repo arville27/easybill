@@ -32,7 +32,9 @@ public interface OrderHeaderRepository extends JpaRepository<OrderHeader, Long> 
             type = EntityGraph.EntityGraphType.FETCH,
             attributePaths = {
                     "buyer",
-                    "statusList"
+                    "statusList.user",
+                    "statusList.billTransactionHeaderList",
+                    "orderDetailList"
             }
     )
     @Override

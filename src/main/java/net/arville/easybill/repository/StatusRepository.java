@@ -17,7 +17,8 @@ public interface StatusRepository extends JpaRepository<Status, Long> {
             attributePaths = {
                     "orderHeader",
                     "orderHeader.buyer",
-                    "orderHeader.orderDetailList"
+                    "orderHeader.orderDetailList",
+                    "billTransactionHeaderList"
             }
     )
     List<Status> findAllUsersStatus(Long userId);
@@ -28,7 +29,8 @@ public interface StatusRepository extends JpaRepository<Status, Long> {
             attributePaths = {
                     "orderHeader",
                     "orderHeader.buyer",
-                    "orderHeader.orderDetailList"
+                    "orderHeader.orderDetailList",
+                    "billTransactionHeaderList"
             }
     )
     List<Status> findAllUsersBillsToSpecificUser(Long userId, Long targetUserId);
@@ -39,7 +41,9 @@ public interface StatusRepository extends JpaRepository<Status, Long> {
             attributePaths = {
                     "user",
                     "orderHeader",
-                    "orderHeader.orderDetailList"
+                    "orderHeader.buyer",
+                    "orderHeader.orderDetailList",
+                    "billTransactionHeaderList"
             }
     )
     List<Status> findAllStatusToUser(Long userId);
