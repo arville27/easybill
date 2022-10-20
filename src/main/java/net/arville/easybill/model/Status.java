@@ -7,6 +7,7 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,7 +37,7 @@ public class Status {
     @Enumerated(EnumType.STRING)
     private BillStatus status;
 
-    @OneToMany(mappedBy = "billTransaction", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "status", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @ToString.Exclude
     private List<BillTransactionHeader> billTransactionHeaderList;
 
@@ -56,6 +57,13 @@ public class Status {
     @Transient
     private BigDecimal oweAmount;
 
+    public Status addBillTransactionHeader(BillTransactionHeader billTransactionHeader) {
+        if (this.billTransactionHeaderList == null)
+            this.billTransactionHeaderList = Collections.emptyList();
+        this.billTransactionHeaderList.add(billTransactionHeader);
+        return this;
+    }
+
     public BigDecimal getOweAmount() {
         BigDecimal perUserFee = this.orderHeader
                 .getOtherFee()
@@ -73,6 +81,16 @@ public class Status {
                         .subtract(order.getItemDiscount())
                 )
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add)
-                .add(perUserFee);
+                .add(perUserFee)
+                .subtract(this.getTotalPaidAmount());
+    }
+
+    public BigDecimal getTotalPaidAmount() {
+        if (this.billTransactionHeaderList == null)
+            this.billTransactionHeaderList = Collections.emptyList();
+        return this.billTransactionHeaderList
+                .stream()
+                .map(BillTransactionHeader::getPaidAmount)
+                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
     }
 }

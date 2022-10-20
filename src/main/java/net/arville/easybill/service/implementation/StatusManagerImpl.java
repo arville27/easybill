@@ -8,16 +8,15 @@ import net.arville.easybill.dto.response.StatusResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
-import net.arville.easybill.model.OrderDetail;
-import net.arville.easybill.model.OrderHeader;
-import net.arville.easybill.model.Status;
-import net.arville.easybill.model.User;
+import net.arville.easybill.model.*;
 import net.arville.easybill.model.helper.BillStatus;
+import net.arville.easybill.repository.BillTransactionRepository;
 import net.arville.easybill.repository.StatusRepository;
 import net.arville.easybill.service.manager.StatusManager;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -28,6 +27,7 @@ import java.util.stream.Collectors;
 public class StatusManagerImpl implements StatusManager {
     private final StatusRepository statusRepository;
     private final UserManager userManager;
+    private final BillTransactionRepository billTransactionRepository;
 
     @Override
     public List<Status> createCorrespondingStatusFromOrderHeader(OrderHeader orderHeader) {
@@ -162,6 +162,7 @@ public class StatusManagerImpl implements StatusManager {
                 .build();
     }
 
+    @Transactional
     public BillTransactionResponse payUnpaidStatus(User user, PayBillRequest payBillRequest) {
         var missingProperties = payBillRequest.getMissingProperties();
         if (missingProperties.size() > 0) {
@@ -174,9 +175,86 @@ public class StatusManagerImpl implements StatusManager {
             );
         }
 
+        BigDecimal payAmount = payBillRequest.getAmount();
         User targetUser = userManager.getUserByUserId(payBillRequest.getUserId());
 
-        return null;
+        var unpaidStatus = statusRepository.findAllUsersBillsToSpecificUser(user.getId(), targetUser.getId());
+
+        BigDecimal totalBillToTargetUser = unpaidStatus
+                .stream()
+                .map(Status::getOweAmount)
+                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+
+        if (totalBillToTargetUser.compareTo(BigDecimal.valueOf(0)) <= 0)
+            throw new InvalidPropertiesValue(
+                    Map.of("user_id", "you do not have any unpaid bills to this user")
+            );
+        else if (payBillRequest.getAmount().compareTo(totalBillToTargetUser) > 0)
+            throw new InvalidPropertiesValue(
+                    Map.of("amount", "should be less or equals to " + totalBillToTargetUser)
+            );
+
+        BillTransaction billTransaction = BillTransaction.builder()
+                .payer(user)
+                .receiver(targetUser)
+                .amount(payAmount)
+                .build();
+
+        // Pay amount equals to total bill to target user
+        if (totalBillToTargetUser.compareTo(payAmount) == 0) {
+            var allPaidBills = unpaidStatus
+                    .stream()
+                    .peek(status -> status.setStatus(BillStatus.PAID))
+                    .map(status -> {
+                        var billTransactionHeader = BillTransactionHeader.builder()
+                                .status(status)
+                                .billTransaction(billTransaction)
+                                .paidAmount(status.getOweAmount())
+                                .build();
+                        status.addBillTransactionHeader(billTransactionHeader);
+                        return billTransactionHeader;
+                    })
+                    .collect(Collectors.toList());
+
+            billTransaction.setBillTransactionHeaderList(allPaidBills);
+        }
+        // Pay amount not equals to total bill to target user, cascade to all possible bills
+        else {
+            final BigDecimal[] tempMaxPayableAmount = {BigDecimal.valueOf(0)};
+            var billTransactionHeaderList = unpaidStatus
+                    .stream()
+                    .takeWhile(status -> tempMaxPayableAmount[0].compareTo(payAmount) < 0)
+                    .map(status -> {
+                        BigDecimal temp = payAmount.subtract(tempMaxPayableAmount[0]);
+
+                        BigDecimal paidForThisStatus = status.getOweAmount();
+
+                        if (status.getOweAmount().compareTo(temp) <= 0) {
+                            status.setStatus(BillStatus.PAID);
+                        } else {
+                            paidForThisStatus = temp;
+                        }
+
+                        tempMaxPayableAmount[0] = tempMaxPayableAmount[0].add(paidForThisStatus);
+
+                        var billTransactionHeader = BillTransactionHeader.builder()
+                                .status(status)
+                                .billTransaction(billTransaction)
+                                .paidAmount(paidForThisStatus)
+                                .build();
+
+                        status.addBillTransactionHeader(billTransactionHeader);
+
+                        return billTransactionHeader;
+                    })
+                    .collect(Collectors.toList());
+
+            billTransaction.setBillTransactionHeaderList(billTransactionHeaderList);
+        }
+
+        var billTransactionEntity = billTransactionRepository.save(billTransaction);
+
+        return BillTransactionResponse.map(billTransactionEntity);
     }
 
     private BigDecimal calculateDiscount(

@@ -14,6 +14,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
+@Builder
 public class BillTransactionHeader {
     @Id
     @SequenceGenerator(name = "bill_transaction_header_id_seq", sequenceName = "bill_transaction_header_id_seq", allocationSize = 1)
