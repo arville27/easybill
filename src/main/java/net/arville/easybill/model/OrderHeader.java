@@ -11,8 +11,8 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -79,7 +79,7 @@ public class OrderHeader {
     }
 
     public BigDecimal getPerUserFee() {
-        return this.otherFee.divide(BigDecimal.valueOf(this.participatingUserCount), RoundingMode.HALF_UP);
+        return this.otherFee.divide(BigDecimal.valueOf(this.participatingUserCount), 0, RoundingMode.HALF_UP);
     }
 
     public OrderHeaderSummary getRelevantOrderSummarization(User user) {

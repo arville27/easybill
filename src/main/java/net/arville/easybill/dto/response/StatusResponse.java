@@ -33,6 +33,8 @@ public class StatusResponse {
     @JsonProperty("related_order_header")
     private List<OrderHeaderResponse> relatedOrderHeader;
 
+    private BigDecimal totalPaid;
+
     private BillStatus status;
 
     private BigDecimal oweAmount;
@@ -41,6 +43,7 @@ public class StatusResponse {
         return StatusResponse.builder()
                 .userResponse(UserResponse.mapWithoutDate(entity.getUser()))
                 .status(entity.getStatus())
+                .totalPaid(entity.getTotalPaidAmount())
                 .oweAmount(entity.getOweAmount());
     }
 

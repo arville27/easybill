@@ -67,10 +67,7 @@ public class Status {
     public BigDecimal getOweAmount() {
         BigDecimal perUserFee = this.orderHeader
                 .getOtherFee()
-                .divide(
-                        BigDecimal.valueOf(this.orderHeader.getParticipatingUserCount()),
-                        RoundingMode.HALF_UP
-                );
+                .divide(BigDecimal.valueOf(this.orderHeader.getParticipatingUserCount()), 0, RoundingMode.HALF_UP);
 
         return this.orderHeader
                 .getOrderDetailList()
@@ -81,8 +78,11 @@ public class Status {
                         .subtract(order.getItemDiscount())
                 )
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add)
-                .add(perUserFee)
-                .subtract(this.getTotalPaidAmount());
+                .add(perUserFee);
+    }
+
+    public BigDecimal getOweAmountWithBillTransaction() {
+        return this.getOweAmount().subtract(this.getTotalPaidAmount());
     }
 
     public BigDecimal getTotalPaidAmount() {

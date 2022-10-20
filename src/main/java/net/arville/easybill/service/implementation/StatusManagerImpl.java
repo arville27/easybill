@@ -40,7 +40,7 @@ public class StatusManagerImpl implements StatusManager {
                 .map(order -> order.getPrice().multiply(BigDecimal.valueOf(order.getQty())))
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
 
-        BigDecimal discountAmountBeforeUpto = totalOrderAmount.multiply(BigDecimal.valueOf(discount));
+        BigDecimal discountAmountBeforeUpto = totalOrderAmount.multiply(BigDecimal.valueOf(discount)).setScale(0, RoundingMode.HALF_UP);
         BigDecimal discountAmount = discountAmountBeforeUpto.compareTo(upto) > 0 ? upto : discountAmountBeforeUpto;
 
         BigDecimal othersFee = totalPayment.add(discountAmount).subtract(totalOrderAmount);
@@ -77,7 +77,7 @@ public class StatusManagerImpl implements StatusManager {
                                 s -> s.getOrderHeader().getBuyer(),
                                 Collectors.collectingAndThen(Collectors.toList(), statusList -> {
                                     var totalOweAmount = statusList.stream()
-                                            .map(Status::getOweAmount)
+                                            .map(Status::getOweAmountWithBillTransaction)
                                             .reduce(BigDecimal.valueOf(0), BigDecimal::add);
 
                                     var orderHeaderList = statusList.stream()
@@ -123,7 +123,7 @@ public class StatusManagerImpl implements StatusManager {
                                 Status::getUser,
                                 Collectors.collectingAndThen(Collectors.toList(), statusList -> {
                                     var totalOweAmount = statusList.stream()
-                                            .map(Status::getOweAmount)
+                                            .map(Status::getOweAmountWithBillTransaction)
                                             .reduce(BigDecimal.valueOf(0), BigDecimal::add);
 
                                     var orderHeaderList = statusList.stream()
@@ -182,7 +182,7 @@ public class StatusManagerImpl implements StatusManager {
 
         BigDecimal totalBillToTargetUser = unpaidStatus
                 .stream()
-                .map(Status::getOweAmount)
+                .map(Status::getOweAmountWithBillTransaction)
                 .reduce(BigDecimal.valueOf(0), BigDecimal::add);
 
         if (totalBillToTargetUser.compareTo(BigDecimal.valueOf(0)) <= 0)
@@ -227,9 +227,9 @@ public class StatusManagerImpl implements StatusManager {
                     .map(status -> {
                         BigDecimal temp = payAmount.subtract(tempMaxPayableAmount[0]);
 
-                        BigDecimal paidForThisStatus = status.getOweAmount();
+                        BigDecimal paidForThisStatus = status.getOweAmountWithBillTransaction();
 
-                        if (status.getOweAmount().compareTo(temp) <= 0) {
+                        if (paidForThisStatus.compareTo(temp) <= 0) {
                             status.setStatus(BillStatus.PAID);
                         } else {
                             paidForThisStatus = temp;
@@ -263,7 +263,7 @@ public class StatusManagerImpl implements StatusManager {
             BigDecimal totalOrderAmount
     ) {
         var totalOrderDetail = BigDecimal.valueOf(order.getQty()).multiply(order.getPrice());
-        return totalOrderDetail.multiply(totalDiscountAmount).divide(totalOrderAmount, RoundingMode.HALF_UP);
+        return totalOrderDetail.multiply(totalDiscountAmount).divide(totalOrderAmount, 0, RoundingMode.HALF_UP);
     }
 
 }
