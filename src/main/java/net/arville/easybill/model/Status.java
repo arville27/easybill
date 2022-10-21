@@ -8,8 +8,8 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "status")
@@ -39,7 +39,7 @@ public class Status {
 
     @OneToMany(mappedBy = "status", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @ToString.Exclude
-    private List<BillTransactionHeader> billTransactionHeaderList;
+    private Set<BillTransactionHeader> billTransactionHeaderList;
 
     @Override
     public boolean equals(Object o) {
@@ -59,7 +59,7 @@ public class Status {
 
     public Status addBillTransactionHeader(BillTransactionHeader billTransactionHeader) {
         if (this.billTransactionHeaderList == null)
-            this.billTransactionHeaderList = Collections.emptyList();
+            this.billTransactionHeaderList = Collections.emptySet();
         this.billTransactionHeaderList.add(billTransactionHeader);
         return this;
     }
@@ -87,7 +87,7 @@ public class Status {
 
     public BigDecimal getTotalPaidAmount() {
         if (this.billTransactionHeaderList == null)
-            this.billTransactionHeaderList = Collections.emptyList();
+            this.billTransactionHeaderList = Collections.emptySet();
         return this.billTransactionHeaderList
                 .stream()
                 .map(BillTransactionHeader::getPaidAmount)
