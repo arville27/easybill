@@ -2,10 +2,7 @@ package net.arville.easybill.service.implementation;
 
 import lombok.AllArgsConstructor;
 import net.arville.easybill.dto.request.PayBillRequest;
-import net.arville.easybill.dto.response.BillTransactionResponse;
-import net.arville.easybill.dto.response.OrderHeaderResponse;
-import net.arville.easybill.dto.response.StatusResponse;
-import net.arville.easybill.dto.response.UserResponse;
+import net.arville.easybill.dto.response.*;
 import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.model.*;
@@ -255,6 +252,36 @@ public class StatusManagerImpl implements StatusManager {
         var billTransactionEntity = billTransactionRepository.save(billTransaction);
 
         return BillTransactionResponse.map(billTransactionEntity);
+    }
+
+    @Override
+    public UserResponse getRelevantUsersBillTransaction(User user) {
+
+        var relevantBillTransaction = billTransactionRepository.findAllRelevantTransaction(user.getId());
+
+        return UserResponse.template(user)
+                .billTransactionResponseList(relevantBillTransaction
+                        .stream()
+                        .map(billTransaction -> BillTransactionResponse
+                                .template(billTransaction)
+                                .createdAt(billTransaction.getCreatedAt())
+                                .billTransactionHeaderResponseList(
+                                        billTransaction.getBillTransactionHeaderList()
+                                                .stream()
+                                                .map(billTransactionHeader -> BillTransactionHeaderResponse
+                                                        .template(billTransactionHeader)
+                                                        .orderHeaderResponse(OrderHeaderResponse
+                                                                .template(billTransactionHeader.getStatus().getOrderHeader())
+                                                                .build()
+                                                        )
+                                                        .build()
+                                                ).collect(Collectors.toList())
+                                )
+                                .build()
+                        )
+                        .collect(Collectors.toUnmodifiableList())
+                )
+                .build();
     }
 
     private BigDecimal calculateDiscount(

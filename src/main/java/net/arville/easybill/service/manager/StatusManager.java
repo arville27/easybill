@@ -17,4 +17,6 @@ public interface StatusManager {
     UserResponse getAllUsersBillToUser(User user);
 
     BillTransactionResponse payUnpaidStatus(User user, PayBillRequest payBillRequest);
+
+    UserResponse getRelevantUsersBillTransaction(User user);
 }

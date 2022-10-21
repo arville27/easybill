@@ -30,7 +30,7 @@ public class UserResponse extends BaseUserEntity {
 
     @JsonProperty("discount_total")
     private BigDecimal discountTotal;
-    
+
     @JsonProperty("total_price_after_discount")
     private BigDecimal totalOrderAfterDiscount;
 
@@ -39,6 +39,9 @@ public class UserResponse extends BaseUserEntity {
     private String accessToken;
     @JsonProperty("users_bills")
     private List<StatusResponse> statusResponseList;
+
+    @JsonProperty("bill_transaction_list")
+    private List<BillTransactionResponse> billTransactionResponseList;
 
     public static UserResponse.UserResponseBuilder template(User entity) {
         return UserResponse.builder()
@@ -65,7 +68,7 @@ public class UserResponse extends BaseUserEntity {
     }
 
     @Builder
-    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, BigDecimal totalOrder, BigDecimal discountTotal, BigDecimal totalOrderAfterDiscount, List<OrderDetailResponse> userOrders, String accessToken, List<StatusResponse> statusResponseList) {
+    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, BigDecimal totalOrder, BigDecimal discountTotal, BigDecimal totalOrderAfterDiscount, List<OrderDetailResponse> userOrders, String accessToken, List<StatusResponse> statusResponseList, List<BillTransactionResponse> billTransactionResponseList) {
         super(id, username, password, orderList, orderDetailList, createdAt, updatedAt);
         this.orderHeaderResponseList = orderHeaderResponseList;
         this.totalOrder = totalOrder;
@@ -74,5 +77,6 @@ public class UserResponse extends BaseUserEntity {
         this.userOrders = userOrders;
         this.accessToken = accessToken;
         this.statusResponseList = statusResponseList;
+        this.billTransactionResponseList = billTransactionResponseList;
     }
 }

@@ -43,8 +43,8 @@ public class StatusController {
     @GetMapping("/history")
     public ResponseEntity<ResponseStructure> getAllStatusTransaction() {
 
-        var status = statusManager.getAllUsersBillToUser(authenticatedUser.getUser());
-        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(status);
+        var billTransactions = statusManager.getRelevantUsersBillTransaction(authenticatedUser.getUser());
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(billTransactions);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
