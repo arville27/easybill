@@ -1,4 +1,4 @@
-package net.arville.easybill.controller.helper;
+package net.arville.easybill.helper;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.BAD_REQUEST)
     @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseStructure> missingRequiredPropertiesException(MissingRequiredPropertiesException e) {
-        var body = ResponseStatus.ORDER_NOT_FOUND.GenerateGeneralBody(null, e.getMessage());
+        var body = ResponseStatus.MISSING_REQUIRED_FIELDS.GenerateGeneralBody(null, e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
@@ -57,6 +57,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResponseStructure> invalidCredentialsException(InvalidCredentialsException e) {
         var body = ResponseStatus.INVALID_CREDENTIALS.GenerateGeneralBody(null);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(InvalidPropertiesValue.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.BAD_REQUEST)
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure> invalidPropertiesValue(InvalidPropertiesValue e) {
+        var body = ResponseStatus.INVALID_FIELDS_VALUE.GenerateGeneralBody(null, e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     // Filter exception

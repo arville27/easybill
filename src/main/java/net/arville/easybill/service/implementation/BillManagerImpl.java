@@ -1,59 +1,40 @@
 package net.arville.easybill.service.implementation;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.response.BillResponse;
+import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.model.Bill;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
+import net.arville.easybill.model.helper.BillStatus;
 import net.arville.easybill.repository.BillRepository;
 import net.arville.easybill.service.manager.BillManager;
-import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BillManagerImpl implements BillManager {
-
     private final BillRepository billRepository;
-    private final UserManager userManager;
 
-    public UserResponse getAllBills(Long userId) {
-
-        User user = userManager.getUserByUserId(userId);
-
-        List<BillResponse> usersBill = billRepository.findAllUserBills(userId).stream()
-                .map(BillResponse::map)
-                .collect(Collectors.toList());
-
-        UserResponse userResponse = UserResponse.mapWithoutDate(user);
-        userResponse.setBillResponseList(usersBill);
-
-        return userResponse;
-    }
-
-    public List<Bill> generateBillsFromOrderHeader(OrderHeader orderHeader) {
-
-        User buyer = orderHeader.getUser();
+    @Override
+    public Set<Bill> generateCorrespondingBills(OrderHeader orderHeader) {
         Double discount = orderHeader.getDiscount();
         BigDecimal upto = orderHeader.getUpto();
         BigDecimal totalPayment = orderHeader.getTotalPayment();
-        List<OrderDetail> orderList = orderHeader.getOrderDetailList();
+        Set<OrderDetail> orderList = orderHeader.getOrderDetailList();
 
         BigDecimal totalOrderAmount = orderList.stream()
-                .map(OrderDetail::getPrice)
-                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+                .map(order -> order.getPrice().multiply(BigDecimal.valueOf(order.getQty())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal discountAmountBeforeUpto = totalOrderAmount.multiply(BigDecimal.valueOf(discount));
+        BigDecimal discountAmountBeforeUpto = totalOrderAmount.multiply(BigDecimal.valueOf(discount)).setScale(0, RoundingMode.HALF_UP);
         BigDecimal discountAmount = discountAmountBeforeUpto.compareTo(upto) > 0 ? upto : discountAmountBeforeUpto;
 
         BigDecimal othersFee = totalPayment.add(discountAmount).subtract(totalOrderAmount);
@@ -63,55 +44,101 @@ public class BillManagerImpl implements BillManager {
         orderHeader.setDiscountAmount(discountAmount);
         orderHeader.setOtherFee(othersFee);
 
-        Map<Long, Bill> billMap = new HashMap<>();
-
-        AtomicBoolean isBuyerIncluded = new AtomicBoolean(false);
-
+        // Fill missing attribute in order detail model
+        Set<User> participatedUser = new HashSet<>();
         orderList.forEach(order -> {
-            User currentUser = order.getUser();
-
-            if (currentUser.getId().equals(buyer.getId())) {
-                isBuyerIncluded.set(true);
-                return;
-            }
-
-            var currentUserBill = billMap.getOrDefault(
-                    currentUser.getId(),
-                    Bill.builder().user(currentUser).owe(buyer).oweTotal(BigDecimal.valueOf(0)).build()
-            );
-
-            // TODO: Consider existing bill from buyer side to the current user
-            BigDecimal orderDiscount = order.getPrice().multiply(discountAmount).divide(totalOrderAmount, 3, RoundingMode.HALF_UP);
-
-            currentUserBill.addOweTotal(order.getPrice().subtract(orderDiscount));
-
-            billMap.putIfAbsent(currentUser.getId(), currentUserBill);
-
+            participatedUser.add(order.getUser());
+            order.setItemDiscount(this.calculateDiscount(order, discountAmount, totalOrderAmount));
         });
 
-        int participantCount = billMap.size() + (isBuyerIncluded.get() ? 1 : 0);
+        orderHeader.setParticipatingUserCount(participatedUser.size());
 
-        BigDecimal perUserFee = othersFee.divide(BigDecimal.valueOf(participantCount), 3, RoundingMode.HALF_UP);
+        return participatedUser.stream()
+                .map(user -> Bill.builder()
+                        .orderHeader(orderHeader)
+                        .status(Objects.equals(user.getId(), orderHeader.getBuyer().getId()) ? BillStatus.PAID : BillStatus.UNPAID)
+                        .user(user)
+                        .build()
+                )
+                .collect(Collectors.toSet());
+    }
 
-        var bills = billMap.values().stream()
-                .map(bill -> bill.addOweTotal(perUserFee))
-                .map(bill -> this.getExistingBill(bill.getUser(), bill.getOwe()).addOweTotal(bill.getOweTotal()))
+    @Override
+    public UserResponse getAllUsersBill(User user) {
+        var aggregated = billRepository.findAllUsersBills(user.getId())
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Bill::getOrderHeaderBuyer,
+                        Collectors.collectingAndThen(Collectors.toList(), this::calculateAggregatedValue))
+                );
+
+        return generateBillResponse(user, aggregated);
+    }
+
+    private UserResponse generateBillResponse(User user, Map<User, BillResponse.AggregatedRelatedOrderWithTotalOwe> aggregated) {
+        return UserResponse.template(user)
+                .billResponseList(aggregated.entrySet()
+                        .stream()
+                        .map(userMapEntry -> {
+                            User buyer = userMapEntry.getKey();
+                            var totalOwe = (BigDecimal) userMapEntry.getValue().getTotalOweAmount();
+                            var orderHeaderList = (List<OrderHeader>) userMapEntry.getValue().getRelatedOrderHeader();
+                            return BillResponse.builder()
+                                    .userResponse(UserResponse.mapWithoutDate(buyer))
+                                    .oweAmount(totalOwe)
+                                    .relatedOrderHeader(orderHeaderList
+                                            .stream()
+                                            .map(orderHeader -> OrderHeaderResponse
+                                                    .template(orderHeader)
+                                                    .buyerResponse(UserResponse.mapWithoutDate(orderHeader.getBuyer()))
+                                                    .totalBill(orderHeader.getRelevantBill(user).getOweAmountWithBillTransaction())
+                                                    .build()
+                                            )
+                                            .collect(Collectors.toList())
+                                    )
+                                    .status(BillStatus.UNPAID)
+                                    .build();
+                        })
+                        .collect(Collectors.toList())
+                )
+                .build();
+    }
+
+    @Override
+    public UserResponse getAllUsersBillToUser(User user) {
+        var aggregated = billRepository.findAllBillToUser(user.getId())
+                .stream()
+                .collect(Collectors.groupingBy(
+                        Bill::getUser,
+                        Collectors.collectingAndThen(Collectors.toList(), this::calculateAggregatedValue))
+                );
+
+        return generateBillResponse(user, aggregated);
+    }
+
+    private BigDecimal calculateDiscount(
+            OrderDetail order,
+            BigDecimal totalDiscountAmount,
+            BigDecimal totalOrderAmount
+    ) {
+        var totalOrderDetail = BigDecimal.valueOf(order.getQty()).multiply(order.getPrice());
+        return totalOrderDetail.multiply(totalDiscountAmount).divide(totalOrderAmount, 0, RoundingMode.HALF_UP);
+    }
+
+    private BillResponse.AggregatedRelatedOrderWithTotalOwe calculateAggregatedValue(List<Bill> billList) {
+        var totalOweAmount = billList.stream()
+                .map(Bill::getOweAmountWithBillTransaction)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        var orderHeaderList = billList.stream()
+                .map(Bill::getOrderHeader)
                 .collect(Collectors.toList());
 
-        return billRepository.saveAll(bills);
+        return BillResponse.AggregatedRelatedOrderWithTotalOwe
+                .builder()
+                .totalOweAmount(totalOweAmount)
+                .relatedOrderHeader(orderHeaderList)
+                .build();
     }
 
-    private Bill getExistingBill(User user, User oweTo) {
-        return billRepository
-                .findAllUserBills(user.getId())
-                .stream()
-                .filter(bill -> bill.getOwe().getId().equals(oweTo.getId()))
-                .findAny()
-                .orElse(Bill.builder()
-                        .user(user)
-                        .owe(oweTo)
-                        .oweTotal(BigDecimal.valueOf(0))
-                        .build()
-                );
-    }
 }

@@ -1,9 +1,11 @@
 package net.arville.easybill.service.implementation;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import net.arville.easybill.dto.request.AddOrderRequest;
+import net.arville.easybill.dto.response.BillResponse;
 import net.arville.easybill.dto.response.OrderDetailResponse;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
-import net.arville.easybill.dto.request.AddOrderRequest;
+import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.OrderNotFoundException;
 import net.arville.easybill.model.OrderDetail;
@@ -18,9 +20,8 @@ import org.springframework.stereotype.Service;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OrderManagerImpl implements OrderManager {
-
     private final OrderHeaderRepository orderHeaderRepository;
     private final UserManager userManager;
     private final BillManager billManager;
@@ -45,35 +46,62 @@ public class OrderManagerImpl implements OrderManager {
                             orderDetail.setUser(orderBy);
                             return orderDetail;
                         })
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toSet())
         );
-        orderHeader.setUser(user);
+        orderHeader.setBuyer(user);
         user.getOrderList().add(orderHeader);
 
+        // This will process order and generate bill accordingly
+        var bills = billManager.generateCorrespondingBills(orderHeader);
+        orderHeader.setBillList(bills);
         var savedOrderHeader = orderHeaderRepository.save(orderHeader);
 
-        // This will process order and generate bill accordingly
-        billManager.generateBillsFromOrderHeader(orderHeader);
-
-        return OrderHeaderResponse
-                .template(savedOrderHeader)
-                .buyerId(savedOrderHeader.getUser().getId())
-                .orderDetailResponses(savedOrderHeader
-                        .getOrderDetailList().stream()
-                        .map(OrderDetailResponse::map)
-                        .peek(orderDetailResponse -> {
-                            orderDetailResponse.setUserId(orderDetailResponse.getUserData().getId());
-                            orderDetailResponse.setUserData(null);
-                        })
-                        .collect(Collectors.toList())
-                )
-                .build();
+        return createOrderHeaderResponse(savedOrderHeader);
     }
 
     public OrderHeaderResponse getOrderById(Long orderId) {
         OrderHeader orderHeader = orderHeaderRepository
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
-        return OrderHeaderResponse.map(orderHeader);
+
+        return createOrderHeaderResponse(orderHeader);
     }
+
+    private OrderHeaderResponse createOrderHeaderResponse(OrderHeader orderHeader) {
+        var orderDetailListGroupByUser = orderHeader.getOrderDetailList()
+                .stream()
+                .collect(Collectors.groupingBy(OrderDetail::getUser));
+
+        return OrderHeaderResponse
+                .template(orderHeader)
+                .buyerResponse(UserResponse.mapWithoutDate(orderHeader.getBuyer()))
+                .participatingUserCount(orderHeader.getParticipatingUserCount())
+                .userOtherFee(orderHeader.getPerUserFee())
+                .relatedOrderDetail(orderDetailListGroupByUser.entrySet()
+                        .stream()
+                        .map(userListEntry -> {
+                            var orderOwner = userListEntry.getKey();
+                            var orderDetails = userListEntry.getValue();
+                            var orderSummary = orderHeader.getRelevantOrderSummarization(orderOwner);
+                            return UserResponse.template(orderOwner)
+                                    .totalOrder(orderSummary.getTotalOrder())
+                                    .discountTotal(orderSummary.getTotalDiscount())
+                                    .totalOrderAfterDiscount(orderSummary.getTotalOrderAfterDiscount())
+                                    .userOrders(orderDetails
+                                            .stream()
+                                            .map(orderDetail -> OrderDetailResponse.template(orderDetail).build())
+                                            .collect(Collectors.toList())
+                                    )
+                                    .build();
+                        })
+                        .collect(Collectors.toList())
+                )
+                .billResponse(orderHeader.getBillList()
+                        .stream()
+                        .map(BillResponse::map)
+                        .collect(Collectors.toList())
+                )
+                .build();
+    }
+
 }

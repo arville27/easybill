@@ -1,65 +1,100 @@
 package net.arville.easybill.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.*;
+import net.arville.easybill.model.helper.BillStatus;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.math.RoundingMode;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
-@Table(name = "bills")
-@AllArgsConstructor
+@Table(name = "billls")
 @NoArgsConstructor
-@Data
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 @Builder
 public class Bill {
+
     @Id
     @SequenceGenerator(name = "bill_id_seq", sequenceName = "bill_id_seq", allocationSize = 1)
     @GeneratedValue(generator = "bill_id_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
+    @ManyToOne
+    @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
+    @ToString.Exclude
+    private OrderHeader orderHeader;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "owe_to", referencedColumnName = "id")
-    private User owe;
+    @Enumerated(EnumType.STRING)
+    private BillStatus status;
 
-    @Column(name = "owe_total")
-    private BigDecimal oweTotal = new BigDecimal(0);
+    @OneToMany(mappedBy = "bill", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ToString.Exclude
+    private Set<BillTransactionHeader> billTransactionHeaderList;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime updatedAt;
-
-    public Bill addOweTotal(Long amount) {
-        return addOweTotal(BigDecimal.valueOf(amount));
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Bill bill = (Bill) o;
+        return id != null && Objects.equals(id, bill.id);
     }
 
-    public Bill addOweTotal(BigDecimal amount) {
-        this.oweTotal = this.oweTotal.add(amount);
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Transient
+    private BigDecimal oweAmount;
+
+    public Bill addBillTransactionHeader(BillTransactionHeader billTransactionHeader) {
+        if (this.billTransactionHeaderList == null)
+            this.billTransactionHeaderList = Collections.emptySet();
+        this.billTransactionHeaderList.add(billTransactionHeader);
         return this;
     }
 
-    public Bill decreaseOweTotal(Long amount) {
-        return decreaseOweTotal(BigDecimal.valueOf(amount));
+    public BigDecimal getOweAmount() {
+        BigDecimal perUserFee = this.orderHeader
+                .getOtherFee()
+                .divide(BigDecimal.valueOf(this.orderHeader.getParticipatingUserCount()), 0, RoundingMode.HALF_UP);
+
+        return this.orderHeader
+                .getOrderDetailList()
+                .stream()
+                .filter(order -> Objects.equals(order.getUser().getId(), this.user.getId()))
+                .map(order -> order.getPrice()
+                        .multiply(BigDecimal.valueOf(order.getQty()))
+                        .subtract(order.getItemDiscount())
+                )
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .add(perUserFee);
     }
 
-    public Bill decreaseOweTotal(BigDecimal amount) {
-        this.oweTotal = this.oweTotal.min(amount);
-        return this;
+    public BigDecimal getOweAmountWithBillTransaction() {
+        return this.getOweAmount().subtract(this.getTotalPaidAmount());
+    }
+
+    public User getOrderHeaderBuyer() {
+        return this.orderHeader.getBuyer();
+    }
+
+    public BigDecimal getTotalPaidAmount() {
+        if (this.billTransactionHeaderList == null)
+            this.billTransactionHeaderList = Collections.emptySet();
+        return this.billTransactionHeaderList
+                .stream()
+                .map(BillTransactionHeader::getPaidAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

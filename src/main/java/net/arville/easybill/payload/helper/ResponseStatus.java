@@ -17,6 +17,7 @@ public enum ResponseStatus {
     ORDER_NOT_FOUND("ORDER_NOT_FOUND", "Order is doesn't exists"),
     USERNAME_ALREADY_EXISTS("USERNAME_ALREADY_EXISTS", "Username is already exists"),
     MISSING_REQUIRED_FIELDS("BAD REQUEST", "Please verify all required fields is present"),
+    INVALID_FIELDS_VALUE("BAD REQUEST", "Please verify all fields is correct"),
     UNKNOWN_ERROR("SERVER_ERROR", "Internal server error, please try again later"),
     METHOD_NOT_ALLOWED("METHOD_NOT_ALLOWED", "Method not allowed"),
     INVALID_CREDENTIALS("INVALID_CREDENTIALS", "Please verify provided credentials are valid");

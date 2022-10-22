@@ -2,60 +2,57 @@ package net.arville.easybill.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import net.arville.easybill.dto.base.BaseBillEntity;
-import net.arville.easybill.dto.helper.EntityBuilder;
+import lombok.*;
 import net.arville.easybill.model.Bill;
-import net.arville.easybill.model.User;
+import net.arville.easybill.model.OrderHeader;
+import net.arville.easybill.model.helper.BillStatus;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Getter
 @Setter
-@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class BillResponse extends BaseBillEntity {
+public class BillResponse {
+
+    private Long orderHeaderId;
 
     @JsonProperty("user")
-    private UserResponse userData;
+    private UserResponse userResponse;
 
-    @JsonProperty("owe")
-    private UserResponse oweUser;
+    @JsonProperty("order_header")
+    private OrderHeaderResponse orderHeaderResponse;
 
-    public static BillResponse.BillResponseBuilder template(Bill entity) {
+    @JsonProperty("related_order_header")
+    private List<OrderHeaderResponse> relatedOrderHeader;
+
+    private BigDecimal totalPaid;
+
+    private BillStatus status;
+
+    private BigDecimal oweAmount;
+
+    public static BillResponseBuilder template(Bill entity) {
         return BillResponse.builder()
-                .id(entity.getId())
-                .userData(UserResponse.mapWithoutDate(entity.getUser()))
-                .oweUser(UserResponse.mapWithoutDate(entity.getOwe()))
-                .oweTotal(entity.getOweTotal());
+                .userResponse(UserResponse.mapWithoutDate(entity.getUser()))
+                .status(entity.getStatus())
+                .totalPaid(entity.getTotalPaidAmount())
+                .oweAmount(entity.getOweAmount());
     }
 
     public static BillResponse map(Bill entity) {
-        return BillResponse.template(entity)
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
-    }
-
-    public static BillResponse mapWithoutDate(Bill entity) {
         return BillResponse.template(entity).build();
     }
 
-    public static BillResponse customMap(
-            Bill entity,
-            EntityBuilder<BillResponse, BillResponse.BillResponseBuilder, Bill> builder
-    ) {
-        return builder.createCustomEntity(BillResponse.builder(), entity);
-    }
-
+    @Getter
+    @Setter
+    @AllArgsConstructor
     @Builder
-    public BillResponse(Long id, User user, User owe, BigDecimal oweTotal, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse userData, UserResponse oweUser) {
-        super(id, user, owe, oweTotal, createdAt, updatedAt);
-        this.userData = userData;
-        this.oweUser = oweUser;
+    public static class AggregatedRelatedOrderWithTotalOwe {
+        private List<OrderHeader> relatedOrderHeader;
+        private BigDecimal totalOweAmount;
     }
 }

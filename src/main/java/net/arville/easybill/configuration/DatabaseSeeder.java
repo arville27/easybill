@@ -32,7 +32,11 @@ public class DatabaseSeeder {
             jossen.setUsername("jossen");
             jossen.setPassword(encoder.encode("jossenjelek"));
 
-            userRepository.saveAll(List.of(yohanes, arville, jossen));
+            User winata = new User();
+            winata.setUsername("winata");
+            winata.setPassword(encoder.encode("winatajelek"));
+
+            userRepository.saveAll(List.of(yohanes, arville, jossen, winata));
         };
 
     }
