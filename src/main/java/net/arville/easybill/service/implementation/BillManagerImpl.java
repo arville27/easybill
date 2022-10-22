@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,6 +72,10 @@ public class BillManagerImpl implements BillManager {
                         Collectors.collectingAndThen(Collectors.toList(), this::calculateAggregatedValue))
                 );
 
+        return generateBillResponse(user, aggregated);
+    }
+
+    private UserResponse generateBillResponse(User user, Map<User, BillResponse.AggregatedRelatedOrderWithTotalOwe> aggregated) {
         return UserResponse.template(user)
                 .billResponseList(aggregated.entrySet()
                         .stream()
@@ -83,11 +84,15 @@ public class BillManagerImpl implements BillManager {
                             var totalOwe = (BigDecimal) userMapEntry.getValue().getTotalOweAmount();
                             var orderHeaderList = (List<OrderHeader>) userMapEntry.getValue().getRelatedOrderHeader();
                             return BillResponse.builder()
-                                    .oweResponse(UserResponse.mapWithoutDate(buyer))
+                                    .userResponse(UserResponse.mapWithoutDate(buyer))
                                     .oweAmount(totalOwe)
                                     .relatedOrderHeader(orderHeaderList
                                             .stream()
-                                            .map(orderHeader -> OrderHeaderResponse.template(orderHeader).build())
+                                            .map(orderHeader -> OrderHeaderResponse
+                                                    .template(orderHeader)
+                                                    .buyerResponse(UserResponse.mapWithoutDate(orderHeader.getBuyer()))
+                                                    .build()
+                                            )
                                             .collect(Collectors.toList())
                                     )
                                     .status(BillStatus.UNPAID)
@@ -107,27 +112,7 @@ public class BillManagerImpl implements BillManager {
                         Collectors.collectingAndThen(Collectors.toList(), this::calculateAggregatedValue))
                 );
 
-        return UserResponse.template(user)
-                .billResponseList(aggregated.entrySet()
-                        .stream()
-                        .map(userMapEntry -> {
-                            User relatedUser = userMapEntry.getKey();
-                            var totalOwe = (BigDecimal) userMapEntry.getValue().getTotalOweAmount();
-                            var orderHeaderList = (List<OrderHeader>) userMapEntry.getValue().getRelatedOrderHeader();
-                            return BillResponse.builder()
-                                    .userResponse(UserResponse.mapWithoutDate(relatedUser))
-                                    .oweAmount(totalOwe)
-                                    .relatedOrderHeader(orderHeaderList
-                                            .stream()
-                                            .map(orderHeader -> OrderHeaderResponse.template(orderHeader).build())
-                                            .collect(Collectors.toList())
-                                    )
-                                    .status(BillStatus.UNPAID)
-                                    .build();
-                        })
-                        .collect(Collectors.toList())
-                )
-                .build();
+        return generateBillResponse(user, aggregated);
     }
 
     private BigDecimal calculateDiscount(

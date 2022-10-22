@@ -24,9 +24,6 @@ public class BillResponse {
     @JsonProperty("user")
     private UserResponse userResponse;
 
-    @JsonProperty("owe")
-    private UserResponse oweResponse;
-
     @JsonProperty("order_header")
     private OrderHeaderResponse orderHeaderResponse;
 
