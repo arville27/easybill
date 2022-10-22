@@ -27,7 +27,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI().toLowerCase();
 
         return UNAUTHENTICATED_ROUTES_PREFIX.stream()
