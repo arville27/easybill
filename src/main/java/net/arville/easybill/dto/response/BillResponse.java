@@ -3,7 +3,6 @@ package net.arville.easybill.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import net.arville.easybill.dto.helper.EntityBuilder;
 import net.arville.easybill.model.Bill;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.helper.BillStatus;
@@ -46,13 +45,6 @@ public class BillResponse {
 
     public static BillResponse map(Bill entity) {
         return BillResponse.template(entity).build();
-    }
-
-    public static BillResponse customMap(
-            Bill entity,
-            EntityBuilder<BillResponse, BillResponseBuilder, Bill> builder
-    ) {
-        return builder.createCustomEntity(BillResponse.builder(), entity);
     }
 
     @Getter

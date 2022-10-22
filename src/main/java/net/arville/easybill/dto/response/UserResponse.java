@@ -1,26 +1,32 @@
 package net.arville.easybill.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import net.arville.easybill.dto.base.BaseUserEntity;
-import net.arville.easybill.dto.helper.EntityBuilder;
-import net.arville.easybill.model.OrderDetail;
-import net.arville.easybill.model.OrderHeader;
+import lombok.*;
 import net.arville.easybill.model.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@NoArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserResponse extends BaseUserEntity {
+public class UserResponse {
+
+    private Long id;
+
+    private String username;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
 
     @JsonProperty("order_list")
     private List<OrderHeaderResponse> orderHeaderResponseList;
@@ -36,14 +42,16 @@ public class UserResponse extends BaseUserEntity {
 
     @JsonProperty("user_orders")
     private List<OrderDetailResponse> userOrders;
+
     private String accessToken;
+
     @JsonProperty("users_bills")
     private List<BillResponse> billResponseList;
 
     @JsonProperty("bill_transaction_list")
     private List<BillTransactionResponse> billTransactionResponseList;
 
-    public static UserResponse.UserResponseBuilder template(User entity) {
+    public static UserResponseBuilder template(User entity) {
         return UserResponse.builder()
                 .id(entity.getId())
                 .username(entity.getUsername());
@@ -58,25 +66,5 @@ public class UserResponse extends BaseUserEntity {
 
     public static UserResponse mapWithoutDate(User entity) {
         return UserResponse.template(entity).build();
-    }
-
-    public static UserResponse customMap(
-            User entity,
-            EntityBuilder<UserResponse, UserResponse.UserResponseBuilder, User> builder
-    ) {
-        return builder.createCustomEntity(UserResponse.builder(), entity);
-    }
-
-    @Builder
-    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, BigDecimal totalOrder, BigDecimal discountTotal, BigDecimal totalOrderAfterDiscount, List<OrderDetailResponse> userOrders, String accessToken, List<BillResponse> billResponseList, List<BillTransactionResponse> billTransactionResponseList) {
-        super(id, username, password, orderList, orderDetailList, createdAt, updatedAt);
-        this.orderHeaderResponseList = orderHeaderResponseList;
-        this.totalOrder = totalOrder;
-        this.discountTotal = discountTotal;
-        this.totalOrderAfterDiscount = totalOrderAfterDiscount;
-        this.userOrders = userOrders;
-        this.accessToken = accessToken;
-        this.billResponseList = billResponseList;
-        this.billTransactionResponseList = billTransactionResponseList;
     }
 }
