@@ -38,6 +38,8 @@ public class OrderHeaderResponse {
 
     private BigDecimal discountAmount;
 
+    private BigDecimal totalBill;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderAt;
 

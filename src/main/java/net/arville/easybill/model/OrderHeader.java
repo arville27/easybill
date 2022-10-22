@@ -27,15 +27,19 @@ public class OrderHeader {
     @SequenceGenerator(name = "order_header_id_seq", sequenceName = "order_header_id_seq", allocationSize = 1)
     @GeneratedValue(generator = "order_header_id_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
+
     @Column(name = "order_description", nullable = false)
     private String orderDescription;
+
     @Column(name = "total_payment", nullable = false)
     private BigDecimal totalPayment;
     @ManyToOne
     @JoinColumn(name = "buyer_id", referencedColumnName = "id")
     private User buyer;
+
     @Column(nullable = false)
     private BigDecimal upto;
+
     @Column(nullable = false)
     private Double discount;
 
@@ -57,25 +61,34 @@ public class OrderHeader {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @ToString.Exclude
     private Set<Bill> billList;
+
     @Column(name = "order_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderAt;
+
     @CreationTimestamp
     @Column(name = "created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
 
     public BillStatus getRelevantStatus(User user) {
+        var bill = this.getRelevantBill(user);
+
+        return bill.getStatus();
+    }
+
+    public Bill getRelevantBill(User user) {
         var bills = this.billList
                 .stream()
                 .filter(s -> Objects.equals(s.getUser().getId(), user.getId()))
-                .findAny();
+                .findFirst();
 
-        return bills.isEmpty() ? null : bills.get().getStatus();
+        return bills.get();
     }
 
     public BigDecimal getPerUserFee() {
@@ -98,18 +111,6 @@ public class OrderHeader {
                 .totalDiscount(totalDiscount)
                 .totalOrderAfterDiscount(totalOrder.subtract(totalDiscount))
                 .build();
-    }
-
-    public OrderHeader(Long id, User buyer, Double discount, String orderDescription, BigDecimal totalPayment, BigDecimal upto, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.buyer = buyer;
-        this.discount = discount;
-        this.orderDescription = orderDescription;
-        this.totalPayment = totalPayment;
-        this.upto = upto;
-        this.orderAt = orderAt;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     @Override

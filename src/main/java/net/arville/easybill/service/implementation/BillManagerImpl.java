@@ -91,6 +91,7 @@ public class BillManagerImpl implements BillManager {
                                             .map(orderHeader -> OrderHeaderResponse
                                                     .template(orderHeader)
                                                     .buyerResponse(UserResponse.mapWithoutDate(orderHeader.getBuyer()))
+                                                    .totalBill(orderHeader.getRelevantBill(user).getOweAmountWithBillTransaction())
                                                     .build()
                                             )
                                             .collect(Collectors.toList())
