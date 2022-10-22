@@ -51,6 +51,7 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
                 .totalOrderAmount(entity.getTotalOrderAmount())
                 .discountAmount(entity.getDiscountAmount())
                 .otherFee(entity.getOtherFee())
+                .userOtherFee(entity.getPerUserFee())
                 .orderAt(entity.getOrderAt());
     }
 

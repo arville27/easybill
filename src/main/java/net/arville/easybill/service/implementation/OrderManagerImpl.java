@@ -56,17 +56,7 @@ public class OrderManagerImpl implements OrderManager {
         orderHeader.setBillList(bills);
         var savedOrderHeader = orderHeaderRepository.save(orderHeader);
 
-        return OrderHeaderResponse
-                .template(savedOrderHeader)
-                .buyerResponse(UserResponse.mapWithoutDate(savedOrderHeader.getBuyer()))
-                .participatingUserCount(savedOrderHeader.getParticipatingUserCount())
-                .orderDetailResponses(savedOrderHeader.getOrderDetailList().stream().map(OrderDetailResponse::map).collect(Collectors.toList()))
-                .billResponse(savedOrderHeader.getBillList()
-                        .stream()
-                        .map(BillResponse::map)
-                        .collect(Collectors.toList())
-                )
-                .build();
+        return createOrderHeaderResponse(savedOrderHeader);
     }
 
     public OrderHeaderResponse getOrderById(Long orderId) {
@@ -74,6 +64,10 @@ public class OrderManagerImpl implements OrderManager {
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
+        return createOrderHeaderResponse(orderHeader);
+    }
+
+    private OrderHeaderResponse createOrderHeaderResponse(OrderHeader orderHeader) {
         var orderDetailListGroupByUser = orderHeader.getOrderDetailList()
                 .stream()
                 .collect(Collectors.groupingBy(OrderDetail::getUser));
@@ -109,4 +103,5 @@ public class OrderManagerImpl implements OrderManager {
                 )
                 .build();
     }
+
 }
