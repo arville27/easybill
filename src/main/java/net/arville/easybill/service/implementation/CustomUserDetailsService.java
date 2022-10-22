@@ -1,6 +1,6 @@
 package net.arville.easybill.service.implementation;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 

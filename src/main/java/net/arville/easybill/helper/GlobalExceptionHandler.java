@@ -1,4 +1,4 @@
-package net.arville.easybill.controller.helper;
+package net.arville.easybill.helper;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.JsonMappingException;

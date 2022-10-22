@@ -12,18 +12,18 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "status")
+@Table(name = "billls")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
 @Builder
-public class Status {
+public class Bill {
 
     @Id
-    @SequenceGenerator(name = "status_id_seq", sequenceName = "status_id_seq", allocationSize = 1)
-    @GeneratedValue(generator = "status_id_seq", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(name = "bill_id_seq", sequenceName = "bill_id_seq", allocationSize = 1)
+    @GeneratedValue(generator = "bill_id_seq", strategy = GenerationType.SEQUENCE)
     private Long id;
     @ManyToOne
     @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
@@ -37,7 +37,7 @@ public class Status {
     @Enumerated(EnumType.STRING)
     private BillStatus status;
 
-    @OneToMany(mappedBy = "status", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "bill", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @ToString.Exclude
     private Set<BillTransactionHeader> billTransactionHeaderList;
 
@@ -45,8 +45,8 @@ public class Status {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Status status = (Status) o;
-        return id != null && Objects.equals(id, status.id);
+        Bill bill = (Bill) o;
+        return id != null && Objects.equals(id, bill.id);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class Status {
     @Transient
     private BigDecimal oweAmount;
 
-    public Status addBillTransactionHeader(BillTransactionHeader billTransactionHeader) {
+    public Bill addBillTransactionHeader(BillTransactionHeader billTransactionHeader) {
         if (this.billTransactionHeaderList == null)
             this.billTransactionHeaderList = Collections.emptySet();
         this.billTransactionHeaderList.add(billTransactionHeader);
@@ -77,12 +77,16 @@ public class Status {
                         .multiply(BigDecimal.valueOf(order.getQty()))
                         .subtract(order.getItemDiscount())
                 )
-                .reduce(BigDecimal.valueOf(0), BigDecimal::add)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .add(perUserFee);
     }
 
     public BigDecimal getOweAmountWithBillTransaction() {
         return this.getOweAmount().subtract(this.getTotalPaidAmount());
+    }
+
+    public User getOrderHeaderBuyer() {
+        return this.orderHeader.getBuyer();
     }
 
     public BigDecimal getTotalPaidAmount() {
@@ -91,6 +95,6 @@ public class Status {
         return this.billTransactionHeaderList
                 .stream()
                 .map(BillTransactionHeader::getPaidAmount)
-                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

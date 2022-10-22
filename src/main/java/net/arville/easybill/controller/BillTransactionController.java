@@ -2,48 +2,30 @@ package net.arville.easybill.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.PayBillRequest;
 import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
-import net.arville.easybill.service.manager.StatusManager;
+import net.arville.easybill.service.manager.BillTransactionManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/api/bills", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "User's Bill", description = "User bills related resource")
+@RequestMapping(path = "/api/bill-transactions", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "User's Bill Transaction", description = "User bill transactions related resource")
 @SecurityRequirement(name = "Access Token")
-@AllArgsConstructor
-public class StatusController {
+@RequiredArgsConstructor
+public class BillTransactionController {
     private final AuthenticatedUser authenticatedUser;
-    private final StatusManager statusManager;
-
-    @GetMapping("/payable")
-    public ResponseEntity<ResponseStructure> getAllStatus() {
-
-        var status = statusManager.getAllUsersBill(authenticatedUser.getUser());
-        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(status);
-
-        return ResponseEntity.status(HttpStatus.OK).body(body);
-    }
-
-    @GetMapping("/receivables")
-    public ResponseEntity<ResponseStructure> getAllStatusToUser() {
-
-        var status = statusManager.getAllUsersBillToUser(authenticatedUser.getUser());
-        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(status);
-
-        return ResponseEntity.status(HttpStatus.OK).body(body);
-    }
+    private final BillTransactionManager billTransactionManager;
 
     @GetMapping("/history")
     public ResponseEntity<ResponseStructure> getAllStatusTransaction() {
 
-        var billTransactions = statusManager.getRelevantUsersBillTransaction(authenticatedUser.getUser());
+        var billTransactions = billTransactionManager.getRelevantUsersBillTransaction(authenticatedUser.getUser());
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(billTransactions);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
@@ -52,7 +34,7 @@ public class StatusController {
     @PostMapping
     public ResponseEntity<ResponseStructure> payBills(@RequestBody PayBillRequest payBillRequest) {
 
-        var result = statusManager.payUnpaidStatus(authenticatedUser.getUser(), payBillRequest);
+        var result = billTransactionManager.payUnpaidBills(authenticatedUser.getUser(), payBillRequest);
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(result);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);

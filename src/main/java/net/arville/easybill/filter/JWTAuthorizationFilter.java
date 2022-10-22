@@ -1,7 +1,7 @@
 package net.arville.easybill.filter;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.exception.UnauthorizedRequestException;
 import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.helper.JwtUtils;
@@ -17,11 +17,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 
-import static net.arville.easybill.constant.EasybillConstants.AUTH_PATH;
+import static net.arville.easybill.constant.EasybillConstants.UNAUTHENTICATED_ROUTES_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
     private final AuthenticatedUser authenticatedUser;
     private final JwtUtils jwtUtils;
@@ -29,9 +29,10 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI().toLowerCase();
-        return path.startsWith("/swagger-ui")
-                || path.startsWith("/api/docs")
-                || path.equalsIgnoreCase(AUTH_PATH);
+
+        return UNAUTHENTICATED_ROUTES_PREFIX.stream()
+                .map(prefix -> prefix.replaceAll("/\\*+", ""))
+                .anyMatch(path::startsWith);
     }
 
     @Override

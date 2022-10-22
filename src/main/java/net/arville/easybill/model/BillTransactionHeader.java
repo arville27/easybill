@@ -22,16 +22,16 @@ public class BillTransactionHeader {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id")
+    @JoinColumn(name = "bill_id")
     @ToString.Exclude
-    private Status status;
+    private Bill bill;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bill_transaction_id")
     @ToString.Exclude
     private BillTransaction billTransaction;
 
-    private BigDecimal paidAmount = BigDecimal.valueOf(0);
+    private BigDecimal paidAmount = BigDecimal.ZERO;
 
     @Override
     public boolean equals(Object o) {

@@ -1,6 +1,6 @@
 package net.arville.easybill.configuration;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.filter.ExceptionHandlerFilter;
 import net.arville.easybill.filter.JWTAuthorizationFilter;
 import net.arville.easybill.service.implementation.CustomUserDetailsService;
@@ -25,11 +25,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import static net.arville.easybill.constant.EasybillConstants.AUTH_PATH;
+import static net.arville.easybill.constant.EasybillConstants.ALLOWED_ORIGINS;
+import static net.arville.easybill.constant.EasybillConstants.UNAUTHENTICATED_ROUTES_PREFIX;
 
 @Configuration
 @EnableWebSecurity
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RestSecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JWTAuthorizationFilter authorizationFilter;
@@ -40,13 +41,7 @@ public class RestSecurityConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
 
-        corsConfiguration.setAllowedOrigins(
-                List.of(
-                        "http://10.20.158.12:4200",
-                        "http://192.168.100.96:4200",
-                        "http://localhost:4200"
-                )
-        );
+        corsConfiguration.setAllowedOrigins(ALLOWED_ORIGINS);
 
         corsConfiguration.setAllowedHeaders(
                 List.of(
@@ -91,16 +86,14 @@ public class RestSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsFilter) throws Exception {
         http
-                .cors(httpSecurityCorsConfigurer ->
-                        httpSecurityCorsConfigurer.configurationSource(corsFilter)
-                )
+                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsFilter))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(httpSecuritySessionManagementConfigurer ->
                         httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(requests -> requests.antMatchers(AUTH_PATH, "/api/docs/**", "/swagger-ui/**").permitAll())
+                .authorizeHttpRequests(requests -> requests.antMatchers(UNAUTHENTICATED_ROUTES_PREFIX.toArray(String[]::new)).permitAll())
                 .authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
 
         return http.build();

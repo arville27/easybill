@@ -1,7 +1,7 @@
 package net.arville.easybill.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserLoginRequest;
 import net.arville.easybill.payload.ResponseStructure;
 import net.arville.easybill.payload.helper.ResponseStatus;
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import static net.arville.easybill.constant.EasybillConstants.AUTH_PATH;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping(path = AUTH_PATH, produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Authentication", description = "Authentication endpoint")
+@RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthManager authManager;
 

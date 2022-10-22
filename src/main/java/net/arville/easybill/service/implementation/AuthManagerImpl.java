@@ -1,7 +1,6 @@
 package net.arville.easybill.service.implementation;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserLoginRequest;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.InvalidCredentialsException;
@@ -14,9 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
-@AllArgsConstructor
-@Data
 @Service
+@RequiredArgsConstructor
 public class AuthManagerImpl implements AuthManager {
     private final UserManager userManager;
     private final org.springframework.security.authentication.AuthenticationManager authenticationManager;
@@ -42,10 +40,10 @@ public class AuthManagerImpl implements AuthManager {
 
         String accessToken = jwtUtils.createToken(user);
 
-        UserResponse authResponse = UserResponse.mapWithoutDate(user);
-        authResponse.setAccessToken(accessToken);
-
-        return authResponse;
+        return UserResponse
+                .template(user)
+                .accessToken(accessToken)
+                .build();
     }
 }
 

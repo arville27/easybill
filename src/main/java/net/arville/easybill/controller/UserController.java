@@ -2,7 +2,7 @@ package net.arville.easybill.controller;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.payload.ResponseStructure;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "User", description = "User resource")
 @SecurityRequirement(name = "Access Token")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserController {
     private final UserManager userManager;
     private final AuthenticatedUser authenticatedUser;

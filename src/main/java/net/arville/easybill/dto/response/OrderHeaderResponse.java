@@ -37,8 +37,9 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
     private BigDecimal userOtherFee;
     @JsonProperty("order_header_status")
     private BillStatus relevantStatus;
-    @JsonProperty("status")
-    private List<StatusResponse> statusResponses;
+
+    @JsonProperty("bills")
+    private List<BillResponse> billResponse;
 
     public static OrderHeaderResponse.OrderHeaderResponseBuilder template(OrderHeader entity) {
         return OrderHeaderResponse.builder()
@@ -77,7 +78,7 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
     }
 
     @Builder
-    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User buyer, BigDecimal upto, Double discount, Integer participatingUserCount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse buyerResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses, List<UserResponse> relatedOrderDetail, BigDecimal userOtherFee, BillStatus relevantStatus, List<StatusResponse> statusResponses) {
+    public OrderHeaderResponse(Long id, String orderDescription, BigDecimal totalPayment, User buyer, BigDecimal upto, Double discount, Integer participatingUserCount, BigDecimal totalOrderAmount, BigDecimal otherFee, BigDecimal discountAmount, List<OrderDetail> orderDetailList, LocalDateTime orderAt, LocalDateTime createdAt, LocalDateTime updatedAt, UserResponse buyerResponse, Long buyerId, List<OrderDetailResponse> orderDetailResponses, List<UserResponse> relatedOrderDetail, BigDecimal userOtherFee, BillStatus relevantStatus, List<BillResponse> billResponse) {
         super(id, orderDescription, totalPayment, buyer, upto, discount, participatingUserCount, totalOrderAmount, otherFee, discountAmount, orderDetailList, orderAt, createdAt, updatedAt);
         this.buyerResponse = buyerResponse;
         this.buyerId = buyerId;
@@ -85,6 +86,6 @@ public class OrderHeaderResponse extends BaseOrderHeaderEntity {
         this.relatedOrderDetail = relatedOrderDetail;
         this.userOtherFee = userOtherFee;
         this.relevantStatus = relevantStatus;
-        this.statusResponses = statusResponses;
+        this.billResponse = billResponse;
     }
 }

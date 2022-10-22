@@ -1,10 +1,10 @@
 package net.arville.easybill.service.implementation;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.AddOrderRequest;
+import net.arville.easybill.dto.response.BillResponse;
 import net.arville.easybill.dto.response.OrderDetailResponse;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
-import net.arville.easybill.dto.response.StatusResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.OrderNotFoundException;
@@ -12,19 +12,19 @@ import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
+import net.arville.easybill.service.manager.BillManager;
 import net.arville.easybill.service.manager.OrderManager;
-import net.arville.easybill.service.manager.StatusManager;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class OrderManagerImpl implements OrderManager {
     private final OrderHeaderRepository orderHeaderRepository;
     private final UserManager userManager;
-    private final StatusManager statusManager;
+    private final BillManager billManager;
 
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
 
@@ -52,8 +52,8 @@ public class OrderManagerImpl implements OrderManager {
         user.getOrderList().add(orderHeader);
 
         // This will process order and generate bill accordingly
-        var statuses = statusManager.createCorrespondingStatusFromOrderHeader(orderHeader);
-        orderHeader.setStatusList(statuses);
+        var bills = billManager.generateCorrespondingBills(orderHeader);
+        orderHeader.setBillList(bills);
         var savedOrderHeader = orderHeaderRepository.save(orderHeader);
 
         return OrderHeaderResponse
@@ -61,9 +61,9 @@ public class OrderManagerImpl implements OrderManager {
                 .buyerResponse(UserResponse.mapWithoutDate(savedOrderHeader.getBuyer()))
                 .participatingUserCount(savedOrderHeader.getParticipatingUserCount())
                 .orderDetailResponses(savedOrderHeader.getOrderDetailList().stream().map(OrderDetailResponse::map).collect(Collectors.toList()))
-                .statusResponses(savedOrderHeader.getStatusList()
+                .billResponse(savedOrderHeader.getBillList()
                         .stream()
-                        .map(StatusResponse::map)
+                        .map(BillResponse::map)
                         .collect(Collectors.toList())
                 )
                 .build();
@@ -102,9 +102,9 @@ public class OrderManagerImpl implements OrderManager {
                         })
                         .collect(Collectors.toList())
                 )
-                .statusResponses(orderHeader.getStatusList()
+                .billResponse(orderHeader.getBillList()
                         .stream()
-                        .map(StatusResponse::map)
+                        .map(BillResponse::map)
                         .collect(Collectors.toList())
                 )
                 .build();

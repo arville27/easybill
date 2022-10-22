@@ -1,6 +1,6 @@
 package net.arville.easybill.service.implementation;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.response.UserResponse;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserManagerImpl implements UserManager {
     private final UserRepository userRepository;
     private final OrderHeaderRepository orderHeaderRepository;

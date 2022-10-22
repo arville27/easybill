@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import net.arville.easybill.dto.helper.EntityBuilder;
+import net.arville.easybill.model.Bill;
 import net.arville.easybill.model.OrderHeader;
-import net.arville.easybill.model.Status;
 import net.arville.easybill.model.helper.BillStatus;
 
 import java.math.BigDecimal;
@@ -17,7 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class StatusResponse {
+public class BillResponse {
 
     private Long orderHeaderId;
 
@@ -39,23 +39,23 @@ public class StatusResponse {
 
     private BigDecimal oweAmount;
 
-    public static StatusResponseBuilder template(Status entity) {
-        return StatusResponse.builder()
+    public static BillResponseBuilder template(Bill entity) {
+        return BillResponse.builder()
                 .userResponse(UserResponse.mapWithoutDate(entity.getUser()))
                 .status(entity.getStatus())
                 .totalPaid(entity.getTotalPaidAmount())
                 .oweAmount(entity.getOweAmount());
     }
 
-    public static StatusResponse map(Status entity) {
-        return StatusResponse.template(entity).build();
+    public static BillResponse map(Bill entity) {
+        return BillResponse.template(entity).build();
     }
 
-    public static StatusResponse customMap(
-            Status entity,
-            EntityBuilder<StatusResponse, StatusResponseBuilder, Status> builder
+    public static BillResponse customMap(
+            Bill entity,
+            EntityBuilder<BillResponse, BillResponseBuilder, Bill> builder
     ) {
-        return builder.createCustomEntity(StatusResponse.builder(), entity);
+        return builder.createCustomEntity(BillResponse.builder(), entity);
     }
 
     @Getter

@@ -38,7 +38,7 @@ public class UserResponse extends BaseUserEntity {
     private List<OrderDetailResponse> userOrders;
     private String accessToken;
     @JsonProperty("users_bills")
-    private List<StatusResponse> statusResponseList;
+    private List<BillResponse> billResponseList;
 
     @JsonProperty("bill_transaction_list")
     private List<BillTransactionResponse> billTransactionResponseList;
@@ -68,7 +68,7 @@ public class UserResponse extends BaseUserEntity {
     }
 
     @Builder
-    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, BigDecimal totalOrder, BigDecimal discountTotal, BigDecimal totalOrderAfterDiscount, List<OrderDetailResponse> userOrders, String accessToken, List<StatusResponse> statusResponseList, List<BillTransactionResponse> billTransactionResponseList) {
+    public UserResponse(Long id, String username, String password, List<OrderHeader> orderList, List<OrderDetail> orderDetailList, LocalDateTime createdAt, LocalDateTime updatedAt, List<OrderHeaderResponse> orderHeaderResponseList, BigDecimal totalOrder, BigDecimal discountTotal, BigDecimal totalOrderAfterDiscount, List<OrderDetailResponse> userOrders, String accessToken, List<BillResponse> billResponseList, List<BillTransactionResponse> billTransactionResponseList) {
         super(id, username, password, orderList, orderDetailList, createdAt, updatedAt);
         this.orderHeaderResponseList = orderHeaderResponseList;
         this.totalOrder = totalOrder;
@@ -76,7 +76,7 @@ public class UserResponse extends BaseUserEntity {
         this.totalOrderAfterDiscount = totalOrderAfterDiscount;
         this.userOrders = userOrders;
         this.accessToken = accessToken;
-        this.statusResponseList = statusResponseList;
+        this.billResponseList = billResponseList;
         this.billTransactionResponseList = billTransactionResponseList;
     }
 }

@@ -56,7 +56,7 @@ public class OrderHeader {
     private Set<OrderDetail> orderDetailList;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @ToString.Exclude
-    private Set<Status> statusList;
+    private Set<Bill> billList;
     @Column(name = "order_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderAt;
@@ -70,12 +70,12 @@ public class OrderHeader {
     private LocalDateTime updatedAt;
 
     public BillStatus getRelevantStatus(User user) {
-        var status = this.statusList
+        var bills = this.billList
                 .stream()
                 .filter(s -> Objects.equals(s.getUser().getId(), user.getId()))
                 .findAny();
 
-        return status.isEmpty() ? null : status.get().getStatus();
+        return bills.isEmpty() ? null : bills.get().getStatus();
     }
 
     public BigDecimal getPerUserFee() {
@@ -89,10 +89,10 @@ public class OrderHeader {
                 .collect(Collectors.toList());
         var totalOrder = userOrderDetails.stream()
                 .map(order -> order.getPrice().multiply(BigDecimal.valueOf(order.getQty())))
-                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         var totalDiscount = userOrderDetails.stream()
                 .map(OrderDetail::getItemDiscount)
-                .reduce(BigDecimal.valueOf(0), BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         return OrderHeaderSummary.builder()
                 .totalOrder(totalOrder)
                 .totalDiscount(totalDiscount)
