@@ -1,9 +1,7 @@
 package net.arville.easybill.configuration;
 
-import lombok.RequiredArgsConstructor;
 import net.arville.easybill.filter.ExceptionHandlerFilter;
 import net.arville.easybill.filter.JWTAuthorizationFilter;
-import net.arville.easybill.service.implementation.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,12 +29,7 @@ import static net.arville.easybill.constant.EasybillConstants.UNAUTHENTICATED_RO
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class RestSecurityConfig {
-    private final CustomUserDetailsService userDetailsService;
-    private final JWTAuthorizationFilter authorizationFilter;
-    private final ExceptionHandlerFilter exceptionHandlerFilter;
-
     @Bean(name = "corsFilter")
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -84,13 +78,16 @@ public class RestSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            CorsConfigurationSource corsFilter,
+            JWTAuthorizationFilter authorizationFilter,
+            ExceptionHandlerFilter exceptionHandlerFilter
+    ) throws Exception {
         http
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsFilter))
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(httpSecuritySessionManagementConfigurer ->
-                        httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests.antMatchers(UNAUTHENTICATED_ROUTES_PREFIX.toArray(String[]::new)).permitAll())
@@ -105,7 +102,7 @@ public class RestSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManagerBean(HttpSecurity http, PasswordEncoder encoder) throws Exception {
+    public AuthenticationManager authenticationManagerBean(HttpSecurity http, PasswordEncoder encoder, UserDetailsService userDetailsService) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
                 .userDetailsService(userDetailsService)
