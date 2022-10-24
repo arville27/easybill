@@ -2,6 +2,7 @@ package net.arville.easybill.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import net.arville.easybill.model.helper.BillTransactionOrigin;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -32,6 +33,9 @@ public class BillTransaction {
     private User receiver;
 
     private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
+    private BillTransactionOrigin origin;
 
     @OneToMany(mappedBy = "billTransaction", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @ToString.Exclude

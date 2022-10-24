@@ -58,7 +58,8 @@ public class OrderHeader {
     @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
     @ToString.Exclude
     private Set<OrderDetail> orderDetailList;
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+
+    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @ToString.Exclude
     private Set<Bill> billList;
 
@@ -121,8 +122,10 @@ public class OrderHeader {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (this == o)
+            return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o))
+            return false;
         OrderHeader that = (OrderHeader) o;
         return id != null && Objects.equals(id, that.id);
     }
