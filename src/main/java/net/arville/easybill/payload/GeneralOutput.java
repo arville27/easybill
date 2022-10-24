@@ -1,5 +1,7 @@
 package net.arville.easybill.payload;
 
+import net.arville.easybill.payload.core.OutputStructure;
+
 public class GeneralOutput extends OutputStructure<Object> {
     public GeneralOutput(Object data) {
         super(data);

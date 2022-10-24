@@ -1,4 +1,4 @@
-package net.arville.easybill.payload;
+package net.arville.easybill.payload.core;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public abstract class OutputStructure<T> {
-    T data;
+    public T data;
 
     abstract public T getData();
 

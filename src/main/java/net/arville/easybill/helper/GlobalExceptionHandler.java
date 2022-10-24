@@ -3,8 +3,8 @@ package net.arville.easybill.helper;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import net.arville.easybill.exception.*;
-import net.arville.easybill.payload.ResponseStructure;
-import net.arville.easybill.payload.helper.ResponseStatus;
+import net.arville.easybill.payload.core.ResponseStatus;
+import net.arville.easybill.payload.core.ResponseStructure;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
     @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseStructure> jwtVerificationException(JWTVerificationException e) {
         var body = ResponseStatus.JWT_VERIFICATION_ERROR.GenerateGeneralBody(null, e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
     @ExceptionHandler(UnauthorizedRequestException.class)

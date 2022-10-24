@@ -1,4 +1,4 @@
-package net.arville.easybill.payload;
+package net.arville.easybill.payload.core;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package net.arville.easybill.payload;
+package net.arville.easybill.payload.core;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,12 +6,11 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class StatusStructure {
-
-    private String code;
+    private ResponseStatus code;
     private String message;
     private String extraMessage;
 
-    public StatusStructure(String code, String message) {
+    public StatusStructure(ResponseStatus code, String message) {
         this.code = code;
         this.message = message;
     }
