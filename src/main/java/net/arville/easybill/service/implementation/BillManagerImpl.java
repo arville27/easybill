@@ -72,10 +72,10 @@ public class BillManagerImpl implements BillManager {
                         Collectors.collectingAndThen(Collectors.toList(), this::calculateAggregatedValue))
                 );
 
-        return generateBillResponse(user, aggregated);
+        return generateBillResponse(user, aggregated, false);
     }
 
-    private UserResponse generateBillResponse(User user, Map<User, BillResponse.AggregatedRelatedOrderWithTotalOwe> aggregated) {
+    private UserResponse generateBillResponse(User user, Map<User, BillResponse.AggregatedRelatedOrderWithTotalOwe> aggregated, boolean isReceivables) {
         return UserResponse.template(user)
                 .billResponseList(aggregated.entrySet()
                         .stream()
@@ -91,7 +91,7 @@ public class BillManagerImpl implements BillManager {
                                             .map(orderHeader -> OrderHeaderResponse
                                                     .template(orderHeader)
                                                     .buyerResponse(UserResponse.mapWithoutDate(orderHeader.getBuyer()))
-                                                    .totalBill(orderHeader.getRelevantBill(user).getOweAmountWithBillTransaction())
+                                                    .totalBill(orderHeader.getRelevantBill(isReceivables ? buyer : user).getOweAmountWithBillTransaction())
                                                     .build()
                                             )
                                             .collect(Collectors.toList())
@@ -113,7 +113,7 @@ public class BillManagerImpl implements BillManager {
                         Collectors.collectingAndThen(Collectors.toList(), this::calculateAggregatedValue))
                 );
 
-        return generateBillResponse(user, aggregated);
+        return generateBillResponse(user, aggregated, true);
     }
 
     private BigDecimal calculateDiscount(
