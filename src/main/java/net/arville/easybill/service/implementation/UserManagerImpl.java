@@ -8,7 +8,6 @@ import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
 import net.arville.easybill.model.User;
-import net.arville.easybill.model.helper.BillStatus;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
 import net.arville.easybill.service.manager.UserManager;
@@ -55,7 +54,7 @@ public class UserManagerImpl implements UserManager {
                         .map(order -> OrderHeaderResponse
                                 .template(order)
                                 .buyerResponse(UserResponse.mapWithoutDate(order.getBuyer()))
-                                .relevantStatus(BillStatus.PAID)
+                                .relevantStatus(order.getRelevantStatusForUsersOrder())
                                 .build()
                         )
                         .collect(Collectors.toList())

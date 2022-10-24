@@ -82,6 +82,12 @@ public class OrderHeader {
         return bill.getStatus();
     }
 
+    public BillStatus getRelevantStatusForUsersOrder() {
+        return this.billList
+                .stream()
+                .allMatch(bill -> bill.getStatus() == BillStatus.PAID) ? BillStatus.PAID : BillStatus.UNPAID;
+    }
+
     public Bill getRelevantBill(User user) {
         var bills = this.billList
                 .stream()
