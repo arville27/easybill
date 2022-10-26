@@ -74,7 +74,7 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
                         var billTransactionHeader = BillTransactionHeader.builder()
                                 .bill(bill)
                                 .billTransaction(billTransaction)
-                                .paidAmount(bill.getOweAmount())
+                                .paidAmount(bill.getOweAmountWithBillTransaction())
                                 .build();
                         bill.addBillTransactionHeader(billTransactionHeader);
                         return billTransactionHeader;
