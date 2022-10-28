@@ -9,10 +9,8 @@ import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.model.helper.BillStatus;
-import net.arville.easybill.model.helper.BillTransactionOrigin;
 import net.arville.easybill.repository.BillRepository;
 import net.arville.easybill.service.manager.BillManager;
-import net.arville.easybill.service.manager.BillTransactionManager;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BillManagerImpl implements BillManager {
     private final BillRepository billRepository;
-    private final BillTransactionManager billTransactionManager;
 
     @Override
     public Set<Bill> generateCorrespondingBills(OrderHeader orderHeader) {
@@ -58,39 +55,12 @@ public class BillManagerImpl implements BillManager {
         orderHeader.setParticipatingUserCount(participatedUser.size());
 
         return participatedUser.stream()
-                .map(user -> {
-
-                    User buyer = orderHeader.getBuyer();
-                    var unpaidBills = billRepository.findAllUsersBillsToSpecificUser(buyer.getId(), user.getId());
-                    BigDecimal buyerTotalOweToUser = billTransactionManager.getTotalOweAmountFromBills(unpaidBills);
-
-                    if (buyerTotalOweToUser.compareTo(BigDecimal.ZERO) == 0) {
-                        return Bill.builder()
-                                .user(user)
-                                .orderHeader(orderHeader)
-                                .status(Objects.equals(user.getId(), orderHeader.getBuyer().getId()) ? BillStatus.PAID : BillStatus.UNPAID)
-                                .build();
-                    }
-
-                    var orderSummarization = orderHeader.getRelevantOrderSummarization(user);
-                    BigDecimal userTotalOweToBuyer = orderSummarization.getTotalOrderAfterDiscount().add(orderHeader.getPerUserFee());
-
-                    boolean isBuyerOweMoreThanUserOrder = buyerTotalOweToUser.compareTo(userTotalOweToBuyer) >= 0;
-                    billTransactionManager.createCorrespondingBillWithTransactionHeader(
-                            buyer,
-                            user,
-                            isBuyerOweMoreThanUserOrder ? userTotalOweToBuyer : buyerTotalOweToUser,
-                            unpaidBills,
-                            buyerTotalOweToUser,
-                            BillTransactionOrigin.GENERATED
-                    );
-
-                    return Bill.builder()
-                            .user(user)
-                            .orderHeader(orderHeader)
-                            .status(Objects.equals(user.getId(), orderHeader.getBuyer().getId()) || isBuyerOweMoreThanUserOrder ? BillStatus.PAID : BillStatus.UNPAID)
-                            .build();
-                })
+                .map(user -> Bill.builder()
+                        .user(user)
+                        .orderHeader(orderHeader)
+                        .status(Objects.equals(user.getId(), orderHeader.getBuyer().getId()) ? BillStatus.PAID : BillStatus.UNPAID)
+                        .build()
+                )
                 .collect(Collectors.toSet());
     }
 

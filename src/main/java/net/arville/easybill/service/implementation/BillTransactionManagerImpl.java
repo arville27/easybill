@@ -8,10 +8,7 @@ import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
-import net.arville.easybill.model.Bill;
-import net.arville.easybill.model.BillTransaction;
-import net.arville.easybill.model.BillTransactionHeader;
-import net.arville.easybill.model.User;
+import net.arville.easybill.model.*;
 import net.arville.easybill.model.helper.BillStatus;
 import net.arville.easybill.model.helper.BillTransactionOrigin;
 import net.arville.easybill.repository.BillRepository;
@@ -61,6 +58,68 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
         return BillTransactionResponse.map(this.createCorrespondingBillWithTransactionHeader(user, targetUser, payAmount, unpaidBills, totalBillToTargetUser, BillTransactionOrigin.USER_INPUT));
     }
 
+    public void automaticCalculateRelaterUserBills(OrderHeader orderHeader) {
+        User buyer = orderHeader.getBuyer();
+
+        orderHeader.getParticipatingUsers().forEach((user) -> {
+
+            if (user.getId().equals(buyer.getId())) return;
+
+            var unpaidBillsFromBuyerToUser = billRepository.findAllUsersBillsToSpecificUser(buyer.getId(), user.getId());
+
+            BigDecimal buyerTotalOweToUser = this.getTotalOweAmountFromBills(unpaidBillsFromBuyerToUser);
+
+            if (buyerTotalOweToUser.compareTo(BigDecimal.ZERO) == 0) return;
+
+            var orderSummarization = orderHeader.getRelevantOrderSummarization(user);
+            BigDecimal userTotalOweToBuyer = orderSummarization.getTotalOrderAfterDiscount().add(orderHeader.getPerUserFee());
+
+            // arville (buyer) -> yohanes (user) = 21k
+            // yohanes (user) -> arville (buyer) = 24k
+            // isBuyerOweMoreThanUserOrder = false
+            if (buyerTotalOweToUser.compareTo(userTotalOweToBuyer) >= 0) {
+                // buyer to user
+                this.createCorrespondingBillWithTransactionHeader(
+                        buyer,
+                        user,
+                        userTotalOweToBuyer,
+                        unpaidBillsFromBuyerToUser,
+                        buyerTotalOweToUser,
+                        BillTransactionOrigin.GENERATED
+                );
+            } else {
+                // buyer to user
+                this.createCorrespondingBillWithTransactionHeader(
+                        buyer,
+                        user,
+                        buyerTotalOweToUser,
+                        unpaidBillsFromBuyerToUser,
+                        buyerTotalOweToUser,
+                        BillTransactionOrigin.GENERATED
+                );
+                // user to buyer
+                var bill = orderHeader.getRelevantBill(user);
+                var billTransaction = BillTransaction.builder()
+                        .origin(BillTransactionOrigin.GENERATED)
+                        .amount(buyerTotalOweToUser)
+                        .payer(user)
+                        .receiver(buyer)
+                        .billTransactionHeaderList(
+                                List.of(
+                                        BillTransactionHeader.builder()
+                                                .bill(bill)
+                                                .paidAmount(buyerTotalOweToUser)
+                                                .build()
+                                )
+                        )
+                        .build();
+
+                billTransactionRepository.saveAndFlush(billTransaction);
+            }
+        });
+
+    }
+
     @Override
     public UserResponse getRelevantUsersBillTransaction(User user) {
 
@@ -99,8 +158,7 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    @Override
-    public BillTransaction createCorrespondingBillWithTransactionHeader(
+    private BillTransaction createCorrespondingBillWithTransactionHeader(
             User payer,
             User receiver,
             BigDecimal payAmount,

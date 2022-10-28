@@ -13,6 +13,7 @@ import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.service.manager.BillManager;
+import net.arville.easybill.service.manager.BillTransactionManager;
 import net.arville.easybill.service.manager.OrderManager;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class OrderManagerImpl implements OrderManager {
     private final OrderHeaderRepository orderHeaderRepository;
     private final UserManager userManager;
     private final BillManager billManager;
+    private final BillTransactionManager billTransactionManager;
 
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
 
@@ -54,7 +56,10 @@ public class OrderManagerImpl implements OrderManager {
         // This will process order and generate bill accordingly
         var bills = billManager.generateCorrespondingBills(orderHeader);
         orderHeader.setBillList(bills);
-        var savedOrderHeader = orderHeaderRepository.save(orderHeader);
+        var savedOrderHeader = orderHeaderRepository.saveAndFlush(orderHeader);
+
+        // Automatically paid buyer bills to participated user in order
+        billTransactionManager.automaticCalculateRelaterUserBills(savedOrderHeader);
 
         return createOrderHeaderResponse(savedOrderHeader);
     }

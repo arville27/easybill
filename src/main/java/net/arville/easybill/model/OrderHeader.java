@@ -11,6 +11,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ public class OrderHeader {
     @ToString.Exclude
     private Set<OrderDetail> orderDetailList;
 
-    @OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @ToString.Exclude
     private Set<Bill> billList;
 
@@ -96,6 +97,14 @@ public class OrderHeader {
                 .findFirst();
 
         return bills.get();
+    }
+
+    public Set<User> getParticipatingUsers() {
+        Set<User> participatingUser = new HashSet<>();
+
+        this.orderDetailList.forEach(orderDetail -> participatingUser.add(orderDetail.getUser()));
+
+        return participatingUser;
     }
 
     public BigDecimal getPerUserFee() {
