@@ -43,19 +43,19 @@ public class OrderHeader {
     @Column(nullable = false)
     private Double discount;
 
-    @Column(name = "total_order_amount")
+    @Transient
     private BigDecimal totalOrderAmount;
 
-    @Column(name = "other_fee")
+    @Transient
     private BigDecimal otherFee;
 
-    @Column(name = "discount_amount")
+    @Transient
     private BigDecimal discountAmount;
 
+    @Transient
     private Integer participatingUserCount;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_header_id", referencedColumnName = "id", nullable = false)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "orderHeader")
     @ToString.Exclude
     private Set<OrderDetail> orderDetailList;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -75,6 +75,44 @@ public class OrderHeader {
     @Column(name = "updated_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
+
+    public BigDecimal getTotalOrderAmount() {
+        if (this.totalOrderAmount == null) {
+            this.totalOrderAmount = this.orderDetailList.stream()
+                    .map(order -> order.getPrice().multiply(BigDecimal.valueOf(order.getQty())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+        return this.totalOrderAmount;
+    }
+
+    public BigDecimal getOtherFee() {
+        if (this.otherFee == null) {
+            this.otherFee = this.totalPayment
+                    .add(this.getDiscountAmount())
+                    .subtract(this.getTotalOrderAmount());
+        }
+        return this.otherFee;
+    }
+
+    public BigDecimal getDiscountAmount() {
+        if (this.discountAmount == null) {
+            BigDecimal discountAmountBeforeUpto = this.getTotalOrderAmount()
+                    .multiply(BigDecimal.valueOf(this.discount))
+                    .setScale(0, RoundingMode.HALF_UP);
+            this.discountAmount = discountAmountBeforeUpto.compareTo(upto) > 0 ? upto : discountAmountBeforeUpto;
+        }
+        return this.discountAmount;
+    }
+
+    public int getParticipatingUserCount() {
+        if (this.participatingUserCount == null)
+            this.participatingUserCount = this.getParticipatingUsers().size();
+        return this.participatingUserCount;
+    }
+
+    public Set<User> getParticipatingUsers() {
+        return this.orderDetailList.stream().map(OrderDetail::getUser).collect(Collectors.toSet());
+    }
 
     public BillStatus getRelevantStatus(User user) {
         var bill = this.getRelevantBill(user);
@@ -98,7 +136,7 @@ public class OrderHeader {
     }
 
     public BigDecimal getPerUserFee() {
-        return this.otherFee.divide(BigDecimal.valueOf(this.participatingUserCount), 0, RoundingMode.HALF_UP);
+        return this.getOtherFee().divide(BigDecimal.valueOf(this.getParticipatingUserCount()), 0, RoundingMode.HALF_UP);
     }
 
     public OrderHeaderSummary getRelevantOrderSummarization(User user) {

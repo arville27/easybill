@@ -43,6 +43,7 @@ public class OrderManagerImpl implements OrderManager {
                         .map(orderDetailRequest -> {
                             User orderBy = userManager.getUserByUserId(orderDetailRequest.getUserId());
                             OrderDetail orderDetail = orderDetailRequest.toOriginalEntity();
+                            orderDetail.setOrderHeader(orderHeader);
                             orderDetail.setUser(orderBy);
                             return orderDetail;
                         })
