@@ -2,6 +2,7 @@ package net.arville.easybill.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import net.arville.easybill.model.helper.OrderDetailType;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "order_details")
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor
 @Getter
 @Setter
@@ -29,9 +31,14 @@ public class OrderDetail {
 
     private Integer qty;
 
+    @Enumerated(EnumType.STRING)
+    private OrderDetailType orderType;
+
     @Transient
     private BigDecimal itemDiscount;
 
+    @Transient
+    private BigDecimal orderSubtotalPrice;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
@@ -43,12 +50,21 @@ public class OrderDetail {
 
     public BigDecimal getItemDiscount() {
         if (this.itemDiscount == null) {
-            var totalOrderDetail = BigDecimal.valueOf(this.qty).multiply(this.price);
+            var totalOrderDetail = this.getOrderSubtotalPrice();
             this.itemDiscount = totalOrderDetail
                     .multiply(this.orderHeader.getDiscountAmount())
                     .divide(this.orderHeader.getTotalOrderAmount(), 0, RoundingMode.HALF_UP);
         }
         return this.itemDiscount;
+    }
+
+    public BigDecimal getOrderSubtotalPrice() {
+        if (this.orderSubtotalPrice == null) {
+            this.orderSubtotalPrice = this.orderType == OrderDetailType.MULTI_USER
+                    ? this.price
+                    : BigDecimal.valueOf(this.qty).multiply(this.price);
+        }
+        return this.orderSubtotalPrice;
     }
 
     @Override

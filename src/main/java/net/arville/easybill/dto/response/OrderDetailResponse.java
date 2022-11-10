@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import net.arville.easybill.model.OrderDetail;
+import net.arville.easybill.model.helper.OrderDetailType;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.math.BigDecimal;
 
 @Getter
@@ -24,6 +27,9 @@ public class OrderDetailResponse {
 
     private BigDecimal itemDiscount;
 
+    @Enumerated(EnumType.STRING)
+    private OrderDetailType orderType;
+
     private Integer qty;
 
     @JsonProperty("user")
@@ -36,6 +42,7 @@ public class OrderDetailResponse {
                 .id(entity.getId())
                 .itemDiscount(entity.getItemDiscount())
                 .orderMenuDesc(entity.getOrderMenuDesc())
+                .orderType(entity.getOrderType())
                 .price(entity.getPrice())
                 .qty(entity.getQty());
     }

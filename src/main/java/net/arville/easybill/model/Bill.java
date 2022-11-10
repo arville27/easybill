@@ -73,10 +73,7 @@ public class Bill {
                 .getOrderDetailList()
                 .stream()
                 .filter(order -> Objects.equals(order.getUser().getId(), this.user.getId()))
-                .map(order -> order.getPrice()
-                        .multiply(BigDecimal.valueOf(order.getQty()))
-                        .subtract(order.getItemDiscount())
-                )
+                .map(order -> order.getOrderSubtotalPrice().subtract(order.getItemDiscount()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .add(perUserFee);
     }

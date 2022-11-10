@@ -2,6 +2,7 @@ package net.arville.easybill.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.AddOrderRequest;
+import net.arville.easybill.dto.request.OrderDetailRequest;
 import net.arville.easybill.dto.response.BillResponse;
 import net.arville.easybill.dto.response.OrderDetailResponse;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
@@ -40,15 +41,15 @@ public class OrderManagerImpl implements OrderManager {
         orderHeader.setOrderDetailList(
                 addOrderRequest.getOrderList()
                         .stream()
-                        .map(orderDetailRequest -> {
-                            User orderBy = userManager.getUserByUserId(orderDetailRequest.getUserId());
-                            OrderDetail orderDetail = orderDetailRequest.toOriginalEntity();
+                        .flatMap(OrderDetailRequest::toOriginalEntity)
+                        .peek(orderDetail -> {
+                            User orderBy = userManager.getUserByUserId(orderDetail.getUser().getId());
                             orderDetail.setOrderHeader(orderHeader);
                             orderDetail.setUser(orderBy);
-                            return orderDetail;
                         })
                         .collect(Collectors.toSet())
         );
+
         orderHeader.setBuyer(user);
         user.getOrderList().add(orderHeader);
 

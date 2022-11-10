@@ -79,7 +79,7 @@ public class OrderHeader {
     public BigDecimal getTotalOrderAmount() {
         if (this.totalOrderAmount == null) {
             this.totalOrderAmount = this.orderDetailList.stream()
-                    .map(order -> order.getPrice().multiply(BigDecimal.valueOf(order.getQty())))
+                    .map(OrderDetail::getOrderSubtotalPrice)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
         return this.totalOrderAmount;
@@ -145,7 +145,7 @@ public class OrderHeader {
                 .filter(order -> Objects.equals(order.getUser().getId(), user.getId()))
                 .collect(Collectors.toList());
         var totalOrder = userOrderDetails.stream()
-                .map(order -> order.getPrice().multiply(BigDecimal.valueOf(order.getQty())))
+                .map(OrderDetail::getOrderSubtotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         var totalDiscount = userOrderDetails.stream()
                 .map(OrderDetail::getItemDiscount)
