@@ -8,4 +8,6 @@ public interface OrderManager {
     OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest);
 
     OrderHeaderResponse getOrderById(Long orderId);
+    
+    OrderHeaderResponse deleteOrder(Long orderHeaderId);
 }

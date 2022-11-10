@@ -69,6 +69,17 @@ public class OrderManagerImpl implements OrderManager {
         return createOrderHeaderResponse(orderHeader);
     }
 
+    @Override
+    public OrderHeaderResponse deleteOrder(Long orderHeaderId) {
+        var orderToDelete = orderHeaderRepository
+                .findById(orderHeaderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderHeaderId));
+
+        orderHeaderRepository.delete(orderToDelete);
+
+        return createOrderHeaderResponse(orderToDelete);
+    }
+
     private OrderHeaderResponse createOrderHeaderResponse(OrderHeader orderHeader) {
         var orderDetailListGroupByUser = orderHeader.getOrderDetailList()
                 .stream()

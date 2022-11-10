@@ -58,7 +58,7 @@ public class OrderHeader {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "orderHeader")
     @ToString.Exclude
     private Set<OrderDetail> orderDetailList;
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<Bill> billList;
 

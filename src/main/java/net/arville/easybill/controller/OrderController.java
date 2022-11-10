@@ -38,4 +38,13 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
+    @DeleteMapping("{orderHeaderId}")
+    public ResponseEntity<ResponseStructure> updateOrder(@PathVariable Long orderHeaderId){
+
+        var deletedOrder = orderManager.deleteOrder(orderHeaderId);
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(deletedOrder);
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
 }
