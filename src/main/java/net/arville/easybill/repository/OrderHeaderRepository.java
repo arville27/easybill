@@ -16,7 +16,8 @@ public interface OrderHeaderRepository extends JpaRepository<OrderHeader, Long> 
             type = EntityGraph.EntityGraphType.FETCH,
             attributePaths = {
                     "buyer",
-                    "billList"
+                    "billList",
+                    "orderDetailList"
             }
     )
     List<OrderHeader> findRelevantOrderHeaderForUser(Long userId);

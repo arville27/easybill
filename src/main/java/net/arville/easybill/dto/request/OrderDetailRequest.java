@@ -47,6 +47,7 @@ public class OrderDetailRequest implements EnsureRequiredFields, ConvertibleToOr
         if (orderMenuDesc == null) missingProperties.add("order_menu_desc");
         if (qty == null) missingProperties.add("qty");
         if (price == null) missingProperties.add("price");
+        if (users == null || users.size() == 0) missingProperties.add("users");
         return missingProperties;
     }
 }

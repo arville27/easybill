@@ -41,6 +41,13 @@ public class OrderManagerImpl implements OrderManager {
         orderHeader.setOrderDetailList(
                 addOrderRequest.getOrderList()
                         .stream()
+                        .peek(orderDetailRequest -> {
+                            var orderDetailRequestMissingProperties = orderDetailRequest.getMissingProperties();
+
+                            if (orderDetailRequestMissingProperties.size() > 0) {
+                                throw new MissingRequiredPropertiesException(orderDetailRequestMissingProperties);
+                            }
+                        })
                         .flatMap(OrderDetailRequest::toOriginalEntity)
                         .peek(orderDetail -> {
                             User orderBy = userManager.getUserByUserId(orderDetail.getUser().getId());

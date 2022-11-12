@@ -8,6 +8,7 @@ public final class EasybillConstants {
     public static final String AUTH_PATH = "/api/auth";
     public static final Date JWT_EXPIRY_TIME = new Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000); // 30 Days
     public static final List<String> ALLOWED_ORIGINS = List.of(
+            "http://localhost:4200",
             "http://10.20.158.12:4200",
             "http://192.168.100.96:4200",
             "https://easybill.arville.net"
