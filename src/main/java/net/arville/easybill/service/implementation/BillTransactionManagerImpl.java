@@ -2,10 +2,7 @@ package net.arville.easybill.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.PayBillRequest;
-import net.arville.easybill.dto.response.BillTransactionHeaderResponse;
-import net.arville.easybill.dto.response.BillTransactionResponse;
-import net.arville.easybill.dto.response.OrderHeaderResponse;
-import net.arville.easybill.dto.response.UserResponse;
+import net.arville.easybill.dto.response.*;
 import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.model.Bill;
@@ -15,6 +12,7 @@ import net.arville.easybill.model.User;
 import net.arville.easybill.model.helper.BillStatus;
 import net.arville.easybill.repository.BillRepository;
 import net.arville.easybill.repository.BillTransactionRepository;
+import net.arville.easybill.repository.helper.PageableBuilder;
 import net.arville.easybill.service.manager.BillTransactionManager;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
@@ -29,6 +27,7 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
     private final UserManager userManager;
     private final BillTransactionRepository billTransactionRepository;
     private final BillRepository billRepository;
+    private final PageableBuilder pageableBuilder = PageableBuilder.builder();
 
     @Transactional
     @Override
@@ -123,11 +122,12 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
     }
 
     @Override
-    public UserResponse getRelevantUsersBillTransaction(User user) {
+    public PaginationResponse<UserResponse> getRelevantUsersBillTransaction(User user, int pageNumber) {
 
-        var relevantBillTransaction = billTransactionRepository.findAllRelevantTransaction(user.getId());
+        var relevantBillTransaction = billTransactionRepository
+                .findAllRelevantTransaction(user.getId(), pageableBuilder.setPageNumber(pageNumber).build());
 
-        return UserResponse.template(user)
+        var data = UserResponse.template(user)
                 .billTransactionResponseList(relevantBillTransaction
                         .stream()
                         .map(billTransaction -> BillTransactionResponse
@@ -149,6 +149,14 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
                         )
                         .collect(Collectors.toUnmodifiableList())
                 )
+                .build();
+
+        return PaginationResponse.<UserResponse>builder()
+                .data(data)
+                .page(pageNumber)
+                .pageSize(relevantBillTransaction.getSize())
+                .totalPages(relevantBillTransaction.getTotalPages())
+                .totalItems(relevantBillTransaction.getTotalElements())
                 .build();
     }
 

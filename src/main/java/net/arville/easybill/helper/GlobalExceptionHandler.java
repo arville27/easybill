@@ -67,6 +67,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(IllegalPageNumberException.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.BAD_REQUEST)
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure> invalidPageNumberValue(IllegalPageNumberException e) {
+        var body = ResponseStatus.INVALID_FIELDS_VALUE.GenerateGeneralBody(null, e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     // Filter exception
     @ExceptionHandler(JWTVerificationException.class)
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.BAD_REQUEST)

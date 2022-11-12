@@ -23,10 +23,13 @@ public class BillTransactionController {
     private final BillTransactionManager billTransactionManager;
 
     @GetMapping("/history")
-    public ResponseEntity<ResponseStructure> getAllStatusTransaction() {
+    public ResponseEntity<ResponseStructure> getAllBillTransaction(
+            @RequestParam(name = "page", required = false, defaultValue = "1") int pageNumber
+    ) {
 
-        var billTransactions = billTransactionManager.getRelevantUsersBillTransaction(authenticatedUser.getUser());
-        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(billTransactions);
+        var billTransactions = billTransactionManager
+                .getRelevantUsersBillTransaction(authenticatedUser.getUser(), pageNumber);
+        ResponseStructure body = ResponseStatus.SUCCESS.GeneratePaginationBody(billTransactions);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }

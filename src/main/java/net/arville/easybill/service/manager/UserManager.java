@@ -1,17 +1,18 @@
 package net.arville.easybill.service.manager;
 
 import net.arville.easybill.dto.request.UserRegistrationRequest;
+import net.arville.easybill.dto.response.PaginationResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.model.User;
 
 import java.util.List;
 
 public interface UserManager {
-    UserResponse getUserRelevantOrder(User user);
+    PaginationResponse<UserResponse> getUserRelevantOrder(User user, int pageNumber);
 
     UserResponse addNewUser(UserRegistrationRequest request);
 
-    UserResponse getUsersOrder(User user);
+    PaginationResponse<UserResponse> getUsersOrder(User user, int pageNumber);
 
     List<UserResponse> getAllUser();
 

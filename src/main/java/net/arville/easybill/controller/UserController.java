@@ -32,18 +32,22 @@ public class UserController {
     }
 
     @GetMapping("/relevant-orders")
-    public ResponseEntity<ResponseStructure> getRelevantOrders() {
+    public ResponseEntity<ResponseStructure> getRelevantOrders(
+            @RequestParam(name = "page", required = false, defaultValue = "1") int pageNumber
+    ) {
 
-        var user = userManager.getUserRelevantOrder(authenticatedUser.getUser());
-        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
+        var user = userManager.getUserRelevantOrder(authenticatedUser.getUser(), pageNumber);
+        ResponseStructure body = ResponseStatus.SUCCESS.GeneratePaginationBody(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
     @GetMapping("/users-orders")
-    public ResponseEntity<ResponseStructure> getUsersOrders() {
+    public ResponseEntity<ResponseStructure> getUsersOrders(
+            @RequestParam(name = "page", required = false, defaultValue = "1") int pageNumber
+    ) {
 
-        var user = userManager.getUsersOrder(authenticatedUser.getUser());
+        var user = userManager.getUsersOrder(authenticatedUser.getUser(), pageNumber);
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);

@@ -1,7 +1,9 @@
 package net.arville.easybill.payload.core;
 
 import lombok.AllArgsConstructor;
+import net.arville.easybill.dto.response.PaginationResponse;
 import net.arville.easybill.payload.GeneralOutput;
+import net.arville.easybill.payload.PaginationOutput;
 
 @AllArgsConstructor
 public enum ResponseStatus {
@@ -37,5 +39,16 @@ public enum ResponseStatus {
 
     public ResponseStructure GenerateGeneralBody(Object data, String extraMessage) {
         return this.GenerateBody(new GeneralOutput(data), extraMessage);
+    }
+
+    public ResponseStructure GeneratePaginationBody(PaginationResponse<?> paginationResponse) {
+        var body = PaginationOutput.builder()
+                .data(paginationResponse.getData())
+                .pageSize(paginationResponse.getPageSize())
+                .page(paginationResponse.getPage())
+                .totalItems(paginationResponse.getTotalItems())
+                .totalPages(paginationResponse.getTotalPages())
+                .build();
+        return this.GenerateBody(body);
     }
 }
