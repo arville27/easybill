@@ -48,7 +48,7 @@ public class UserController {
     ) {
 
         var user = userManager.getUsersOrder(authenticatedUser.getUser(), pageNumber);
-        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
+        ResponseStructure body = ResponseStatus.SUCCESS.GeneratePaginationBody(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }

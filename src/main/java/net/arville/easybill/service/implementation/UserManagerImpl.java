@@ -8,6 +8,7 @@ import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
+import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
@@ -31,10 +32,18 @@ public class UserManagerImpl implements UserManager {
         var relevantOrderList = orderHeaderRepository
                 .findRelevantOrderHeaderForUser(user.getId(), pageableBuilder.setPageNumber(pageNumber).build());
 
+        var listOrderHeaderId = relevantOrderList.stream().map(OrderHeader::getId).collect(Collectors.toSet());
+
+        var relevantOrderDetail = orderHeaderRepository.findRelevantOrderDetail(listOrderHeaderId);
+        var relevantBill = orderHeaderRepository.findRelevantBill(listOrderHeaderId);
+
+        var relevantOrderWithOthers = relevantOrderList.stream()
+                .peek(orderHeader -> orderHeader.setOrderDetailList(relevantOrderDetail))
+                .peek(orderHeader -> orderHeader.setBillList(relevantBill));
+
         var data = UserResponse
                 .template(user)
-                .orderHeaderResponseList(relevantOrderList
-                        .stream()
+                .orderHeaderResponseList(relevantOrderWithOthers
                         .map(order -> OrderHeaderResponse
                                 .template(order)
                                 .buyerResponse(UserResponse.mapWithoutDate(order.getBuyer()))
@@ -58,10 +67,18 @@ public class UserManagerImpl implements UserManager {
         var usersOrderList = orderHeaderRepository
                 .findUsersOrderHeaderForUser(user.getId(), pageableBuilder.setPageNumber(pageNumber).build());
 
+        var listOrderHeaderId = usersOrderList.stream().map(OrderHeader::getId).collect(Collectors.toSet());
+
+        var relevantOrderDetail = orderHeaderRepository.findRelevantOrderDetail(listOrderHeaderId);
+        var relevantBill = orderHeaderRepository.findRelevantBill(listOrderHeaderId);
+
+        var relevantOrderWithOthers = usersOrderList.stream()
+                .peek(orderHeader -> orderHeader.setOrderDetailList(relevantOrderDetail))
+                .peek(orderHeader -> orderHeader.setBillList(relevantBill));
+
         var data = UserResponse
                 .template(user)
-                .orderHeaderResponseList(usersOrderList
-                        .stream()
+                .orderHeaderResponseList(relevantOrderWithOthers
                         .map(order -> OrderHeaderResponse
                                 .template(order)
                                 .buyerResponse(UserResponse.mapWithoutDate(order.getBuyer()))
