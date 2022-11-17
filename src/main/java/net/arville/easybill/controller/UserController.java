@@ -33,10 +33,11 @@ public class UserController {
 
     @GetMapping("/relevant-orders")
     public ResponseEntity<ResponseStructure> getRelevantOrders(
-            @RequestParam(name = "page", required = false, defaultValue = "1") int pageNumber
+            @RequestParam(name = "page", required = false, defaultValue = "1") int pageNumber,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
     ) {
 
-        var user = userManager.getUserRelevantOrder(authenticatedUser.getUser(), pageNumber);
+        var user = userManager.getUserRelevantOrder(authenticatedUser.getUser(), pageNumber, pageSize);
         ResponseStructure body = ResponseStatus.SUCCESS.GeneratePaginationBody(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
@@ -44,10 +45,11 @@ public class UserController {
 
     @GetMapping("/users-orders")
     public ResponseEntity<ResponseStructure> getUsersOrders(
-            @RequestParam(name = "page", required = false, defaultValue = "1") int pageNumber
+            @RequestParam(name = "page", required = false, defaultValue = "1") int pageNumber,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
     ) {
 
-        var user = userManager.getUsersOrder(authenticatedUser.getUser(), pageNumber);
+        var user = userManager.getUsersOrder(authenticatedUser.getUser(), pageNumber, pageSize);
         ResponseStructure body = ResponseStatus.SUCCESS.GeneratePaginationBody(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);

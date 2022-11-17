@@ -122,10 +122,10 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
     }
 
     @Override
-    public PaginationResponse<UserResponse> getRelevantUsersBillTransaction(User user, int pageNumber) {
+    public PaginationResponse<UserResponse> getRelevantUsersBillTransaction(User user, int pageNumber, int pageSize) {
 
         var relevantBillTransaction = billTransactionRepository
-                .findAllRelevantTransaction(user.getId(), pageableBuilder.setPageNumber(pageNumber).build());
+                .findAllRelevantTransaction(user.getId(), pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build());
 
         var data = UserResponse.template(user)
                 .billTransactionResponseList(relevantBillTransaction
@@ -153,8 +153,8 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
 
         return PaginationResponse.<UserResponse>builder()
                 .data(data)
-                .page(pageNumber)
-                .pageSize(relevantBillTransaction.getSize())
+                .page(relevantBillTransaction.getTotalPages() == 0 ? 0 : pageNumber)
+                .pageSize(relevantBillTransaction.getNumberOfElements())
                 .totalPages(relevantBillTransaction.getTotalPages())
                 .totalItems(relevantBillTransaction.getTotalElements())
                 .build();

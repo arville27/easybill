@@ -28,9 +28,9 @@ public class UserManagerImpl implements UserManager {
     private final PasswordEncoder encoder;
     private final PageableBuilder pageableBuilder = PageableBuilder.builder();
 
-    public PaginationResponse<UserResponse> getUserRelevantOrder(User user, int pageNumber) {
+    public PaginationResponse<UserResponse> getUserRelevantOrder(User user, int pageNumber, int pageSize) {
         var relevantOrderList = orderHeaderRepository
-                .findRelevantOrderHeaderForUser(user.getId(), pageableBuilder.setPageNumber(pageNumber).build());
+                .findRelevantOrderHeaderForUser(user.getId(), pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build());
 
         var listOrderHeaderId = relevantOrderList.stream().map(OrderHeader::getId).collect(Collectors.toSet());
 
@@ -56,16 +56,16 @@ public class UserManagerImpl implements UserManager {
 
         return PaginationResponse.<UserResponse>builder()
                 .data(data)
-                .page(pageNumber)
-                .pageSize(relevantOrderList.getSize())
+                .page(relevantOrderList.getTotalPages() == 0 ? 0 : pageNumber)
+                .pageSize(relevantOrderList.getNumberOfElements())
                 .totalPages(relevantOrderList.getTotalPages())
                 .totalItems(relevantOrderList.getTotalElements())
                 .build();
     }
 
-    public PaginationResponse<UserResponse> getUsersOrder(User user, int pageNumber) {
+    public PaginationResponse<UserResponse> getUsersOrder(User user, int pageNumber, int pageSize) {
         var usersOrderList = orderHeaderRepository
-                .findUsersOrderHeaderForUser(user.getId(), pageableBuilder.setPageNumber(pageNumber).build());
+                .findUsersOrderHeaderForUser(user.getId(), pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build());
 
         var listOrderHeaderId = usersOrderList.stream().map(OrderHeader::getId).collect(Collectors.toSet());
 
@@ -91,8 +91,8 @@ public class UserManagerImpl implements UserManager {
 
         return PaginationResponse.<UserResponse>builder()
                 .data(data)
-                .page(pageNumber)
-                .pageSize(usersOrderList.getSize())
+                .page(usersOrderList.getTotalPages() == 0 ? 0 : pageNumber)
+                .pageSize(usersOrderList.getNumberOfElements())
                 .totalPages(usersOrderList.getTotalPages())
                 .totalItems(usersOrderList.getTotalElements())
                 .build();

@@ -8,11 +8,11 @@ import net.arville.easybill.model.User;
 import java.util.List;
 
 public interface UserManager {
-    PaginationResponse<UserResponse> getUserRelevantOrder(User user, int pageNumber);
+    PaginationResponse<UserResponse> getUserRelevantOrder(User user, int pageNumber, int pageSize);
 
     UserResponse addNewUser(UserRegistrationRequest request);
 
-    PaginationResponse<UserResponse> getUsersOrder(User user, int pageNumber);
+    PaginationResponse<UserResponse> getUsersOrder(User user, int pageNumber, int pageSize);
 
     List<UserResponse> getAllUser();
 

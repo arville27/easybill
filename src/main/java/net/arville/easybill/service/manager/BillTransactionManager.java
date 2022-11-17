@@ -10,5 +10,5 @@ public interface BillTransactionManager {
 
     BillTransactionResponse payUnpaidBills(User user, PayBillRequest payBillRequest);
 
-    PaginationResponse<UserResponse> getRelevantUsersBillTransaction(User user, int pageNumber);
+    PaginationResponse<UserResponse> getRelevantUsersBillTransaction(User user, int pageNumber, int pageSize);
 }
