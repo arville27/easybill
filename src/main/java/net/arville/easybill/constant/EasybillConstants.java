@@ -13,7 +13,7 @@ public final class EasybillConstants {
             "http://192.168.100.96:4200",
             "https://easybill.arville.net",
             "http://192.168.43.33:4200",
-            "https://beta-easybill.arville.net"
+            "https://easybill-beta.arville.net"
     );
 
     public static final List<String> UNAUTHENTICATED_ROUTES_PREFIX = List.of(AUTH_PATH, "/api/docs/**", "/swagger-ui/**");
