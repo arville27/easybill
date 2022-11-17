@@ -10,6 +10,7 @@ import net.arville.easybill.model.BillTransaction;
 import net.arville.easybill.model.BillTransactionHeader;
 import net.arville.easybill.model.User;
 import net.arville.easybill.model.helper.BillStatus;
+import net.arville.easybill.model.helper.BillTransactionOrigin;
 import net.arville.easybill.repository.BillRepository;
 import net.arville.easybill.repository.BillTransactionRepository;
 import net.arville.easybill.repository.helper.PageableBuilder;
@@ -62,6 +63,7 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
                 .payer(user)
                 .receiver(targetUser)
                 .amount(payAmount)
+                .origin(BillTransactionOrigin.USER_GENERATED)
                 .build();
 
         // Pay amount equals to total bill to target user
