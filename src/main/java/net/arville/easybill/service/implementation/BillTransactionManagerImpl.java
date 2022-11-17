@@ -12,6 +12,7 @@ import net.arville.easybill.model.User;
 import net.arville.easybill.model.helper.BillStatus;
 import net.arville.easybill.model.helper.BillTransactionOrigin;
 import net.arville.easybill.repository.BillRepository;
+import net.arville.easybill.repository.BillTransactionHeaderRepository;
 import net.arville.easybill.repository.BillTransactionRepository;
 import net.arville.easybill.repository.helper.PageableBuilder;
 import net.arville.easybill.service.manager.BillTransactionManager;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 public class BillTransactionManagerImpl implements BillTransactionManager {
     private final UserManager userManager;
     private final BillTransactionRepository billTransactionRepository;
+    private final BillTransactionHeaderRepository billTransactionHeaderRepository;
     private final BillRepository billRepository;
     private final PageableBuilder pageableBuilder = PageableBuilder.builder();
 
@@ -129,9 +132,25 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
         var relevantBillTransaction = billTransactionRepository
                 .findAllRelevantTransaction(user.getId(), pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build());
 
+        var listRelevantBillTransactionId = relevantBillTransaction.stream()
+                .map(BillTransaction::getId)
+                .collect(Collectors.toList());
+
+        var relevantBillTransactionHeader = billTransactionHeaderRepository
+                .findRelatedBillTransactionHeader(listRelevantBillTransactionId);
+
+        var relevantBillTransactionWithBillTransactionHeader = relevantBillTransaction
+                .stream()
+                .peek(billTransaction -> billTransaction
+                        .setBillTransactionHeaderList(
+                                relevantBillTransactionHeader.stream()
+                                        .filter(billTransactionHeader -> Objects.equals(billTransactionHeader.getBillTransaction().getId(), billTransaction.getId()))
+                                        .collect(Collectors.toList())
+                        )
+                );
+
         var data = UserResponse.template(user)
-                .billTransactionResponseList(relevantBillTransaction
-                        .stream()
+                .billTransactionResponseList(relevantBillTransactionWithBillTransactionHeader
                         .map(billTransaction -> BillTransactionResponse
                                 .template(billTransaction)
                                 .createdAt(billTransaction.getCreatedAt())

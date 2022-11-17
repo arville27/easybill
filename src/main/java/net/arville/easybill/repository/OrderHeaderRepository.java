@@ -19,9 +19,7 @@ public interface OrderHeaderRepository extends JpaRepository<OrderHeader, Long>,
     @Query("SELECT DISTINCT oh FROM OrderHeader oh JOIN oh.orderDetailList od JOIN od.user u WHERE u.id = ?1 ORDER BY oh.orderAt DESC, oh.createdAt DESC")
     @EntityGraph(
             type = EntityGraph.EntityGraphType.FETCH,
-            attributePaths = {
-                    "buyer"
-            }
+            attributePaths = {"buyer"}
     )
     Page<OrderHeader> findRelevantOrderHeaderForUser(Long userId, Pageable pageable);
 
@@ -34,9 +32,7 @@ public interface OrderHeaderRepository extends JpaRepository<OrderHeader, Long>,
     @Query("SELECT oh FROM OrderHeader oh WHERE oh.buyer.id = ?1 ORDER BY oh.orderAt DESC, oh.createdAt DESC")
     @EntityGraph(
             type = EntityGraph.EntityGraphType.FETCH,
-            attributePaths = {
-                    "buyer"
-            }
+            attributePaths = {"buyer"}
     )
     Page<OrderHeader> findUsersOrderHeaderForUser(Long userId, Pageable pageable);
 

@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,8 +39,16 @@ public class UserManagerImpl implements UserManager {
         var relevantBill = orderHeaderRepository.findRelevantBill(listOrderHeaderId);
 
         var relevantOrderWithOthers = relevantOrderList.stream()
-                .peek(orderHeader -> orderHeader.setOrderDetailList(relevantOrderDetail))
-                .peek(orderHeader -> orderHeader.setBillList(relevantBill));
+                .peek(orderHeader -> orderHeader.setOrderDetailList(
+                        relevantOrderDetail.stream()
+                                .filter(orderDetail -> Objects.equals(orderDetail.getOrderHeader().getId(), orderHeader.getId()))
+                                .collect(Collectors.toSet())
+                ))
+                .peek(orderHeader -> orderHeader.setBillList(
+                        relevantBill.stream()
+                                .filter(bill -> Objects.equals(bill.getOrderHeader().getId(), orderHeader.getId()))
+                                .collect(Collectors.toSet())
+                ));
 
         var data = UserResponse
                 .template(user)

@@ -1,10 +1,13 @@
 package net.arville.easybill.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -32,6 +35,11 @@ public class BillTransactionHeader {
     private BillTransaction billTransaction;
 
     private BigDecimal paidAmount = BigDecimal.ZERO;
+
+    @CreationTimestamp
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @Override
     public boolean equals(Object o) {

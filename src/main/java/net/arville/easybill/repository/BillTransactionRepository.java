@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BillTransactionRepository extends JpaRepository<BillTransaction, Long>, PagingAndSortingRepository<BillTransaction, Long> {
-    @EntityGraph(attributePaths = {"payer", "receiver", "billTransactionHeaderList.bill.orderHeader"})
+    @EntityGraph(attributePaths = {"payer", "receiver"})
     @Query("SELECT bt FROM BillTransaction bt WHERE bt.payer.id = ?1 OR bt.receiver.id = ?1 ORDER BY bt.createdAt DESC")
     Page<BillTransaction> findAllRelevantTransaction(Long id, Pageable pageable);
 }
