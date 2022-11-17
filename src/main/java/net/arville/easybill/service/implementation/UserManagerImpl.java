@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -31,24 +32,12 @@ public class UserManagerImpl implements UserManager {
 
     public PaginationResponse<UserResponse> getUserRelevantOrder(User user, int pageNumber, int pageSize) {
         var relevantOrderList = orderHeaderRepository
-                .findRelevantOrderHeaderForUser(user.getId(), pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build());
+                .findRelevantOrderHeaderForUser(
+                        user.getId(),
+                        pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build()
+                );
 
-        var listOrderHeaderId = relevantOrderList.stream().map(OrderHeader::getId).collect(Collectors.toSet());
-
-        var relevantOrderDetail = orderHeaderRepository.findRelevantOrderDetail(listOrderHeaderId);
-        var relevantBill = orderHeaderRepository.findRelevantBill(listOrderHeaderId);
-
-        var relevantOrderWithOthers = relevantOrderList.stream()
-                .peek(orderHeader -> orderHeader.setOrderDetailList(
-                        relevantOrderDetail.stream()
-                                .filter(orderDetail -> Objects.equals(orderDetail.getOrderHeader().getId(), orderHeader.getId()))
-                                .collect(Collectors.toSet())
-                ))
-                .peek(orderHeader -> orderHeader.setBillList(
-                        relevantBill.stream()
-                                .filter(bill -> Objects.equals(bill.getOrderHeader().getId(), orderHeader.getId()))
-                                .collect(Collectors.toSet())
-                ));
+        var relevantOrderWithOthers = this.fetchRequiredOrderHeaderData(relevantOrderList.toList());
 
         var data = UserResponse
                 .template(user)
@@ -74,16 +63,12 @@ public class UserManagerImpl implements UserManager {
 
     public PaginationResponse<UserResponse> getUsersOrder(User user, int pageNumber, int pageSize) {
         var usersOrderList = orderHeaderRepository
-                .findUsersOrderHeaderForUser(user.getId(), pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build());
+                .findUsersOrderHeaderForUser(
+                        user.getId(),
+                        pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build()
+                );
 
-        var listOrderHeaderId = usersOrderList.stream().map(OrderHeader::getId).collect(Collectors.toSet());
-
-        var relevantOrderDetail = orderHeaderRepository.findRelevantOrderDetail(listOrderHeaderId);
-        var relevantBill = orderHeaderRepository.findRelevantBill(listOrderHeaderId);
-
-        var relevantOrderWithOthers = usersOrderList.stream()
-                .peek(orderHeader -> orderHeader.setOrderDetailList(relevantOrderDetail))
-                .peek(orderHeader -> orderHeader.setBillList(relevantBill));
+        var relevantOrderWithOthers = this.fetchRequiredOrderHeaderData(usersOrderList.toList());
 
         var data = UserResponse
                 .template(user)
@@ -105,6 +90,28 @@ public class UserManagerImpl implements UserManager {
                 .totalPages(usersOrderList.getTotalPages())
                 .totalItems(usersOrderList.getTotalElements())
                 .build();
+    }
+
+    private Stream<OrderHeader> fetchRequiredOrderHeaderData(List<OrderHeader> orderHeaderList) {
+        var listOrderHeaderId = orderHeaderList
+                .stream()
+                .map(OrderHeader::getId)
+                .collect(Collectors.toSet());
+
+        var relevantOrderDetail = orderHeaderRepository.findRelevantOrderDetail(listOrderHeaderId);
+        var relevantBill = orderHeaderRepository.findRelevantBill(listOrderHeaderId);
+
+        return orderHeaderList.stream()
+                .peek(orderHeader -> orderHeader.setOrderDetailList(
+                        relevantOrderDetail.stream()
+                                .filter(orderDetail -> Objects.equals(orderDetail.getOrderHeader().getId(), orderHeader.getId()))
+                                .collect(Collectors.toSet())
+                ))
+                .peek(orderHeader -> orderHeader.setBillList(
+                        relevantBill.stream()
+                                .filter(bill -> Objects.equals(bill.getOrderHeader().getId(), orderHeader.getId()))
+                                .collect(Collectors.toSet())
+                ));
     }
 
     public User getUserByUsername(String username) {

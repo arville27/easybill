@@ -89,12 +89,15 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
         }
         // Pay amount not equals to total bill to target user, cascade to all possible bills
         else {
-            final BigDecimal[] tempMaxPayableAmount = {BigDecimal.ZERO};
+            var tempMaxPayableAmount = new Object() {
+                public BigDecimal value = BigDecimal.ZERO;
+            };
+            
             var billTransactionHeaderList = unpaidBills
                     .stream()
-                    .takeWhile(status -> tempMaxPayableAmount[0].compareTo(payAmount) < 0)
+                    .takeWhile(status -> tempMaxPayableAmount.value.compareTo(payAmount) < 0)
                     .map(status -> {
-                        BigDecimal temp = payAmount.subtract(tempMaxPayableAmount[0]);
+                        BigDecimal temp = payAmount.subtract(tempMaxPayableAmount.value);
 
                         BigDecimal paidForThisStatus = status.getOweAmountWithBillTransaction();
 
@@ -104,7 +107,7 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
                             paidForThisStatus = temp;
                         }
 
-                        tempMaxPayableAmount[0] = tempMaxPayableAmount[0].add(paidForThisStatus);
+                        tempMaxPayableAmount.value = tempMaxPayableAmount.value.add(paidForThisStatus);
 
                         var billTransactionHeader = BillTransactionHeader.builder()
                                 .bill(status)

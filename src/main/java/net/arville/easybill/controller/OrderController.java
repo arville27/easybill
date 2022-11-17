@@ -39,7 +39,7 @@ public class OrderController {
     }
 
     @DeleteMapping("{orderHeaderId}")
-    public ResponseEntity<ResponseStructure> updateOrder(@PathVariable Long orderHeaderId){
+    public ResponseEntity<ResponseStructure> deleteOrder(@PathVariable Long orderHeaderId) {
 
         var deletedOrder = orderManager.deleteOrder(orderHeaderId);
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(deletedOrder);
