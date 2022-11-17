@@ -140,6 +140,7 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
                                                         .template(billTransactionHeader)
                                                         .orderHeaderResponse(OrderHeaderResponse
                                                                 .template(billTransactionHeader.getBill().getOrderHeader())
+                                                                .buyerResponse(UserResponse.mapWithoutDate(billTransactionHeader.getBill().getOrderHeaderBuyer()))
                                                                 .build()
                                                         )
                                                         .build()
