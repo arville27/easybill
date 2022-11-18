@@ -30,7 +30,7 @@ public class OrderDetailRequest implements EnsureRequiredFields, ConvertibleToOr
     public Stream<OrderDetail> toOriginalEntity() {
         BigDecimal orderUserCount = BigDecimal.valueOf(this.users.size());
         OrderDetailType orderType = this.users.size() > 1 ? OrderDetailType.MULTI_USER : OrderDetailType.SINGLE_USER;
-        BigDecimal totalOrderDetail = this.price.multiply(BigDecimal.valueOf(this.qty));
+        BigDecimal totalOrderDetail = this.users.size() > 1 ? this.price.multiply(BigDecimal.valueOf(this.qty)) : this.price;
         return users.stream().map(u -> OrderDetail.builder()
                 .user(u)
                 .orderMenuDesc(orderMenuDesc)
