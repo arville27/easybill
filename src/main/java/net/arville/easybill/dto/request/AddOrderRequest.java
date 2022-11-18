@@ -51,7 +51,7 @@ public class AddOrderRequest implements EnsureRequiredFields, ConvertibleToOrigi
         orderHeader.setOrderDescription(orderDescription);
         orderHeader.setTotalPayment(totalPayment);
         orderHeader.setUpto(upto);
-        orderHeader.setDiscount(discount);
+        orderHeader.setDiscount(discount / 10);
         orderHeader.setOrderAt(orderAt);
         return orderHeader;
     }
