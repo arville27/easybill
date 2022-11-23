@@ -1,10 +1,13 @@
 package net.arville.easybill.service.implementation;
 
 import lombok.RequiredArgsConstructor;
+import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
+import net.arville.easybill.dto.request.UserChangePasswordRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
 import net.arville.easybill.dto.response.PaginationResponse;
 import net.arville.easybill.dto.response.UserResponse;
+import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
@@ -120,6 +123,85 @@ public class UserManagerImpl implements UserManager {
 
     public User getUserByUserId(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    @Override
+    public void changeUserPassword(UserChangePasswordRequest request, User authenticatedUser) {
+        var missingProperties = request.getMissingProperties();
+
+        if (missingProperties.size() > 0)
+            throw new MissingRequiredPropertiesException(missingProperties);
+
+        var invalidPropertiesValue = new InvalidPropertiesValue();
+
+        if (!Objects.equals(request.getNewPassword(), request.getConfirmPassword())) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "confirm_password",
+                    "new_password and confirm_password must be the same!"
+            );
+        }
+
+        if (request.getNewPassword().length() < 8) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "new_password",
+                    "Minimum password length is 8 characters"
+            );
+        }
+
+        if (invalidPropertiesValue.isThereInvalidProperties())
+            throw invalidPropertiesValue;
+
+        authenticatedUser = this.getUserByUserId(authenticatedUser.getId());
+        if (!encoder.matches(request.getCurrentPassword(), authenticatedUser.getPassword())) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "current_password",
+                    "Current password is incorrect"
+            );
+            throw invalidPropertiesValue;
+        }
+
+        if (Objects.equals(request.getCurrentPassword(), request.getNewPassword())) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "new_password",
+                    "New password must be different with current password"
+            );
+            throw invalidPropertiesValue;
+        }
+
+        authenticatedUser.setPassword(encoder.encode(request.getNewPassword()));
+        userRepository.save(authenticatedUser);
+    }
+
+    @Override
+    public void changeUserAccountNumber(UserChangeAccountNumberRequest request, User authenticatedUser) {
+        var missingProperties = request.getMissingProperties();
+
+        if (missingProperties.size() > 0)
+            throw new MissingRequiredPropertiesException(missingProperties);
+
+        var invalidPropertiesValue = new InvalidPropertiesValue();
+
+        if (!request.getNewAccountNumber().matches("[0-9]+")) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "new_account_number",
+                    "Account number should only contains number"
+            );
+            throw invalidPropertiesValue;
+        }
+
+        authenticatedUser = this.getUserByUserId(authenticatedUser.getId());
+        if (!encoder.matches(request.getCurrentPassword(), authenticatedUser.getPassword())) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "current_password",
+                    "Current password is incorrect"
+            );
+            throw invalidPropertiesValue;
+        }
+
+        if (!Objects.equals(authenticatedUser.getAccountNumber(), request.getNewAccountNumber())) {
+            authenticatedUser.setAccountNumber(request.getNewAccountNumber());
+            userRepository.save(authenticatedUser);
+        }
     }
 
     public UserResponse addNewUser(UserRegistrationRequest request) {

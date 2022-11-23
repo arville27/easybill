@@ -30,7 +30,10 @@ public class User {
     private String username;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
+
+    private String accountNumber;
 
     @OneToMany(mappedBy = "buyer", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JsonIgnore

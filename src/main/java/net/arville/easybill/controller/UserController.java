@@ -3,6 +3,8 @@ package net.arville.easybill.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
+import net.arville.easybill.dto.request.UserChangePasswordRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.payload.core.ResponseStatus;
@@ -27,6 +29,15 @@ public class UserController {
 
         var users = userManager.getAllUser();
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(users);
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<ResponseStructure> getUserData() {
+
+        var user = userManager.getUserByUserId(authenticatedUser.getUserId());
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
@@ -62,6 +73,24 @@ public class UserController {
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(newUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<ResponseStructure> changeUserPassword(@RequestBody UserChangePasswordRequest request) {
+
+        userManager.changeUserPassword(request, authenticatedUser.getUser());
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
+    @PutMapping("/account-number")
+    public ResponseEntity<ResponseStructure> changeUserAccountNumber(@RequestBody UserChangeAccountNumberRequest request) {
+
+        userManager.changeUserAccountNumber(request, authenticatedUser.getUser());
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
 }
