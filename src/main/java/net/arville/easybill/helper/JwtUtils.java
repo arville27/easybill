@@ -26,7 +26,6 @@ public class JwtUtils {
     public String createToken(User user) {
         return JWT.create()
                 .withClaim("user_id", user.getId())
-                .withSubject(user.getUsername())
                 .withExpiresAt(EasybillConstants.JWT_EXPIRY_TIME)
                 .sign(tokenAlgorithm());
     }

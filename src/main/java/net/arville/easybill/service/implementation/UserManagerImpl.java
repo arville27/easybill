@@ -3,6 +3,7 @@ package net.arville.easybill.service.implementation;
 import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.dto.request.UserChangePasswordRequest;
+import net.arville.easybill.dto.request.UserChangeUsernameRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.InvalidPropertiesValue;
@@ -110,6 +111,49 @@ public class UserManagerImpl implements UserManager {
             authenticatedUser.setAccountNumber(request.getNewAccountNumber());
             userRepository.save(authenticatedUser);
         }
+    }
+
+    @Override
+    public void changeUserUsername(UserChangeUsernameRequest request, User authenticatedUser) {
+        var missingProperties = request.getMissingProperties();
+
+        if (missingProperties.size() > 0)
+            throw new MissingRequiredPropertiesException(missingProperties);
+
+        var invalidPropertiesValue = new InvalidPropertiesValue();
+
+        if (request.getNewUsername().length() < 3 || request.getNewUsername().length() > 10) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "new_username",
+                    "Username should only consist of 3 to 10 characters"
+            );
+            throw invalidPropertiesValue;
+        }
+
+        if (request.getNewUsername().equalsIgnoreCase(authenticatedUser.getUsername())) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "new_username",
+                    "New username should be different from the current username"
+            );
+            throw invalidPropertiesValue;
+        }
+
+        var userWithNewUsername = userRepository
+                .findUserByUsername(request.getNewUsername().toLowerCase());
+
+        if (userWithNewUsername.isPresent()) throw new UsernameAlreadyExists();
+
+        authenticatedUser = this.getUserByUserId(authenticatedUser.getId());
+        if (!encoder.matches(request.getCurrentPassword(), authenticatedUser.getPassword())) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "current_password",
+                    "Current password is incorrect"
+            );
+            throw invalidPropertiesValue;
+        }
+
+        authenticatedUser.setUsername(request.getNewUsername().toLowerCase());
+        userRepository.save(authenticatedUser);
     }
 
     public UserResponse addNewUser(UserRegistrationRequest request) {

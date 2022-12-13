@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.dto.request.UserChangePasswordRequest;
+import net.arville.easybill.dto.request.UserChangeUsernameRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
 import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.payload.core.ResponseStatus;
@@ -49,6 +50,15 @@ public class UserController {
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(newUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
+    }
+
+    @PutMapping("/username")
+    public ResponseEntity<ResponseStructure> changeUserUsername(@RequestBody UserChangeUsernameRequest request) {
+
+        userManager.changeUserUsername(request, authenticatedUser.getUser());
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(null);
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
     @PutMapping("/password")

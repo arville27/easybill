@@ -16,12 +16,10 @@ import org.springframework.stereotype.Component;
 public class AuthenticatedUser {
     private User user;
     private Long userId;
-    private String username;
 
     public User getUser() {
         if (this.user == null) {
             this.user = User.builder()
-                    .username(username)
                     .id(userId)
                     .build();
         }

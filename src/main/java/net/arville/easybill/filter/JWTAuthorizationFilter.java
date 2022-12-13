@@ -44,12 +44,11 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         String accessToken = authorizationHeader.substring("Bearer ".length());
         DecodedJWT decodedJWT = jwtUtils.verifyToken(accessToken);
 
-        String username = decodedJWT.getSubject();
+        Long userId = decodedJWT.getClaim("user_id").asLong();
 
-        var authToken = new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
+        var authToken = new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
 
-        authenticatedUser.setUserId(decodedJWT.getClaim("user_id").asLong());
-        authenticatedUser.setUsername(decodedJWT.getSubject());
+        authenticatedUser.setUserId(userId);
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
 

@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.UNAUTHORIZED)
     @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseStructure> unauthorizedRequestException(UnauthorizedRequestException e) {
-        var body = ResponseStatus.UNAUTHORIZED.GenerateGeneralBody(null);
+        var body = ResponseStatus.UNAUTHORIZED.GenerateGeneralBody(null, e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 

@@ -2,19 +2,16 @@ package net.arville.easybill.service.manager;
 
 import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.dto.request.UserChangePasswordRequest;
+import net.arville.easybill.dto.request.UserChangeUsernameRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
-import net.arville.easybill.dto.response.PaginationResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.model.User;
 
 import java.util.List;
 
 public interface UserManager {
-    PaginationResponse<UserResponse> getUserRelevantOrder(User user, int pageNumber, int pageSize, String keyword, String orderStatus);
 
     UserResponse addNewUser(UserRegistrationRequest request);
-
-    PaginationResponse<UserResponse> getUsersOrder(User user, int pageNumber, int pageSize, String keyword, String orderStatus);
 
     List<UserResponse> getAllUser();
 
@@ -26,4 +23,5 @@ public interface UserManager {
 
     void changeUserAccountNumber(UserChangeAccountNumberRequest request, User authenticatedUser);
 
+    void changeUserUsername(UserChangeUsernameRequest request, User authenticatedUser);
 }
