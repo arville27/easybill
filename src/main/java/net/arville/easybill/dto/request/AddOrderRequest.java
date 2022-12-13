@@ -1,6 +1,8 @@
 package net.arville.easybill.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.arville.easybill.dto.util.ConvertibleToOriginalEntity;
@@ -14,8 +16,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class AddOrderRequest implements EnsureRequiredFields, ConvertibleToOriginalEntity<OrderHeader> {
 
     private String orderDescription;

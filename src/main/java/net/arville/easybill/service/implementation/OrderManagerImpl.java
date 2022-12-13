@@ -19,6 +19,8 @@ import net.arville.easybill.service.manager.OrderManager;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,41 +35,12 @@ public class OrderManagerImpl implements OrderManager {
 
     public OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest) {
 
-        var missingProperties = addOrderRequest.getMissingProperties();
-
-        if (missingProperties.size() > 0) {
-            throw new MissingRequiredPropertiesException(missingProperties);
-        }
-
-        User user = userManager.getUserByUserId(addOrderRequest.getBuyerId());
-
-        OrderHeader orderHeader = addOrderRequest.toOriginalEntity();
-        orderHeader.setOrderDetailList(
-                addOrderRequest.getOrderList()
-                        .stream()
-                        .peek(orderDetailRequest -> {
-                            var orderDetailRequestMissingProperties = orderDetailRequest.getMissingProperties();
-
-                            if (orderDetailRequestMissingProperties.size() > 0) {
-                                throw new MissingRequiredPropertiesException(orderDetailRequestMissingProperties);
-                            }
-                        })
-                        .flatMap(OrderDetailRequest::toOriginalEntity)
-                        .peek(orderDetail -> {
-                            User orderBy = userManager.getUserByUserId(orderDetail.getUser().getId());
-                            orderDetail.setOrderHeader(orderHeader);
-                            orderDetail.setUser(orderBy);
-                        })
-                        .collect(Collectors.toSet())
-        );
-
-        orderHeader.setBuyer(user);
-        user.getOrderList().add(orderHeader);
+        var newOrderHeader = this.parseOrderHeaderRequest(addOrderRequest);
 
         // This will process order and generate bill accordingly
-        var bills = billManager.generateCorrespondingBills(orderHeader);
-        orderHeader.setBillList(bills);
-        var savedOrderHeader = orderHeaderRepository.save(orderHeader);
+        billManager.generateCorrespondingBills(newOrderHeader);
+
+        var savedOrderHeader = orderHeaderRepository.save(newOrderHeader);
 
         return this.createOrderHeaderResponse(savedOrderHeader);
     }
@@ -199,6 +172,51 @@ public class OrderManagerImpl implements OrderManager {
                 .build();
     }
 
+    @Override
+    public AddOrderRequest getOrderJsonDataById(Long orderId) {
+        OrderHeader orderHeader = orderHeaderRepository
+                .findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        var result = orderHeader.getOrderDetailList().stream()
+                .collect(Collectors.groupingBy(OrderDetail::getGroupOrderReferenceId))
+                .values().stream()
+                .map(groupOrderDetail -> {
+                    var usersCount = groupOrderDetail.size();
+
+                    var qty = groupOrderDetail.get(0).getQty();
+                    var price = usersCount == 1
+                            ? groupOrderDetail.get(0).getPrice()
+                            : groupOrderDetail.stream()
+                            .map(OrderDetail::getPrice)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add)
+                            .divide(BigDecimal.valueOf(qty), 0, RoundingMode.HALF_UP);
+                    var orderMenuDesc = groupOrderDetail.get(0).getOrderMenuDesc();
+
+                    var users = groupOrderDetail.stream()
+                            .map(OrderDetail::getUser)
+                            .collect(Collectors.toList());
+
+                    return OrderDetailRequest.builder()
+                            .qty(qty)
+                            .orderMenuDesc(orderMenuDesc)
+                            .users(users)
+                            .price(price)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        return AddOrderRequest.builder()
+                .orderAt(orderHeader.getOrderAt())
+                .orderDescription(orderHeader.getOrderDescription())
+                .buyerId(orderHeader.getBuyer().getId())
+                .upto(orderHeader.getUpto())
+                .discount(orderHeader.getDiscount() * 100)
+                .totalPayment(orderHeader.getTotalPayment())
+                .orderList(result)
+                .build();
+    }
+
     private OrderHeaderResponse createOrderHeaderResponse(OrderHeader orderHeader) {
         var orderDetailListGroupByUser = orderHeader.getOrderDetailList()
                 .stream()
@@ -234,6 +252,41 @@ public class OrderManagerImpl implements OrderManager {
                         .collect(Collectors.toList())
                 )
                 .build();
+    }
+
+    private OrderHeader parseOrderHeaderRequest(AddOrderRequest request) {
+        var missingProperties = request.getMissingProperties();
+
+        if (missingProperties.size() > 0) {
+            throw new MissingRequiredPropertiesException(missingProperties);
+        }
+
+        User user = userManager.getUserByUserId(request.getBuyerId());
+
+        OrderHeader orderHeader = request.toOriginalEntity();
+        orderHeader.setOrderDetailList(
+                request.getOrderList()
+                        .stream()
+                        .peek(orderDetailRequest -> {
+                            var orderDetailRequestMissingProperties = orderDetailRequest.getMissingProperties();
+
+                            if (orderDetailRequestMissingProperties.size() > 0) {
+                                throw new MissingRequiredPropertiesException(orderDetailRequestMissingProperties);
+                            }
+                        })
+                        .flatMap(OrderDetailRequest::toOriginalEntity)
+                        .peek(orderDetail -> {
+                            User orderBy = userManager.getUserByUserId(orderDetail.getUser().getId());
+                            orderDetail.setOrderHeader(orderHeader);
+                            orderDetail.setUser(orderBy);
+                        })
+                        .collect(Collectors.toSet())
+        );
+
+        orderHeader.setBuyer(user);
+        user.getOrderList().add(orderHeader);
+
+        return orderHeader;
     }
 
 }

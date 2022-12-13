@@ -32,6 +32,15 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
+    @GetMapping("/reorder/{orderId}")
+    public ResponseEntity<ResponseStructure> getOrderJsonData(@PathVariable Long orderId) {
+
+        var orderJson = orderManager.getOrderJsonDataById(orderId);
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(orderJson);
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
+    }
+
     @GetMapping("/pending-orders")
     public ResponseEntity<ResponseStructure> getPendingOrders() {
 

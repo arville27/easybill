@@ -26,7 +26,7 @@ public class BillManagerImpl implements BillManager {
 
     @Override
     public Set<Bill> generateCorrespondingBills(OrderHeader orderHeader) {
-        return orderHeader.getParticipatingUsers().stream()
+        var billList = orderHeader.getParticipatingUsers().stream()
                 .map(user -> Bill.builder()
                         .user(user)
                         .orderHeader(orderHeader)
@@ -34,6 +34,10 @@ public class BillManagerImpl implements BillManager {
                         .build()
                 )
                 .collect(Collectors.toSet());
+
+        orderHeader.setBillList(billList);
+        
+        return billList;
     }
 
     @Override
