@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import net.arville.easybill.dto.util.ConvertibleToOriginalEntity;
 import net.arville.easybill.dto.util.EnsureRequiredFields;
 import net.arville.easybill.model.OrderHeader;
+import net.arville.easybill.model.helper.OrderHeaderValidity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -52,6 +53,7 @@ public class AddOrderRequest implements EnsureRequiredFields, ConvertibleToOrigi
         orderHeader.setTotalPayment(totalPayment);
         orderHeader.setUpto(upto);
         orderHeader.setDiscount(discount / 100);
+        orderHeader.setValidity(OrderHeaderValidity.PENDING);
         orderHeader.setOrderAt(orderAt);
         return orderHeader;
     }

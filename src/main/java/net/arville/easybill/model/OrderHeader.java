@@ -3,6 +3,7 @@ package net.arville.easybill.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import net.arville.easybill.model.helper.BillStatus;
+import net.arville.easybill.model.helper.OrderHeaderValidity;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -42,6 +43,9 @@ public class OrderHeader {
 
     @Column(nullable = false)
     private Double discount;
+
+    @Enumerated(EnumType.STRING)
+    private OrderHeaderValidity validity;
 
     @Transient
     private BigDecimal totalOrderAmount;

@@ -4,110 +4,26 @@ import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.dto.request.UserChangePasswordRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
-import net.arville.easybill.dto.response.OrderHeaderResponse;
-import net.arville.easybill.dto.response.PaginationResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
 import net.arville.easybill.model.User;
-import net.arville.easybill.model.helper.BillStatus;
-import net.arville.easybill.repository.OrderHeaderRepository;
 import net.arville.easybill.repository.UserRepository;
-import net.arville.easybill.repository.helper.PageableBuilder;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserManagerImpl implements UserManager {
     private final UserRepository userRepository;
-    private final OrderHeaderRepository orderHeaderRepository;
     private final PasswordEncoder encoder;
-    private final PageableBuilder pageableBuilder = PageableBuilder.builder();
-
-    public PaginationResponse<UserResponse> getUserRelevantOrder(
-            User user,
-            int pageNumber,
-            int pageSize,
-            String keyword,
-            String orderStatus
-    ) {
-        var relevantOrderList = orderHeaderRepository
-                .findRelevantOrderHeaderForUser(
-                        user.getId(),
-                        Optional.ofNullable(keyword),
-                        BillStatus.fromString(orderStatus),
-                        pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build()
-                );
-        
-        var data = UserResponse
-                .template(user)
-                .orderHeaderResponseList(relevantOrderList.stream()
-                        .map(order -> OrderHeaderResponse
-                                .template(order)
-                                .buyerResponse(UserResponse.mapWithoutDate(order.getBuyer()))
-                                .relevantStatus(order.getRelevantStatus(user))
-                                .build()
-                        )
-                        .collect(Collectors.toList())
-                )
-                .build();
-
-        return PaginationResponse.<UserResponse>builder()
-                .data(data)
-                .page(relevantOrderList.getTotalPages() == 0 ? 0 : pageNumber)
-                .pageSize(relevantOrderList.getNumberOfElements())
-                .totalPages(relevantOrderList.getTotalPages())
-                .totalItems(relevantOrderList.getTotalElements())
-                .build();
-    }
-
-    public PaginationResponse<UserResponse> getUsersOrder(
-            User user,
-            int pageNumber,
-            int pageSize,
-            String keyword,
-            String orderStatus
-    ) {
-
-        var usersOrderList = orderHeaderRepository
-                .findUsersOrderHeaderForUser(
-                        user.getId(),
-                        Optional.ofNullable(keyword),
-                        BillStatus.fromString(orderStatus),
-                        pageableBuilder.setPageNumber(pageNumber).setPageSize(Math.min(pageSize, 25)).build()
-                );
-
-
-        var data = UserResponse
-                .template(user)
-                .orderHeaderResponseList(usersOrderList.stream()
-                        .map(order -> OrderHeaderResponse
-                                .template(order)
-                                .buyerResponse(UserResponse.mapWithoutDate(order.getBuyer()))
-                                .relevantStatus(order.getRelevantStatusForUsersOrder())
-                                .build()
-                        )
-                        .collect(Collectors.toList())
-                )
-                .build();
-
-        return PaginationResponse.<UserResponse>builder()
-                .data(data)
-                .page(usersOrderList.getTotalPages() == 0 ? 0 : pageNumber)
-                .pageSize(usersOrderList.getNumberOfElements())
-                .totalPages(usersOrderList.getTotalPages())
-                .totalItems(usersOrderList.getTotalElements())
-                .build();
-    }
 
     public User getUserByUsername(String username) {
         return userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));

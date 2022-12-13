@@ -43,7 +43,12 @@ public class UserResponse {
     @JsonProperty("user_orders")
     private List<OrderDetailResponse> userOrders;
 
+    @JsonProperty("pending_orders")
+    private List<OrderHeaderResponse> pendingOrders;
+
     private String accessToken;
+
+    private String accountNumber;
 
     @JsonProperty("users_bills")
     private List<BillResponse> billResponseList;
@@ -54,7 +59,8 @@ public class UserResponse {
     public static UserResponseBuilder template(User entity) {
         return UserResponse.builder()
                 .id(entity.getId())
-                .username(entity.getUsername());
+                .username(entity.getUsername())
+                .accountNumber(entity.getAccountNumber());
     }
 
     public static UserResponse map(User entity) {

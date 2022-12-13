@@ -2,6 +2,7 @@ package net.arville.easybill.repository.extended.impl;
 
 import net.arville.easybill.model.*;
 import net.arville.easybill.model.helper.BillStatus;
+import net.arville.easybill.model.helper.OrderHeaderValidity;
 import net.arville.easybill.repository.extended.OrderHeaderRepositoryExtended;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -45,10 +46,12 @@ public class OrderHeaderRepositoryExtendedImpl implements OrderHeaderRepositoryE
         var entityCounterWithOrderDetailsWithUserRoot = entityCounterWithOrderDetailsRoot.join(OrderDetail_.user);
 
         List<Predicate> wherePredicates = new ArrayList<>(List.of(
+                builder.equal(orderHeaderRoot.get(OrderHeader_.VALIDITY), OrderHeaderValidity.ACTIVE),
                 builder.equal(orderHeaderWithOrderDetailsWithUserRoot.get(User_.ID), userId)
         ));
 
         List<Predicate> wherePredicatesCountQuery = new ArrayList<>(List.of(
+                builder.equal(entityCounterRoot.get(OrderHeader_.VALIDITY), OrderHeaderValidity.ACTIVE),
                 builder.equal(entityCounterWithOrderDetailsWithUserRoot.get(User_.ID), userId)
         ));
 
@@ -150,10 +153,12 @@ public class OrderHeaderRepositoryExtendedImpl implements OrderHeaderRepositoryE
         countQuery.select(builder.count(entityCounterRoot));
 
         List<Predicate> wherePredicates = new ArrayList<>(List.of(
+                builder.equal(orderHeaderRoot.get(OrderHeader_.VALIDITY), OrderHeaderValidity.ACTIVE),
                 builder.equal(orderHeaderWithBuyerRoot.get(User_.ID), userId)
         ));
 
         List<Predicate> wherePredicatesCountQuery = new ArrayList<>(List.of(
+                builder.equal(entityCounterRoot.get(OrderHeader_.VALIDITY), OrderHeaderValidity.ACTIVE),
                 builder.equal(entityCounterWithBuyerRoot.get(User_.ID), userId)
         ));
 

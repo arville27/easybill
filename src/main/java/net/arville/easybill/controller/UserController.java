@@ -42,46 +42,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    @GetMapping("/relevant-orders")
-    public ResponseEntity<ResponseStructure> getRelevantOrders(
-            @RequestParam(name = "page", required = false, defaultValue = "1") int pageNumber,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize,
-            @RequestParam(name = "q", required = false) String keyword,
-            @RequestParam(name = "status", required = false) String orderStatus
-    ) {
-
-        var user = userManager.getUserRelevantOrder(
-                authenticatedUser.getUser(),
-                pageNumber,
-                pageSize,
-                keyword,
-                orderStatus
-        );
-        ResponseStructure body = ResponseStatus.SUCCESS.GeneratePaginationBody(user);
-
-        return ResponseEntity.status(HttpStatus.OK).body(body);
-    }
-
-    @GetMapping("/users-orders")
-    public ResponseEntity<ResponseStructure> getUsersOrders(
-            @RequestParam(name = "page", required = false, defaultValue = "1") int pageNumber,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize,
-            @RequestParam(name = "q", required = false) String keyword,
-            @RequestParam(name = "status", required = false) String orderStatus
-    ) {
-
-        var user = userManager.getUsersOrder(
-                authenticatedUser.getUser(),
-                pageNumber,
-                pageSize,
-                keyword,
-                orderStatus
-        );
-        ResponseStructure body = ResponseStatus.SUCCESS.GeneratePaginationBody(user);
-
-        return ResponseEntity.status(HttpStatus.OK).body(body);
-    }
-
     @PostMapping
     public ResponseEntity<ResponseStructure> addNewUser(@RequestBody UserRegistrationRequest request) {
 
