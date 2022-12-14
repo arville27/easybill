@@ -27,7 +27,8 @@ public class UserManagerImpl implements UserManager {
     private final PasswordEncoder encoder;
 
     public User getUserByUsername(String username) {
-        return userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+        return userRepository.findUserByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
     }
 
     public User getUserByUserId(Long userId) {
@@ -139,7 +140,7 @@ public class UserManagerImpl implements UserManager {
         }
 
         var userWithNewUsername = userRepository
-                .findUserByUsername(request.getNewUsername().toLowerCase());
+                .findUserByUsernameIgnoreCase(request.getNewUsername().toLowerCase());
 
         if (userWithNewUsername.isPresent()) throw new UsernameAlreadyExists();
 
@@ -164,7 +165,7 @@ public class UserManagerImpl implements UserManager {
             throw new MissingRequiredPropertiesException(missingProperties);
         }
 
-        if (userRepository.findUserByUsername(request.getUsername()).isPresent()) {
+        if (userRepository.findUserByUsernameIgnoreCase(request.getUsername()).isPresent()) {
             throw new UsernameAlreadyExists();
         }
 
