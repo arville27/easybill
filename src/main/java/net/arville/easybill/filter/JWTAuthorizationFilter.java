@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import net.arville.easybill.exception.UnauthorizedRequestException;
 import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.helper.JwtUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -36,10 +37,14 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer "))
-            throw new UnauthorizedRequestException();
+            throw new UnauthorizedRequestException(true);
 
         String accessToken = authorizationHeader.substring("Bearer ".length());
         DecodedJWT decodedJWT = jwtUtils.verifyToken(accessToken);

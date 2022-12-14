@@ -10,9 +10,9 @@ public interface OrderManager {
 
     OrderHeaderResponse addNewOrder(AddOrderRequest addOrderRequest);
 
-    OrderHeaderResponse getOrderById(Long orderId);
+    OrderHeaderResponse getOrderById(User user, Long orderId);
 
-    OrderHeaderResponse deleteOrder(Long orderHeaderId);
+    OrderHeaderResponse deleteOrder(User user, Long orderHeaderId);
 
     UserResponse getAllPendingOrder(User user);
 
@@ -20,7 +20,7 @@ public interface OrderManager {
 
     PaginationResponse<UserResponse> getUsersOrder(User user, int pageNumber, int pageSize, String keyword, String orderStatus);
 
-    AddOrderRequest getOrderJsonDataById(Long orderId);
+    AddOrderRequest getOrderJsonDataById(User user, Long orderId);
 
     void approveOrder(User requester, Long orderHeaderId);
 }

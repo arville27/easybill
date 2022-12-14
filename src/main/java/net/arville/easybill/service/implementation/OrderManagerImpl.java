@@ -45,19 +45,25 @@ public class OrderManagerImpl implements OrderManager {
         return this.createOrderHeaderResponse(savedOrderHeader);
     }
 
-    public OrderHeaderResponse getOrderById(Long orderId) {
+    public OrderHeaderResponse getOrderById(User user, Long orderId) {
         OrderHeader orderHeader = orderHeaderRepository
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        if (!orderHeader.getParticipatingUsers().contains(user))
+            throw new UnauthorizedRequestException("This order doesn't include you!", false);
 
         return this.createOrderHeaderResponse(orderHeader);
     }
 
     @Override
-    public OrderHeaderResponse deleteOrder(Long orderHeaderId) {
+    public OrderHeaderResponse deleteOrder(User user, Long orderHeaderId) {
         var orderToDelete = orderHeaderRepository
                 .findById(orderHeaderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderHeaderId));
+
+        if (!orderToDelete.getParticipatingUsers().contains(user))
+            throw new UnauthorizedRequestException("This order doesn't belongs to you!", false);
 
         orderHeaderRepository.delete(orderToDelete);
 
@@ -65,13 +71,13 @@ public class OrderManagerImpl implements OrderManager {
     }
 
     @Override
-    public void approveOrder(User requester, Long orderHeaderId) {
+    public void approveOrder(User user, Long orderHeaderId) {
         var orderToUpdate = orderHeaderRepository
                 .findById(orderHeaderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderHeaderId));
 
-        if (!Objects.equals(requester.getId(), orderToUpdate.getBuyer().getId()))
-            throw new UnauthorizedRequestException("The order doesn't belong to the user");
+        if (!Objects.equals(user.getId(), orderToUpdate.getBuyer().getId()))
+            throw new UnauthorizedRequestException("This order doesn't belongs to you!", false);
 
         orderToUpdate.setValidity(OrderHeaderValidity.ACTIVE);
 
@@ -173,10 +179,13 @@ public class OrderManagerImpl implements OrderManager {
     }
 
     @Override
-    public AddOrderRequest getOrderJsonDataById(Long orderId) {
+    public AddOrderRequest getOrderJsonDataById(User user, Long orderId) {
         OrderHeader orderHeader = orderHeaderRepository
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        if (!Objects.equals(user.getId(), orderHeader.getBuyer().getId()))
+            throw new UnauthorizedRequestException("This order doesn't belongs to you!", false);
 
         var result = orderHeader.getOrderDetailList().stream()
                 .collect(Collectors.groupingBy(OrderDetail::getGroupOrderReferenceId))

@@ -26,7 +26,7 @@ public class OrderController {
     @GetMapping("/{orderId}")
     public ResponseEntity<ResponseStructure> getOrder(@PathVariable Long orderId) {
 
-        var order = orderManager.getOrderById(orderId);
+        var order = orderManager.getOrderById(authenticatedUser.getUser(), orderId);
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(order);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
@@ -35,7 +35,7 @@ public class OrderController {
     @GetMapping("/reorder/{orderId}")
     public ResponseEntity<ResponseStructure> getOrderJsonData(@PathVariable Long orderId) {
 
-        var orderJson = orderManager.getOrderJsonDataById(orderId);
+        var orderJson = orderManager.getOrderJsonDataById(authenticatedUser.getUser(), orderId);
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(orderJson);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
@@ -112,7 +112,7 @@ public class OrderController {
     @DeleteMapping("{orderHeaderId}")
     public ResponseEntity<ResponseStructure> deleteOrder(@PathVariable Long orderHeaderId) {
 
-        var deletedOrder = orderManager.deleteOrder(orderHeaderId);
+        var deletedOrder = orderManager.deleteOrder(authenticatedUser.getUser(), orderHeaderId);
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(deletedOrder);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);

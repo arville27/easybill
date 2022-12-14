@@ -1,10 +1,18 @@
 package net.arville.easybill.exception;
 
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-@NoArgsConstructor
+@Getter
 public class UnauthorizedRequestException extends RuntimeException {
-    public UnauthorizedRequestException(String message) {
+
+    private final boolean forceLogoutUser;
+
+    public UnauthorizedRequestException(String message, boolean forceLogoutUser) {
         super(message);
+        this.forceLogoutUser = forceLogoutUser;
+    }
+
+    public UnauthorizedRequestException(boolean forceLogoutUser) {
+        this.forceLogoutUser = forceLogoutUser;
     }
 }

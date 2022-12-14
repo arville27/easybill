@@ -108,10 +108,16 @@ public class UserManagerImpl implements UserManager {
             throw invalidPropertiesValue;
         }
 
-        if (!Objects.equals(authenticatedUser.getAccountNumber(), request.getNewAccountNumber())) {
-            authenticatedUser.setAccountNumber(request.getNewAccountNumber());
-            userRepository.save(authenticatedUser);
+        if (Objects.equals(authenticatedUser.getAccountNumber(), request.getNewAccountNumber())) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "new_account_number",
+                    "New account number must be different with current account number"
+            );
+            throw invalidPropertiesValue;
         }
+
+        authenticatedUser.setAccountNumber(request.getNewAccountNumber());
+        userRepository.save(authenticatedUser);
     }
 
     @Override
@@ -140,7 +146,7 @@ public class UserManagerImpl implements UserManager {
         }
 
         var userWithNewUsername = userRepository
-                .findUserByUsernameIgnoreCase(request.getNewUsername().toLowerCase());
+                .findUserByUsernameIgnoreCase(request.getNewUsername());
 
         if (userWithNewUsername.isPresent()) throw new UsernameAlreadyExists();
 
