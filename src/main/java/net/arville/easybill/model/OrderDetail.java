@@ -27,6 +27,7 @@ public class OrderDetail {
     @Column(name = "order_menu_desc")
     private String orderMenuDesc;
 
+    @Column(name = "group_order_reference_id")
     private int groupOrderReferenceId;
 
     private BigDecimal price;
