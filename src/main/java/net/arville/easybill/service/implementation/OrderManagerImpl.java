@@ -184,8 +184,8 @@ public class OrderManagerImpl implements OrderManager {
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
-        if (!Objects.equals(user.getId(), orderHeader.getBuyer().getId()))
-            throw new UnauthorizedRequestException("This order doesn't belongs to you!", false);
+        if (!orderHeader.getParticipatingUsers().contains(user))
+            throw new UnauthorizedRequestException("This order doesn't include you!", false);
 
         var result = orderHeader.getOrderDetailList().stream()
                 .collect(Collectors.groupingBy(OrderDetail::getGroupOrderReferenceId))
