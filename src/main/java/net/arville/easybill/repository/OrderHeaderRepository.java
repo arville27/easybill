@@ -27,5 +27,13 @@ public interface OrderHeaderRepository extends JpaRepository<OrderHeader, Long>,
     Optional<OrderHeader> findById(Long id);
 
     @Query("SELECT oh FROM OrderHeader oh WHERE oh.buyer.id = ?1 AND oh.validity = 'PENDING'")
+    @EntityGraph(
+            type = EntityGraph.EntityGraphType.FETCH,
+            attributePaths = {
+                    "buyer",
+                    "billList",
+                    "orderDetailList"
+            }
+    )
     List<OrderHeader> findPendingOrderHeaderForUser(Long userId);
 }
