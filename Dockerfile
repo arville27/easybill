@@ -4,9 +4,9 @@ WORKDIR /workspace/app
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
-COPY src src
-
 RUN sh ./mvnw install -DskipTests
+
+COPY src src
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM eclipse-temurin:11-jre-focal
