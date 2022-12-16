@@ -50,7 +50,7 @@ public class OrderManagerImpl implements OrderManager {
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
-        if (!orderHeader.getParticipatingUsers().contains(user))
+        if (!orderHeader.getParticipatingUsers().contains(user) && !Objects.equals(user.getId(), orderHeader.getBuyer().getId()))
             throw new UnauthorizedRequestException("This order doesn't include you!", false);
 
         return this.createOrderHeaderResponse(orderHeader);
@@ -62,7 +62,7 @@ public class OrderManagerImpl implements OrderManager {
                 .findById(orderHeaderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderHeaderId));
 
-        if (!orderToDelete.getParticipatingUsers().contains(user))
+        if (!Objects.equals(user.getId(), orderToDelete.getBuyer().getId()))
             throw new UnauthorizedRequestException("This order doesn't belongs to you!", false);
 
         orderHeaderRepository.delete(orderToDelete);
@@ -184,7 +184,7 @@ public class OrderManagerImpl implements OrderManager {
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
-        if (!orderHeader.getParticipatingUsers().contains(user))
+        if (!orderHeader.getParticipatingUsers().contains(user) && !Objects.equals(user.getId(), orderHeader.getBuyer().getId()))
             throw new UnauthorizedRequestException("This order doesn't include you!", false);
 
         var result = orderHeader.getOrderDetailList().stream()
