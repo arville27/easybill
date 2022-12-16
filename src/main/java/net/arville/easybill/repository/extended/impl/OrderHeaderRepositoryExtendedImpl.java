@@ -258,11 +258,14 @@ public class OrderHeaderRepositoryExtendedImpl implements OrderHeaderRepositoryE
         var orderHeaderRoot = query.from(OrderHeader.class);
 
         var subQuery = query.subquery(Long.class);
-        var subQueryRoot = subQuery.from(OrderHeader.class);
-        var subQueryWithBillRoot = subQueryRoot.join(OrderHeader_.billList);
+        var subQueryRoot = subQuery.from(Bill.class);
+        var subQueryWithOrderHeaderRoot = subQueryRoot.join(Bill_.orderHeader);
         subQuery
-                .select(subQueryRoot.get(OrderHeader_.ID))
-                .where(builder.equal(subQueryWithBillRoot.get(Bill_.STATUS), BillStatus.UNPAID));
+                .select(subQueryWithOrderHeaderRoot.get(OrderHeader_.ID))
+                .where(
+                        builder.equal(subQueryRoot.get(Bill_.STATUS), BillStatus.UNPAID),
+                        builder.equal(subQueryWithOrderHeaderRoot.get(OrderHeader_.ID), orderHeaderRoot.get(OrderHeader_.ID))
+                );
 
         query
                 .select(orderHeaderRoot.get(OrderHeader_.ID))
