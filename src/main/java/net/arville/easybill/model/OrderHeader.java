@@ -140,7 +140,8 @@ public class OrderHeader {
     }
 
     public BigDecimal getPerUserFee() {
-        return this.getOtherFee().divide(BigDecimal.valueOf(this.getParticipatingUserCount()), 0, RoundingMode.HALF_UP);
+        var normalizeParticipantCount = this.getParticipatingUserCount() == 0 ? 1 : this.getParticipatingUserCount();
+        return this.getOtherFee().divide(BigDecimal.valueOf(normalizeParticipantCount), 0, RoundingMode.HALF_UP);
     }
 
     public OrderHeaderSummary getRelevantOrderSummarization(User user) {
