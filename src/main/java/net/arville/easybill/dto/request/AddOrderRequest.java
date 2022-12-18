@@ -46,7 +46,7 @@ public class AddOrderRequest implements EnsureRequiredFields, ConvertibleToOrigi
         if (discount == null) missingProperties.add("discount");
         if (orderAt == null) missingProperties.add("order_at");
         if (buyerId == null) missingProperties.add("buyer_id");
-        if (orderList == null) missingProperties.add("order_list");
+        if (orderList == null || orderList.size() == 0) missingProperties.add("order_list");
         return missingProperties;
     }
 
