@@ -44,7 +44,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer "))
-            throw new UnauthorizedRequestException(true);
+            throw new UnauthorizedRequestException("No Authorization header present", true);
 
         String accessToken = authorizationHeader.substring("Bearer ".length());
         DecodedJWT decodedJWT = jwtUtils.verifyToken(accessToken);

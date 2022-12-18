@@ -148,7 +148,7 @@ public class UserManagerImpl implements UserManager {
         var userWithNewUsername = userRepository
                 .findUserByUsernameIgnoreCase(request.getNewUsername());
 
-        if (userWithNewUsername.isPresent()) throw new UsernameAlreadyExists();
+        if (userWithNewUsername.isPresent()) throw new UsernameAlreadyExists(request.getNewUsername());
 
         authenticatedUser = this.getUserByUserId(authenticatedUser.getId());
         if (!encoder.matches(request.getCurrentPassword(), authenticatedUser.getPassword())) {
@@ -172,7 +172,7 @@ public class UserManagerImpl implements UserManager {
         }
 
         if (userRepository.findUserByUsernameIgnoreCase(request.getUsername()).isPresent()) {
-            throw new UsernameAlreadyExists();
+            throw new UsernameAlreadyExists(request.getUsername());
         }
 
         User newUser = request.toOriginalEntity();

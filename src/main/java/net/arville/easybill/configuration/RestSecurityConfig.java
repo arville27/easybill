@@ -1,7 +1,9 @@
 package net.arville.easybill.configuration;
 
+import lombok.RequiredArgsConstructor;
 import net.arville.easybill.filter.ExceptionHandlerFilter;
 import net.arville.easybill.filter.JWTAuthorizationFilter;
+import net.arville.easybill.filter.RequestLoggerFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +31,7 @@ import static net.arville.easybill.constant.EasybillConstants.UNAUTHENTICATED_RO
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class RestSecurityConfig {
     @Bean(name = "corsFilter")
     public CorsConfigurationSource corsConfigurationSource() {
@@ -82,13 +85,15 @@ public class RestSecurityConfig {
             HttpSecurity http,
             CorsConfigurationSource corsFilter,
             JWTAuthorizationFilter authorizationFilter,
-            ExceptionHandlerFilter exceptionHandlerFilter
+            ExceptionHandlerFilter exceptionHandlerFilter,
+            RequestLoggerFilter requestLoggerFilter
     ) throws Exception {
         http
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsFilter))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(exceptionHandlerFilter, LogoutFilter.class)
+                .addFilterBefore(requestLoggerFilter, ExceptionHandlerFilter.class)
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests.antMatchers(UNAUTHENTICATED_ROUTES_PREFIX.toArray(String[]::new)).permitAll())
                 .authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
