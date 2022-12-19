@@ -24,7 +24,10 @@ public class InvalidPropertiesValue extends RuntimeException {
         var invalidPropertiesMessage = this.invalidPropertiesMessage
                 .entrySet()
                 .stream()
-                .map(propertiesMessageSet -> propertiesMessageSet.getKey() + ": " + propertiesMessageSet.getValue())
+                .map(propertiesMessageSet -> propertiesMessageSet.getKey().isEmpty()
+                        ? propertiesMessageSet.getValue()
+                        : propertiesMessageSet.getKey() + ": " + propertiesMessageSet.getValue()
+                )
                 .collect(Collectors.joining(", "));
         return "The following properties were invalid: [" + invalidPropertiesMessage + "]";
     }

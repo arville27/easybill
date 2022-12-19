@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.AddOrderRequest;
 import net.arville.easybill.dto.request.OrderDetailRequest;
 import net.arville.easybill.dto.response.*;
-import net.arville.easybill.exception.MissingRequiredPropertiesException;
-import net.arville.easybill.exception.OrderNotFoundException;
-import net.arville.easybill.exception.UnauthorizedRequestException;
+import net.arville.easybill.exception.*;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
@@ -64,6 +62,10 @@ public class OrderManagerImpl implements OrderManager {
 
         if (!Objects.equals(user.getId(), orderToDelete.getBuyer().getId()))
             throw new UnauthorizedRequestException("This order doesn't belongs to you!", false);
+
+        if (orderToDelete.getValidity() == OrderHeaderValidity.ACTIVE
+                && orderToDelete.getBillList().stream().anyMatch(bill -> bill.getBillTransactionHeaderList().size() > 0)
+        ) throw new IllegalActionException("Cannot delete active order that has bill transaction");
 
         orderHeaderRepository.delete(orderToDelete);
 
@@ -273,6 +275,35 @@ public class OrderManagerImpl implements OrderManager {
         User user = userManager.getUserByUserId(request.getBuyerId());
 
         OrderHeader orderHeader = request.toOriginalEntity();
+
+        var invalidPropertiesValue = new InvalidPropertiesValue();
+        if (orderHeader.getOrderDescription().length() < 3 || orderHeader.getOrderDescription().length() > 50)
+            invalidPropertiesValue.addInvalidProperty(
+                    "order_description",
+                    "Order description should only consist of 3 to 50 characters"
+            );
+
+        if (orderHeader.getTotalPayment().compareTo(BigDecimal.ZERO) <= 0)
+            invalidPropertiesValue.addInvalidProperty(
+                    "total_payment",
+                    "Total payment should be more than 0"
+            );
+
+        if (orderHeader.getUpto().compareTo(BigDecimal.ZERO) <= 0)
+            invalidPropertiesValue.addInvalidProperty(
+                    "upto",
+                    "Upto should be more than 0"
+            );
+
+        if (orderHeader.getDiscount() < 0 || orderHeader.getDiscount() > 1)
+            invalidPropertiesValue.addInvalidProperty(
+                    "discount",
+                    "Discount should in range of 0 to 100"
+            );
+
+        if (invalidPropertiesValue.isThereInvalidProperties())
+            throw invalidPropertiesValue;
+
         orderHeader.setOrderDetailList(
                 request.getOrderList()
                         .stream()
@@ -294,6 +325,11 @@ public class OrderManagerImpl implements OrderManager {
 
         orderHeader.setBuyer(user);
         user.getOrderList().add(orderHeader);
+
+        if (orderHeader.getOtherFee().compareTo(BigDecimal.ZERO) < 0) {
+            invalidPropertiesValue.addInvalidProperty("", "Incorrect input resulting negative value");
+            throw invalidPropertiesValue;
+        }
 
         return orderHeader;
     }

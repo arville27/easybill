@@ -171,8 +171,14 @@ public class UserManagerImpl implements UserManager {
             throw new MissingRequiredPropertiesException(missingProperties);
         }
 
-        if (userRepository.findUserByUsernameIgnoreCase(request.getUsername()).isPresent()) {
-            throw new UsernameAlreadyExists(request.getUsername());
+        var invalidPropertiesValue = new InvalidPropertiesValue();
+
+        if (request.getUsername().length() < 3 || request.getUsername().length() > 10) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "username",
+                    "Username should only consist of 3 to 10 characters"
+            );
+            throw invalidPropertiesValue;
         }
 
         User newUser = request.toOriginalEntity();

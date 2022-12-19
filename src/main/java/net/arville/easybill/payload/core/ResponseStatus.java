@@ -20,7 +20,8 @@ public enum ResponseStatus {
     INVALID_FIELDS_VALUE("Please verify all fields is correct"),
     UNKNOWN_ERROR("Internal server error, please try again later"),
     METHOD_NOT_ALLOWED("Method not allowed"),
-    INVALID_CREDENTIALS("Please verify provided credentials are valid");
+    INVALID_CREDENTIALS("Please verify provided credentials are valid"),
+    ILLEGAL_ACTION("Action is not permitted");
 
     private final String message;
 

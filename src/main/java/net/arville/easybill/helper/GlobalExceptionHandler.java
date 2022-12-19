@@ -87,6 +87,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(IllegalActionException.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.BAD_REQUEST)
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure> illegalActionPerformed(IllegalActionException e) {
+        requestHelper.log(LogLevel.ERROR, e.getMessage());
+        var body = ResponseStatus.ILLEGAL_ACTION.GenerateGeneralBody(null, e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     // Filter exception
     @ExceptionHandler(JWTVerificationException.class)
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.BAD_REQUEST)
