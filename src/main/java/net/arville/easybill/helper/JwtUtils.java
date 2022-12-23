@@ -10,6 +10,8 @@ import net.arville.easybill.model.User;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 @RequiredArgsConstructor
 public class JwtUtils {
@@ -26,7 +28,7 @@ public class JwtUtils {
     public String createToken(User user) {
         return JWT.create()
                 .withClaim("user_id", user.getId())
-                .withExpiresAt(EasybillConstants.JWT_EXPIRY_TIME)
+                .withExpiresAt(new Date(System.currentTimeMillis() + EasybillConstants.JWT_EXPIRY_TIME))
                 .sign(tokenAlgorithm());
     }
 

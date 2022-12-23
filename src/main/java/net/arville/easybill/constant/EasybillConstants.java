@@ -1,12 +1,11 @@
 package net.arville.easybill.constant;
 
-import java.util.Date;
 import java.util.List;
 
 public final class EasybillConstants {
     public static final String TOKEN_SECRET = "easybill.token.secret";
     public static final String AUTH_PATH = "/api/auth";
-    public static final Date JWT_EXPIRY_TIME = new Date(System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000); // 3 Days
+    public static final Long JWT_EXPIRY_TIME = 3 * 24 * 60 * 60 * 1000L; // 3 Days
     public static final List<String> ALLOWED_ORIGINS = List.of(
             "http://localhost:4200",
             "https://easybill.arville.net",
