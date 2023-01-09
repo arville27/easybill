@@ -289,10 +289,10 @@ public class OrderManagerImpl implements OrderManager {
                     "Total payment should be more than 0"
             );
 
-        if (orderHeader.getUpto().compareTo(BigDecimal.ZERO) <= 0)
+        if (orderHeader.getUpto().compareTo(BigDecimal.ZERO) < 0)
             invalidPropertiesValue.addInvalidProperty(
                     "upto",
-                    "Upto should be more than 0"
+                    "Upto should be equals or more than 0"
             );
 
         if (orderHeader.getDiscount() < 0 || orderHeader.getDiscount() > 1)
