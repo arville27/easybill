@@ -44,8 +44,6 @@ public class BillTransactionManagerImpl implements BillTransactionManager {
         var invalidProperties = new InvalidPropertiesValue();
         if (payBillRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0)
             invalidProperties.addInvalidProperty("amount", "should be more than 0");
-        else if (payBillRequest.getAmount().compareTo(BigDecimal.valueOf(10_000)) < 0)
-            invalidProperties.addInvalidProperty("amount", "should be equal or more than 10.000");
 
         BigDecimal payAmount = payBillRequest.getAmount();
         User targetUser = userManager.getUserByUserId(payBillRequest.getUserId());
