@@ -33,8 +33,6 @@ public class User {
     @JsonIgnore
     private String password;
 
-    private String accountNumber;
-
     @OneToMany(mappedBy = "buyer", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JsonIgnore
     @ToString.Exclude
@@ -44,6 +42,11 @@ public class User {
     @JsonIgnore
     @ToString.Exclude
     private List<OrderDetail> orderDetailList;
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JsonIgnore
+    @ToString.Exclude
+    private List<PaymentAccount> paymentAccountList;
 
     @CreationTimestamp
     @Column(name = "created_at")

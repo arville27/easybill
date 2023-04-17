@@ -7,6 +7,8 @@ import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.dto.request.UserChangePasswordRequest;
 import net.arville.easybill.dto.request.UserChangeUsernameRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
+import net.arville.easybill.dto.response.PaymentAccountResponse;
+import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.helper.AuthenticatedUser;
 import net.arville.easybill.payload.core.ResponseStatus;
 import net.arville.easybill.payload.core.ResponseStructure;
@@ -38,13 +40,22 @@ public class UserController {
     public ResponseEntity<ResponseStructure> getUserData() {
 
         var user = userManager.getUserByUserId(authenticatedUser.getUserId());
-        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(user);
+        var userResponse = UserResponse.template(user)
+                .paymentAccountList(user.getPaymentAccountList()
+                        .stream()
+                        .map(PaymentAccountResponse::map)
+                        .toList()
+                )
+                .build();
+        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(userResponse);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
     @PostMapping
-    public ResponseEntity<ResponseStructure> addNewUser(@RequestBody UserRegistrationRequest request) {
+    public ResponseEntity<ResponseStructure> addNewUser(
+            @RequestBody UserRegistrationRequest request
+    ) {
 
         var newUser = userManager.addNewUser(request);
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(newUser);
@@ -70,8 +81,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    @PutMapping("/account-number")
-    public ResponseEntity<ResponseStructure> changeUserAccountNumber(@RequestBody UserChangeAccountNumberRequest request) {
+    @PostMapping("/payment-account")
+    public ResponseEntity<ResponseStructure> changeOrAddUserPaymentAccount(
+            @RequestBody UserChangeAccountNumberRequest request
+    ) {
 
         userManager.changeUserAccountNumber(request, authenticatedUser.getUser());
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(null);

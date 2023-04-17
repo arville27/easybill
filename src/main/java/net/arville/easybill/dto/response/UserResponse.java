@@ -48,7 +48,7 @@ public class UserResponse {
 
     private String accessToken;
 
-    private String accountNumber;
+    private List<PaymentAccountResponse> paymentAccountList;
 
     @JsonProperty("users_bills")
     private List<BillResponse> billResponseList;
@@ -59,8 +59,7 @@ public class UserResponse {
     public static UserResponseBuilder template(User entity) {
         return UserResponse.builder()
                 .id(entity.getId())
-                .username(entity.getUsername())
-                .accountNumber(entity.getAccountNumber());
+                .username(entity.getUsername());
     }
 
     public static UserResponse map(User entity) {

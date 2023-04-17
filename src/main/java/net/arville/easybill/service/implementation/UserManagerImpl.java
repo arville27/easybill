@@ -10,6 +10,7 @@ import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
+import net.arville.easybill.model.PaymentAccount;
 import net.arville.easybill.model.User;
 import net.arville.easybill.repository.UserRepository;
 import net.arville.easybill.service.manager.UserManager;
@@ -91,14 +92,6 @@ public class UserManagerImpl implements UserManager {
 
         var invalidPropertiesValue = new InvalidPropertiesValue();
 
-        if (!request.getNewAccountNumber().matches("[0-9]+")) {
-            invalidPropertiesValue.addInvalidProperty(
-                    "new_account_number",
-                    "Account number should only contains number"
-            );
-            throw invalidPropertiesValue;
-        }
-
         authenticatedUser = this.getUserByUserId(authenticatedUser.getId());
         if (!encoder.matches(request.getCurrentPassword(), authenticatedUser.getPassword())) {
             invalidPropertiesValue.addInvalidProperty(
@@ -108,15 +101,44 @@ public class UserManagerImpl implements UserManager {
             throw invalidPropertiesValue;
         }
 
-        if (Objects.equals(authenticatedUser.getAccountNumber(), request.getNewAccountNumber())) {
+        var userPaymentAccountList = authenticatedUser.getPaymentAccountList();
+
+        var isNewPaymentAccount = Objects.isNull(request.getId());
+        if (isNewPaymentAccount && userPaymentAccountList.size() == 3) {
             invalidPropertiesValue.addInvalidProperty(
                     "new_account_number",
-                    "New account number must be different with current account number"
+                    "Only 3 payment account can be added"
             );
             throw invalidPropertiesValue;
+        } else if (!isNewPaymentAccount) {
+            userPaymentAccountList.stream()
+                    .filter(paymentAccount -> Objects.equals(
+                            paymentAccount.getId(),
+                            request.getId())
+                    )
+                    .findAny()
+                    .ifPresentOrElse(
+                            paymentAccount -> {
+                                paymentAccount.setPaymentAccount(request.getPaymentAccount());
+                                paymentAccount.setPaymentAccountLabel(request.getPaymentAccountLabel());
+                            },
+                            () -> {
+                                invalidPropertiesValue.addInvalidProperty(
+                                        "id",
+                                        "Cannot edit other user account payment"
+                                );
+                                throw invalidPropertiesValue;
+                            }
+                    );
+        } else {
+            var paymentAccountData = PaymentAccount.builder()
+                    .user(authenticatedUser)
+                    .paymentAccountLabel(request.getPaymentAccountLabel())
+                    .paymentAccount(request.getPaymentAccount())
+                    .build();
+            userPaymentAccountList.add(paymentAccountData);
         }
 
-        authenticatedUser.setAccountNumber(request.getNewAccountNumber());
         userRepository.save(authenticatedUser);
     }
 

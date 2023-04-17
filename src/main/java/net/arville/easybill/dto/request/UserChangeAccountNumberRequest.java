@@ -11,13 +11,17 @@ import java.util.Set;
 @Data
 public class UserChangeAccountNumberRequest implements EnsureRequiredFields {
     private String currentPassword;
-    private String newAccountNumber;
+    private Long id;
+    private String paymentAccountLabel;
+    private String paymentAccount;
 
     @Override
     public Set<String> getMissingProperties() {
         Set<String> missingProperties = new LinkedHashSet<>();
         if (currentPassword == null || currentPassword.isBlank()) missingProperties.add("current_password");
-        if (newAccountNumber == null || newAccountNumber.isBlank()) missingProperties.add("new_account_number");
+        if (paymentAccountLabel == null || paymentAccountLabel.isEmpty())
+            missingProperties.add("payment_account_label");
+        if (paymentAccount == null || paymentAccount.isEmpty()) missingProperties.add("payment_account");
         return missingProperties;
     }
 }
