@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jdk-focal as build
+FROM eclipse-temurin:17-jdk-focal as build
 WORKDIR /workspace/app
 
 COPY mvnw .
@@ -9,7 +9,7 @@ COPY src src
 RUN sh ./mvnw install -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-FROM eclipse-temurin:11-jre-focal
+FROM eclipse-temurin:17-jre-focal
 ENV TZ=Asia/Jakarta
 VOLUME /tmp
 ARG DEPENDENCY=/workspace/app/target/dependency
