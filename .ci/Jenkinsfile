@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_REGISTRY = "ir.arv.cx"
+        DOCKER_IMAGE_NAME = "${DOCKER_REGISTRY}/arville27/easybill"
+        EASYBILL_VERSION = readMavenPom().getVersion()
+    }
+    stages {
+        stage("Project and build information") {
+            steps {
+                script {
+                    echo "== Easybill =="
+                    echo "Project version: ${env.EASYBILL_VERSION}"
+                    echo "Branch: ${env.BRANCH_NAME}"
+                    echo "Building ${DOCKER_IMAGE_NAME}"
+                }
+            }
+        }
+        stage("Build image") {
+            steps {
+                script {
+                    image = docker.build("${DOCKER_IMAGE_NAME}:${env.BUILD_ID}")
+                }
+            }
+        }
+        stage("Push image") {
+            steps {
+                script {
+                    docker.withRegistry("https://${env.DOCKER_REGISTRY}", "private-image-registry") {
+                        if (env.BRANCH_NAME == "master"){
+                            image.push("${EASYBILL_VERSION}")
+                            image.push("latest")
+                        } else {
+                            image.push("dev-${EASYBILL_VERSION}")
+                            image.push("dev-latest")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
