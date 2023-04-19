@@ -3,7 +3,6 @@ package net.arville.easybill.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.dto.request.UserChangePasswordRequest;
 import net.arville.easybill.dto.request.UserChangeUsernameRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
@@ -64,7 +63,9 @@ public class UserController {
     }
 
     @PutMapping("/username")
-    public ResponseEntity<ResponseStructure> changeUserUsername(@RequestBody UserChangeUsernameRequest request) {
+    public ResponseEntity<ResponseStructure> changeUserUsername(
+            @RequestBody UserChangeUsernameRequest request
+    ) {
 
         userManager.changeUserUsername(request, authenticatedUser.getUser());
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(null);
@@ -73,20 +74,11 @@ public class UserController {
     }
 
     @PutMapping("/password")
-    public ResponseEntity<ResponseStructure> changeUserPassword(@RequestBody UserChangePasswordRequest request) {
-
-        userManager.changeUserPassword(request, authenticatedUser.getUser());
-        ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(null);
-
-        return ResponseEntity.status(HttpStatus.OK).body(body);
-    }
-
-    @PostMapping("/payment-account")
-    public ResponseEntity<ResponseStructure> changeOrAddUserPaymentAccount(
-            @RequestBody UserChangeAccountNumberRequest request
+    public ResponseEntity<ResponseStructure> changeUserPassword(
+            @RequestBody UserChangePasswordRequest request
     ) {
 
-        userManager.changeUserAccountNumber(request, authenticatedUser.getUser());
+        userManager.changeUserPassword(request, authenticatedUser.getUser());
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(null);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);

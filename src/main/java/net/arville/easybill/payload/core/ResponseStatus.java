@@ -10,6 +10,7 @@ public enum ResponseStatus {
     SUCCESS("Success"),
     NOT_FOUND("Resource not found"),
     USER_NOT_FOUND("User is doesn't exists"),
+    PAYMENT_ACCOUNT_DOES_NOT_EXISTS("Payment account is doesn't exists"),
     PARSE_ERROR("Please check if request contain a valid body"),
     UNAUTHORIZED_REQUEST("Unauthorized access"),
     UNAUTHORIZED_RESOURCE_ACCESS("Unauthorized user access, you don't have permission to access this resource"),

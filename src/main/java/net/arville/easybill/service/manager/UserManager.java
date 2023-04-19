@@ -1,6 +1,5 @@
 package net.arville.easybill.service.manager;
 
-import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.dto.request.UserChangePasswordRequest;
 import net.arville.easybill.dto.request.UserChangeUsernameRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
@@ -20,8 +19,6 @@ public interface UserManager {
     User getUserByUserId(Long userId);
 
     void changeUserPassword(UserChangePasswordRequest request, User authenticatedUser);
-
-    void changeUserAccountNumber(UserChangeAccountNumberRequest request, User authenticatedUser);
 
     void changeUserUsername(UserChangeUsernameRequest request, User authenticatedUser);
 }

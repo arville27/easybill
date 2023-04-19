@@ -3,6 +3,7 @@ package net.arville.easybill.service.implementation;
 import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.response.BillResponse;
 import net.arville.easybill.dto.response.OrderHeaderResponse;
+import net.arville.easybill.dto.response.PaymentAccountResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.model.Bill;
 import net.arville.easybill.model.OrderHeader;
@@ -36,7 +37,7 @@ public class BillManagerImpl implements BillManager {
                 .collect(Collectors.toSet());
 
         orderHeader.setBillList(billList);
-        
+
         return billList;
     }
 
@@ -54,6 +55,7 @@ public class BillManagerImpl implements BillManager {
 
     private UserResponse generateBillResponse(User user, Map<User, BillResponse.AggregatedRelatedOrderWithTotalOwe> aggregated, boolean isReceivables) {
         return UserResponse.template(user)
+                .paymentAccountList(user.getPaymentAccountList().stream().map(PaymentAccountResponse::mapWithoutDate).toList())
                 .billResponseList(aggregated.entrySet()
                         .stream()
                         .map(userMapEntry -> {

@@ -1,7 +1,6 @@
 package net.arville.easybill.service.implementation;
 
 import lombok.RequiredArgsConstructor;
-import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.dto.request.UserChangePasswordRequest;
 import net.arville.easybill.dto.request.UserChangeUsernameRequest;
 import net.arville.easybill.dto.request.UserRegistrationRequest;
@@ -10,8 +9,8 @@ import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
 import net.arville.easybill.exception.UserNotFoundException;
 import net.arville.easybill.exception.UsernameAlreadyExists;
-import net.arville.easybill.model.PaymentAccount;
 import net.arville.easybill.model.User;
+import net.arville.easybill.repository.PaymentAccountRepository;
 import net.arville.easybill.repository.UserRepository;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserManagerImpl implements UserManager {
     private final UserRepository userRepository;
+    private final PaymentAccountRepository paymentAccountRepository;
     private final PasswordEncoder encoder;
 
     public User getUserByUsername(String username) {
@@ -80,65 +80,6 @@ public class UserManagerImpl implements UserManager {
         }
 
         authenticatedUser.setPassword(encoder.encode(request.getNewPassword()));
-        userRepository.save(authenticatedUser);
-    }
-
-    @Override
-    public void changeUserAccountNumber(UserChangeAccountNumberRequest request, User authenticatedUser) {
-        var missingProperties = request.getMissingProperties();
-
-        if (missingProperties.size() > 0)
-            throw new MissingRequiredPropertiesException(missingProperties);
-
-        var invalidPropertiesValue = new InvalidPropertiesValue();
-
-        authenticatedUser = this.getUserByUserId(authenticatedUser.getId());
-        if (!encoder.matches(request.getCurrentPassword(), authenticatedUser.getPassword())) {
-            invalidPropertiesValue.addInvalidProperty(
-                    "current_password",
-                    "Current password is incorrect"
-            );
-            throw invalidPropertiesValue;
-        }
-
-        var userPaymentAccountList = authenticatedUser.getPaymentAccountList();
-
-        var isNewPaymentAccount = Objects.isNull(request.getId());
-        if (isNewPaymentAccount && userPaymentAccountList.size() == 3) {
-            invalidPropertiesValue.addInvalidProperty(
-                    "new_account_number",
-                    "Only 3 payment account can be added"
-            );
-            throw invalidPropertiesValue;
-        } else if (!isNewPaymentAccount) {
-            userPaymentAccountList.stream()
-                    .filter(paymentAccount -> Objects.equals(
-                            paymentAccount.getId(),
-                            request.getId())
-                    )
-                    .findAny()
-                    .ifPresentOrElse(
-                            paymentAccount -> {
-                                paymentAccount.setPaymentAccount(request.getPaymentAccount());
-                                paymentAccount.setPaymentAccountLabel(request.getPaymentAccountLabel());
-                            },
-                            () -> {
-                                invalidPropertiesValue.addInvalidProperty(
-                                        "id",
-                                        "Cannot edit other user account payment"
-                                );
-                                throw invalidPropertiesValue;
-                            }
-                    );
-        } else {
-            var paymentAccountData = PaymentAccount.builder()
-                    .user(authenticatedUser)
-                    .paymentAccountLabel(request.getPaymentAccountLabel())
-                    .paymentAccount(request.getPaymentAccount())
-                    .build();
-            userPaymentAccountList.add(paymentAccountData);
-        }
-
         userRepository.save(authenticatedUser);
     }
 

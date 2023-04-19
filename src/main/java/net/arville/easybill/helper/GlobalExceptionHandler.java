@@ -42,6 +42,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    @ExceptionHandler(PaymentAccountNotFoundException.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.NOT_FOUND)
+    @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseStructure> paymentAccountNotFoundException(PaymentAccountNotFoundException e) {
+        requestHelper.log(LogLevel.ERROR, e.getMessage());
+        var body = ResponseStatus.PAYMENT_ACCOUNT_DOES_NOT_EXISTS.GenerateGeneralBody(null, e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
     @ExceptionHandler(MissingRequiredPropertiesException.class)
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.BAD_REQUEST)
     @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
