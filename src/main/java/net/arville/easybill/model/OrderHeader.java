@@ -148,7 +148,7 @@ public class OrderHeader {
         var userOrderDetails = this.orderDetailList
                 .stream()
                 .filter(order -> Objects.equals(order.getUser().getId(), user.getId()))
-                .collect(Collectors.toList());
+                .toList();
         var totalOrder = userOrderDetails.stream()
                 .map(OrderDetail::getOrderSubtotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

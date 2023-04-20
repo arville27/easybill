@@ -55,7 +55,6 @@ public class BillManagerImpl implements BillManager {
 
     private UserResponse generateBillResponse(User user, Map<User, BillResponse.AggregatedRelatedOrderWithTotalOwe> aggregated, boolean isReceivables) {
         return UserResponse.template(user)
-                .paymentAccountList(user.getPaymentAccountList().stream().map(PaymentAccountResponse::mapWithoutDate).toList())
                 .billResponseList(aggregated.entrySet()
                         .stream()
                         .map(userMapEntry -> {
@@ -63,7 +62,14 @@ public class BillManagerImpl implements BillManager {
                             var totalOwe = (BigDecimal) userMapEntry.getValue().getTotalOweAmount();
                             var orderHeaderList = (List<OrderHeader>) userMapEntry.getValue().getRelatedOrderHeader();
                             return BillResponse.builder()
-                                    .userResponse(UserResponse.mapWithoutDate(buyer))
+                                    .userResponse(UserResponse.template(buyer)
+                                            .paymentAccountList(buyer.getPaymentAccountList()
+                                                    .stream()
+                                                    .map(PaymentAccountResponse::mapWithoutDate)
+                                                    .toList()
+                                            )
+                                            .build()
+                                    )
                                     .oweAmount(totalOwe)
                                     .relatedOrderHeader(orderHeaderList
                                             .stream()

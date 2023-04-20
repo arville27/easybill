@@ -53,7 +53,7 @@ public class PaymentAccountService implements PaymentAccountManager {
         if (request.getPaymentAccount().length() > 15) {
             invalidPropertiesValue.addInvalidProperty(
                     "payment_account",
-                    "Payment account length should be less than 15 characters"
+                    "Payment account length should be between 5 and 15 characters"
             );
             throw invalidPropertiesValue;
         }
@@ -63,7 +63,7 @@ public class PaymentAccountService implements PaymentAccountManager {
         ) {
             invalidPropertiesValue.addInvalidProperty(
                     "payment_account_label",
-                    "Payment account length should be between 1 and 15 characters"
+                    "Payment account label length should be between 1 and 15 characters"
             );
             throw invalidPropertiesValue;
         }
