@@ -32,7 +32,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
                     "orderHeader",
                     "orderHeader.buyer",
                     "orderHeader.orderDetailList",
-                    "orderHeader.orderDetailList.user.paymentAccountList",
+                    "orderHeader.orderDetailList.user",
                     "billTransactionHeaderList"
             }
     )
@@ -46,7 +46,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
                     "orderHeader",
                     "orderHeader.buyer",
                     "orderHeader.orderDetailList",
-                    "orderHeader.orderDetailList.user.paymentAccountList",
+                    "billTransactionHeaderList",
                     "billTransactionHeaderList",
                     "orderHeader.billList.billTransactionHeaderList"
             }
