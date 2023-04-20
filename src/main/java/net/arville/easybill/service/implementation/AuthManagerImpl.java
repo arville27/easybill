@@ -2,6 +2,7 @@ package net.arville.easybill.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserLoginRequest;
+import net.arville.easybill.dto.response.PaymentAccountResponse;
 import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.exception.InvalidCredentialsException;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
@@ -42,6 +43,11 @@ public class AuthManagerImpl implements AuthManager {
 
         return UserResponse
                 .template(user)
+                .paymentAccountList(user.getPaymentAccountList()
+                        .stream()
+                        .map(PaymentAccountResponse::map)
+                        .toList()
+                )
                 .accessToken(accessToken)
                 .build();
     }
