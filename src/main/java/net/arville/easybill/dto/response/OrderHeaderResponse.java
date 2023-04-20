@@ -40,6 +40,8 @@ public class OrderHeaderResponse {
 
     private BigDecimal totalBill;
 
+    private Boolean deletable;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime orderAt;
 

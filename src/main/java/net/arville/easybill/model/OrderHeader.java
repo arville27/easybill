@@ -59,6 +59,10 @@ public class OrderHeader {
     @Transient
     private Integer participatingUserCount;
 
+    @Transient
+    @Getter(AccessLevel.NONE)
+    private Boolean deletable;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "orderHeader")
     @ToString.Exclude
     private Set<OrderDetail> orderDetailList;
@@ -138,6 +142,17 @@ public class OrderHeader {
 
         return bills.get();
     }
+
+    public boolean isDeletable() {
+        if (this.deletable == null) {
+            this.deletable = this.getValidity() == OrderHeaderValidity.PENDING
+                    || this.getBillList().stream()
+                    .filter(bill -> !Objects.equals(bill.getUser().getId(), this.getBuyer().getId()))
+                    .allMatch(bill -> bill.getStatus() == BillStatus.UNPAID);
+        }
+        return this.deletable;
+    }
+
 
     public BigDecimal getPerUserFee() {
         var normalizeParticipantCount = this.getParticipatingUserCount() == 0 ? 1 : this.getParticipatingUserCount();
