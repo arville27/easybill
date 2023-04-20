@@ -43,7 +43,7 @@ public class OrderDetailRequest implements EnsureRequiredFields, ConvertibleToOr
                 .orderMenuDesc(orderMenuDesc)
                 .orderType(orderType)
                 .qty(qty)
-                .price(totalOrderDetail.divide(orderUserCount, 0, RoundingMode.HALF_UP))
+                .price(totalOrderDetail.divide(orderUserCount, 0, RoundingMode.DOWN))
                 .build()
         );
     }
