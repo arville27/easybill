@@ -124,6 +124,7 @@ public class OrderManagerImpl implements OrderManager {
                 .orderHeaderResponseList(relevantOrderList.stream()
                         .map(order -> OrderHeaderResponse
                                 .template(order)
+                                .deletable(order.isDeletable())
                                 .buyerResponse(UserResponse.mapWithoutDate(order.getBuyer()))
                                 .relevantStatus(order.getRelevantStatus(user))
                                 .build()
@@ -163,6 +164,7 @@ public class OrderManagerImpl implements OrderManager {
                 .orderHeaderResponseList(usersOrderList.stream()
                         .map(order -> OrderHeaderResponse
                                 .template(order)
+                                .deletable(order.isDeletable())
                                 .buyerResponse(UserResponse.mapWithoutDate(order.getBuyer()))
                                 .relevantStatus(order.getRelevantStatusForUsersOrder())
                                 .build()
@@ -235,6 +237,7 @@ public class OrderManagerImpl implements OrderManager {
 
         return OrderHeaderResponse
                 .template(orderHeader)
+                .deletable(orderHeader.isDeletable())
                 .buyerResponse(UserResponse.mapWithoutDate(orderHeader.getBuyer()))
                 .participatingUserCount(orderHeader.getParticipatingUserCount())
                 .userOtherFee(orderHeader.getPerUserFee())
