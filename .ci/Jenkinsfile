@@ -31,7 +31,9 @@ pipeline {
                             image.push("${EASYBILL_VERSION}")
                             image.push("latest")
                         } else {
+                            def sanitizeBranchName = env.BRANCH_NAME.replace("feat/", "")
                             image.push("dev-${EASYBILL_VERSION}")
+                            image.push("dev-${sanitizeBranchName}")
                             image.push("dev-latest")
                         }
                     }
