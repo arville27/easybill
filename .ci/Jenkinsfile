@@ -30,11 +30,13 @@ pipeline {
                         if (env.BRANCH_NAME == "master"){
                             image.push("${EASYBILL_VERSION}")
                             image.push("latest")
+                        } else if (env.BRANCH_NAME == "dev") {
+                            image.push("dev-${EASYBILL_VERSION}")
+                            image.push("dev-latest")
                         } else {
                             def sanitizeBranchName = env.BRANCH_NAME.replace("feat/", "")
-                            image.push("dev-${EASYBILL_VERSION}")
-                            image.push("dev-${sanitizeBranchName}")
-                            image.push("dev-latest")
+                            image.push("${sanitizeBranchName}-${EASYBILL_VERSION}")
+                            image.push("${sanitizeBranchName}-latest")
                         }
                     }
                 }
