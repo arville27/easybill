@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserManagerImpl implements UserManager {
     private final UserRepository userRepository;
-    private final PaymentAccountRepository paymentAccountRepository;
     private final PasswordEncoder encoder;
 
     public User getUserByUsername(String username) {

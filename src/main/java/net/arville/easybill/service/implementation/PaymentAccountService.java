@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
+import net.arville.easybill.exception.PaymentAccountAlreadyExists;
 import net.arville.easybill.exception.PaymentAccountNotFoundException;
 import net.arville.easybill.model.PaymentAccount;
 import net.arville.easybill.model.User;
@@ -52,7 +53,17 @@ public class PaymentAccountService implements PaymentAccountManager {
         if (request.getPaymentAccount().length() > 15) {
             invalidPropertiesValue.addInvalidProperty(
                     "payment_account",
-                    "Payment account length should be less than 15 characters"
+                    "Payment account length should be between 5 and 15 characters"
+            );
+            throw invalidPropertiesValue;
+        }
+
+        if (request.getPaymentAccountLabel().length() > 15
+                || request.getPaymentAccountLabel().length() < 1
+        ) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "payment_account_label",
+                    "Payment account label length should be between 1 and 15 characters"
             );
             throw invalidPropertiesValue;
         }
@@ -67,6 +78,17 @@ public class PaymentAccountService implements PaymentAccountManager {
         }
 
         var userPaymentAccountList = authenticatedUser.getPaymentAccountList();
+
+        var isDuplicatePaymentAccount = userPaymentAccountList.stream().anyMatch(paymentAccount ->
+            Objects.equals(paymentAccount.getPaymentAccount(), request.getPaymentAccount())
+                && Objects.equals(paymentAccount.getPaymentAccountLabel(), request.getPaymentAccountLabel())
+        );
+
+        if (isDuplicatePaymentAccount)
+            throw new PaymentAccountAlreadyExists(
+                    request.getPaymentAccount(),
+                    request.getPaymentAccountLabel()
+            );
 
         var isNewPaymentAccount = Objects.isNull(request.getId());
         if (isNewPaymentAccount && userPaymentAccountList.size() == 3) {
