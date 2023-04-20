@@ -79,6 +79,15 @@ public class PaymentAccountService implements PaymentAccountManager {
 
         var userPaymentAccountList = authenticatedUser.getPaymentAccountList();
 
+        var isNewPaymentAccount = Objects.isNull(request.getId());
+        if (isNewPaymentAccount && userPaymentAccountList.size() == 3) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "new_account_number",
+                    "Only 3 payment account can be added"
+            );
+            throw invalidPropertiesValue;
+        }
+
         var isDuplicatePaymentAccount = userPaymentAccountList.stream().anyMatch(paymentAccount ->
             Objects.equals(paymentAccount.getPaymentAccount(), request.getPaymentAccount())
                 && Objects.equals(paymentAccount.getPaymentAccountLabel(), request.getPaymentAccountLabel())
@@ -90,14 +99,7 @@ public class PaymentAccountService implements PaymentAccountManager {
                     request.getPaymentAccountLabel()
             );
 
-        var isNewPaymentAccount = Objects.isNull(request.getId());
-        if (isNewPaymentAccount && userPaymentAccountList.size() == 3) {
-            invalidPropertiesValue.addInvalidProperty(
-                    "new_account_number",
-                    "Only 3 payment account can be added"
-            );
-            throw invalidPropertiesValue;
-        } else if (!isNewPaymentAccount) {
+       if (!isNewPaymentAccount) {
             userPaymentAccountList.stream()
                     .filter(paymentAccount -> Objects.equals(
                             paymentAccount.getId(),
