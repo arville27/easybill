@@ -17,7 +17,6 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
             attributePaths = {
                     "orderHeader",
                     "orderHeader.buyer",
-                    "orderHeader.buyer.paymentAccountList",
                     "orderHeader.orderDetailList",
                     "billTransactionHeaderList",
                     "orderHeader.billList"
@@ -32,7 +31,6 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
                     "orderHeader",
                     "orderHeader.buyer",
                     "orderHeader.orderDetailList",
-                    "orderHeader.orderDetailList.user",
                     "billTransactionHeaderList"
             }
     )
@@ -46,7 +44,6 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
                     "orderHeader",
                     "orderHeader.buyer",
                     "orderHeader.orderDetailList",
-                    "billTransactionHeaderList",
                     "billTransactionHeaderList",
                     "orderHeader.billList.billTransactionHeaderList"
             }
