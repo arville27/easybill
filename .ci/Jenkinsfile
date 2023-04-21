@@ -26,20 +26,49 @@ pipeline {
         stage("Push image") {
             steps {
                 script {
+                    tags = []
                     docker.withRegistry("https://${env.DOCKER_REGISTRY}", "private-image-registry") {
                         if (env.BRANCH_NAME == "master"){
+                            tags.addAll("- `${EASYBILL_VERSION}`", "- `latest`")
                             image.push("${EASYBILL_VERSION}")
                             image.push("latest")
                         } else if (env.BRANCH_NAME == "dev") {
+                            tags.addAll("- `dev-${EASYBILL_VERSION}`", "- `dev-latest`")
                             image.push("dev-${EASYBILL_VERSION}")
                             image.push("dev-latest")
                         } else {
                             def sanitizeBranchName = env.BRANCH_NAME.replace("feat/", "")
+                            tags.addAll("- `${sanitizeBranchName}-${EASYBILL_VERSION}`", "- `${sanitizeBranchName}-latest`")
                             image.push("${sanitizeBranchName}-${EASYBILL_VERSION}")
                             image.push("${sanitizeBranchName}-latest")
                         }
                     }
                 }
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                discordSend(
+                    webhookURL: WEBHOOK_URL,
+                    result: currentBuild.currentResult,
+                    showChangeset: true,
+                    description: "**Version**: ${env.EASYBILL_VERSION}\n**Branch:** ${env.BRANCH_NAME}\n**Image:** `${env.DOCKER_IMAGE_NAME}`\n**Tags:**\n${tags.join('\n')}\n",
+                    link: env.BUILD_URL, title: "${JOB_NAME} #${BUILD_NUMBER}"
+                )
+            }
+        }
+        failure {
+            script {
+                discordSend(
+                    webhookURL: WEBHOOK_URL,
+                    result: currentBuild.currentResult,
+                    showChangeset: true,
+                    description: "**Version**: ${env.EASYBILL_VERSION}\n**Branch:** ${env.BRANCH_NAME}\n",
+                    link: env.BUILD_URL, title: "${JOB_NAME} #${BUILD_NUMBER}"
+                )
             }
         }
     }
