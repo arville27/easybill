@@ -4,6 +4,7 @@ pipeline {
         DOCKER_REGISTRY = "ir.arv.cx"
         DOCKER_IMAGE_NAME = "${DOCKER_REGISTRY}/arville27/easybill"
         EASYBILL_VERSION = readMavenPom().getVersion()
+        WEBHOOK_URL = credentials('easybill-webhook-url');
     }
     stages {
         stage("Project and build information") {
