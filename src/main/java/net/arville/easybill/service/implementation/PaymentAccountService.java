@@ -1,6 +1,7 @@
 package net.arville.easybill.service.implementation;
 
 import lombok.RequiredArgsConstructor;
+import net.arville.easybill.dto.request.DeletePaymentAccountRequest;
 import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.exception.InvalidPropertiesValue;
 import net.arville.easybill.exception.MissingRequiredPropertiesException;
@@ -26,8 +27,22 @@ public class PaymentAccountService implements PaymentAccountManager {
     private final PasswordEncoder encoder;
 
     @Override
-    public PaymentAccount deletePaymentAccount(Long paymentAccountId, User authenticatedUser) {
+    public PaymentAccount deletePaymentAccount(
+            Long paymentAccountId,
+            DeletePaymentAccountRequest request,
+            User authenticatedUser
+    ) {
         authenticatedUser = userManager.getUserByUserId(authenticatedUser.getId());
+
+        var invalidPropertiesValue = new InvalidPropertiesValue();
+        if (!encoder.matches(request.getCurrentPassword(), authenticatedUser.getPassword())) {
+            invalidPropertiesValue.addInvalidProperty(
+                    "current_password",
+                    "Current password is incorrect"
+            );
+            throw invalidPropertiesValue;
+        }
+
         var userPaymentAccountList = authenticatedUser.getPaymentAccountList();
         var deletedPaymentAccount = userPaymentAccountList.stream()
                 .filter(paymentAccount -> paymentAccount.getId().equals(paymentAccountId))

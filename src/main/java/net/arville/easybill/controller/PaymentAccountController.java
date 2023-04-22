@@ -3,6 +3,7 @@ package net.arville.easybill.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import net.arville.easybill.dto.request.DeletePaymentAccountRequest;
 import net.arville.easybill.dto.request.UserChangeAccountNumberRequest;
 import net.arville.easybill.dto.response.PaymentAccountResponse;
 import net.arville.easybill.dto.response.UserResponse;
@@ -49,11 +50,13 @@ public class PaymentAccountController {
 
     @DeleteMapping("{paymentAccountId}")
     public ResponseEntity<ResponseStructure> deletePaymentAccount(
-            @PathVariable Long paymentAccountId
+            @PathVariable Long paymentAccountId,
+            @RequestBody DeletePaymentAccountRequest request
     ) {
 
         paymentAccountManager.deletePaymentAccount(
                 paymentAccountId,
+                request,
                 authenticatedUser.getUser()
         );
 
