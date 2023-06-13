@@ -1,9 +1,9 @@
 package net.arville.easybill.service.manager;
 
 import net.arville.easybill.dto.request.UserLoginRequest;
-import net.arville.easybill.dto.response.UserResponse;
+import net.arville.easybill.service.helper.AuthenticatedUserResult;
 
 public interface AuthManager {
-    UserResponse authenticateUser(UserLoginRequest authRequest);
+    AuthenticatedUserResult authenticateUser(UserLoginRequest authRequest);
 
 }

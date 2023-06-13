@@ -112,18 +112,20 @@ public class OrderHeaderRepositoryExtendedImpl implements OrderHeaderRepositoryE
         var relevantOrderDetail = this.findRelevantOrderDetail(listOrderHeaderId);
         var relevantBill = this.findRelevantBill(listOrderHeaderId);
 
-        var listOrderHeaderWithOthers = listOrderHeader.stream()
-                .peek(orderHeader -> orderHeader.setOrderDetailList(
-                        relevantOrderDetail.stream()
-                                .filter(orderDetail -> Objects.equals(orderDetail.getOrderHeader().getId(), orderHeader.getId()))
-                                .collect(Collectors.toSet())
-                ))
-                .peek(orderHeader -> orderHeader.setBillList(
-                        relevantBill.stream()
-                                .filter(bill -> Objects.equals(bill.getOrderHeader().getId(), orderHeader.getId()))
-                                .collect(Collectors.toSet())
-                ))
-                .collect(Collectors.toList());
+        listOrderHeader.forEach(orderHeader -> {
+            orderHeader.setOrderDetailList(
+                    relevantOrderDetail.stream()
+                            .filter(orderDetail -> Objects.equals(orderDetail.getOrderHeader().getId(), orderHeader.getId()))
+                            .collect(Collectors.toSet())
+            );
+            orderHeader.setBillList(
+                    relevantBill.stream()
+                            .filter(bill -> Objects.equals(bill.getOrderHeader().getId(), orderHeader.getId()))
+                            .collect(Collectors.toSet())
+            );
+        });
+
+        var listOrderHeaderWithOthers = listOrderHeader.stream().toList();
 
         Long resItemCount = em.createQuery(countQuery)
                 .getResultStream()
@@ -216,18 +218,20 @@ public class OrderHeaderRepositoryExtendedImpl implements OrderHeaderRepositoryE
         var relevantOrderDetail = this.findRelevantOrderDetail(listOrderHeaderId);
         var relevantBill = this.findRelevantBill(listOrderHeaderId);
 
-        var listOrderHeaderWithOthers = listOrderHeader.stream()
-                .peek(orderHeader -> orderHeader.setOrderDetailList(
-                        relevantOrderDetail.stream()
-                                .filter(orderDetail -> Objects.equals(orderDetail.getOrderHeader().getId(), orderHeader.getId()))
-                                .collect(Collectors.toSet())
-                ))
-                .peek(orderHeader -> orderHeader.setBillList(
-                        relevantBill.stream()
-                                .filter(bill -> Objects.equals(bill.getOrderHeader().getId(), orderHeader.getId()))
-                                .collect(Collectors.toSet())
-                ))
-                .collect(Collectors.toList());
+        listOrderHeader.forEach(orderHeader -> {
+            orderHeader.setOrderDetailList(
+                    relevantOrderDetail.stream()
+                            .filter(orderDetail -> Objects.equals(orderDetail.getOrderHeader().getId(), orderHeader.getId()))
+                            .collect(Collectors.toSet())
+            );
+            orderHeader.setBillList(
+                    relevantBill.stream()
+                            .filter(bill -> Objects.equals(bill.getOrderHeader().getId(), orderHeader.getId()))
+                            .collect(Collectors.toSet())
+            );
+        });
+
+        var listOrderHeaderWithOthers = listOrderHeader.stream().toList();
 
         Long resItemCount = em.createQuery(countQuery)
                 .getResultStream()

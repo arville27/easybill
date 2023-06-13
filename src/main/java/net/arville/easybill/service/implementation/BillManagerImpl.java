@@ -2,9 +2,6 @@ package net.arville.easybill.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.response.BillResponse;
-import net.arville.easybill.dto.response.OrderHeaderResponse;
-import net.arville.easybill.dto.response.PaymentAccountResponse;
-import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.model.Bill;
 import net.arville.easybill.model.OrderHeader;
 import net.arville.easybill.model.User;
@@ -42,63 +39,23 @@ public class BillManagerImpl implements BillManager {
     }
 
     @Override
-    public UserResponse getAllUsersBill(User user) {
-        var aggregated = billRepository.findAllUsersBills(user.getId())
+    public Map<User, BillResponse.AggregatedRelatedOrderWithTotalOwe> getUserPayables(User user) {
+        return billRepository.findAllUserPayables(user.getId())
                 .stream()
                 .collect(Collectors.groupingBy(
                         Bill::getOrderHeaderBuyer,
                         Collectors.collectingAndThen(Collectors.toList(), this::calculateAggregatedValue))
                 );
-
-        return generateBillResponse(user, aggregated, false);
-    }
-
-    private UserResponse generateBillResponse(User user, Map<User, BillResponse.AggregatedRelatedOrderWithTotalOwe> aggregated, boolean isReceivables) {
-        return UserResponse.template(user)
-                .billResponseList(aggregated.entrySet()
-                        .stream()
-                        .map(userMapEntry -> {
-                            User buyer = userMapEntry.getKey();
-                            var totalOwe = (BigDecimal) userMapEntry.getValue().getTotalOweAmount();
-                            var orderHeaderList = (List<OrderHeader>) userMapEntry.getValue().getRelatedOrderHeader();
-                            return BillResponse.builder()
-                                    .userResponse(UserResponse.template(buyer)
-                                            .paymentAccountList(buyer.getPaymentAccountList()
-                                                    .stream()
-                                                    .map(PaymentAccountResponse::mapWithoutDate)
-                                                    .toList()
-                                            )
-                                            .build()
-                                    )
-                                    .oweAmount(totalOwe)
-                                    .relatedOrderHeader(orderHeaderList
-                                            .stream()
-                                            .map(orderHeader -> OrderHeaderResponse
-                                                    .template(orderHeader)
-                                                    .buyerResponse(UserResponse.mapWithoutDate(orderHeader.getBuyer()))
-                                                    .totalBill(orderHeader.getRelevantBill(isReceivables ? buyer : user).getOweAmountWithBillTransaction())
-                                                    .build()
-                                            )
-                                            .collect(Collectors.toList())
-                                    )
-                                    .status(BillStatus.UNPAID)
-                                    .build();
-                        })
-                        .collect(Collectors.toList())
-                )
-                .build();
     }
 
     @Override
-    public UserResponse getAllUsersBillToUser(User user) {
-        var aggregated = billRepository.findAllBillToUser(user.getId())
+    public Map<User, BillResponse.AggregatedRelatedOrderWithTotalOwe> getUserReceivables(User user) {
+        return billRepository.findAllUserReceivables(user.getId())
                 .stream()
                 .collect(Collectors.groupingBy(
                         Bill::getUser,
                         Collectors.collectingAndThen(Collectors.toList(), this::calculateAggregatedValue))
                 );
-
-        return generateBillResponse(user, aggregated, true);
     }
 
     private BillResponse.AggregatedRelatedOrderWithTotalOwe calculateAggregatedValue(List<Bill> billList) {
@@ -108,7 +65,7 @@ public class BillManagerImpl implements BillManager {
 
         var orderHeaderList = billList.stream()
                 .map(Bill::getOrderHeader)
-                .collect(Collectors.toList());
+                .toList();
 
         return BillResponse.AggregatedRelatedOrderWithTotalOwe
                 .builder()

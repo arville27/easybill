@@ -12,8 +12,6 @@ import java.util.Optional;
 
 @Repository
 public interface OrderHeaderRepository extends JpaRepository<OrderHeader, Long>, OrderHeaderRepositoryExtended {
-
-
     @EntityGraph(
             type = EntityGraph.EntityGraphType.FETCH,
             attributePaths = {

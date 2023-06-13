@@ -208,7 +208,7 @@ public class OrderManagerImpl implements OrderManager {
 
                     var users = groupOrderDetail.stream()
                             .map(OrderDetail::getUser)
-                            .collect(Collectors.toList());
+                            .toList();
 
                     return OrderDetailRequest.builder()
                             .qty(qty)
@@ -217,7 +217,7 @@ public class OrderManagerImpl implements OrderManager {
                             .price(price)
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         return AddOrderRequest.builder()
                 .orderAt(orderHeader.getOrderAt())
@@ -254,16 +254,16 @@ public class OrderManagerImpl implements OrderManager {
                                     .userOrders(orderDetails
                                             .stream()
                                             .map(orderDetail -> OrderDetailResponse.template(orderDetail).build())
-                                            .collect(Collectors.toList())
+                                            .toList()
                                     )
                                     .build();
                         })
-                        .collect(Collectors.toList())
+                        .toList()
                 )
                 .billResponse(orderHeader.getBillList()
                         .stream()
                         .map(BillResponse::map)
-                        .collect(Collectors.toList())
+                        .toList()
                 )
                 .build();
     }

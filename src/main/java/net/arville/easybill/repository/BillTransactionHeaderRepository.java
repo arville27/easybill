@@ -10,7 +10,6 @@ import java.util.List;
 
 @Repository
 public interface BillTransactionHeaderRepository extends JpaRepository<BillTransactionHeader, Long> {
-
     @EntityGraph(attributePaths = {"bill.orderHeader"})
     @Query("SELECT bth FROM BillTransactionHeader bth ORDER BY bth.createdAt DESC")
     List<BillTransactionHeader> findRelatedBillTransactionHeader(List<Long> listBillTransactionId);

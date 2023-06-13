@@ -3,6 +3,8 @@ package net.arville.easybill.controller;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.UserLoginRequest;
+import net.arville.easybill.dto.response.PaymentAccountResponse;
+import net.arville.easybill.dto.response.UserResponse;
 import net.arville.easybill.payload.core.ResponseStatus;
 import net.arville.easybill.payload.core.ResponseStructure;
 import net.arville.easybill.service.manager.AuthManager;
@@ -26,7 +28,18 @@ public class AuthenticationController {
     @PostMapping
     public ResponseEntity<ResponseStructure> authenticateUser(@RequestBody UserLoginRequest authRequest) {
 
-        var authResponse = authManager.authenticateUser(authRequest);
+        var authResult = authManager.authenticateUser(authRequest);
+
+        var authResponse = UserResponse
+                .template(authResult.getUser())
+                .paymentAccountList(authResult.getUser().getPaymentAccountList()
+                        .stream()
+                        .map(PaymentAccountResponse::map)
+                        .toList()
+                )
+                .accessToken(authResult.getAccessToken())
+                .build();
+
         ResponseStructure body = ResponseStatus.SUCCESS.GenerateGeneralBody(authResponse);
 
         return ResponseEntity.status(HttpStatus.OK).body(body);

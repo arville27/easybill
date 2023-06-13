@@ -10,7 +10,6 @@ import java.util.List;
 
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Long> {
-
     @Query("SELECT s FROM Bill s WHERE s.status = 'UNPAID' AND s.user.id = ?1 AND s.orderHeader.validity = 'ACTIVE' ORDER BY s.orderHeader.orderAt DESC, s.orderHeader.createdAt DESC")
     @EntityGraph(
             type = EntityGraph.EntityGraphType.FETCH,
@@ -22,7 +21,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
                     "orderHeader.billList"
             }
     )
-    List<Bill> findAllUsersBills(Long userId);
+    List<Bill> findAllUserPayables(Long userId);
 
     @Query("SELECT s FROM Bill s WHERE s.status = 'UNPAID' AND s.user.id = ?1 AND s.orderHeader.buyer.id = ?2 AND s.orderHeader.validity = 'ACTIVE' ORDER BY s.orderHeader.orderAt ASC, s.orderHeader.createdAt ASC")
     @EntityGraph(
@@ -48,6 +47,6 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
                     "orderHeader.billList.billTransactionHeaderList"
             }
     )
-    List<Bill> findAllBillToUser(Long userId);
+    List<Bill> findAllUserReceivables(Long userId);
 
 }

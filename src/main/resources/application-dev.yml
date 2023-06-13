@@ -6,9 +6,10 @@ spring:
   jpa:
     show-sql: true
     generate-ddl: true
+    hibernate:
+      ddl-auto: update
     properties:
       hibernate:
-        ddl-auto: update
         jdbc.time_zone: UTC
         format_sql: true
 

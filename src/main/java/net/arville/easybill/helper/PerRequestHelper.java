@@ -33,42 +33,22 @@ public class PerRequestHelper {
     public void log(LogLevel level, String message) {
         String logNumberSection = "(" + this.getLogId() + ")";
         switch (level) {
-            case TRACE:
-                log.trace(logNumberSection + " - {}", message);
-                break;
-            case DEBUG:
-                log.debug(logNumberSection + " - {}", message);
-                break;
-            case INFO:
-                log.info(logNumberSection + " - {}", message);
-                break;
-            case WARN:
-                log.warn(logNumberSection + " - {}", message);
-                break;
-            case ERROR:
-                log.error(logNumberSection + " - {}", message);
-                break;
+            case TRACE -> log.trace(logNumberSection + " - {}", message);
+            case DEBUG -> log.debug(logNumberSection + " - {}", message);
+            case INFO -> log.info(logNumberSection + " - {}", message);
+            case WARN -> log.warn(logNumberSection + " - {}", message);
+            case ERROR -> log.error(logNumberSection + " - {}", message);
         }
     }
 
     public void log(LogLevel level, String messageWithSpecifier, Object... args) {
         String logNumberSection = "(" + this.getLogId() + ")";
         switch (level) {
-            case TRACE:
-                log.trace(logNumberSection + " - " + messageWithSpecifier, args);
-                break;
-            case DEBUG:
-                log.debug(logNumberSection + " - " + messageWithSpecifier, args);
-                break;
-            case INFO:
-                log.info(logNumberSection + " - " + messageWithSpecifier, args);
-                break;
-            case WARN:
-                log.warn(logNumberSection + " - " + messageWithSpecifier, args);
-                break;
-            case ERROR:
-                log.error(logNumberSection + " - " + messageWithSpecifier, args);
-                break;
+            case TRACE -> log.trace(logNumberSection + " - " + messageWithSpecifier, args);
+            case DEBUG -> log.debug(logNumberSection + " - " + messageWithSpecifier, args);
+            case INFO -> log.info(logNumberSection + " - " + messageWithSpecifier, args);
+            case WARN -> log.warn(logNumberSection + " - " + messageWithSpecifier, args);
+            case ERROR -> log.error(logNumberSection + " - " + messageWithSpecifier, args);
         }
     }
 

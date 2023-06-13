@@ -26,7 +26,7 @@ public class PageableBuilder {
     }
 
     public Pageable build() {
-        if (sortFields.size() == 0)
+        if (sortFields.isEmpty())
             return PageRequest.of(this.pageNumber, this.pageSize);
         String[] fields = new String[sortFields.size()];
         sortFields.toArray(fields);
