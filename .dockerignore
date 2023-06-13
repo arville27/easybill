@@ -1,4 +1,7 @@
 .git
 .idea
+.env*
+README.md
+Dockerfile
 target
 !target/*.jar
