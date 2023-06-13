@@ -14,7 +14,7 @@ public class OpenAPISpecConfiguration {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("Easybill API documentation"))
+                .info(new Info().title("Easybill OpenAPI spec"))
                 .components(new Components().addSecuritySchemes(
                                 "Access Token",
                                 new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")

@@ -96,7 +96,7 @@ public class RestSecurityConfig {
                 .addFilterBefore(requestLoggerFilter, ExceptionHandlerFilter.class)
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> requests.antMatchers(UNAUTHENTICATED_ROUTES_PREFIX.toArray(String[]::new)).permitAll())
-                .authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
+                .authorizeHttpRequests(requests -> requests.anyRequest().authenticated());
 
         return http.build();
     }

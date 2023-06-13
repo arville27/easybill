@@ -6,5 +6,5 @@
 
 ### Prerequisite
 
-- Java JDK 11
+- Java JDK 17
 - Docker and docker compose plugin (for running dev build in container)
