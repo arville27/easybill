@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${JDBC_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
+  jpa:
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+
+easybill:
+  token-secret: ${JWT_SECRET}

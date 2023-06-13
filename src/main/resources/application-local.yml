@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/easybill
+    username: root
+    password: root
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    properties:
+      hibernate:
+        ddl-auto: update
+        jdbc.time_zone: UTC
+        format_sql: true
+
+easybill:
+  token-secret: redacted

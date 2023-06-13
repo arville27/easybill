@@ -1,0 +1,21 @@
+spring:
+  application.name: Easybill
+  profiles:
+    default: local
+    active: ${APP_ENV:local}
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    time-zone: Asia/Jakarta
+  web.resources.add-mappings: false
+  mvc.throw-exception-if-no-handler-found: true
+
+server:
+  port: 9090
+  error:
+    include-stacktrace: never
+    include-message: never
+    whitelabel.enabled: false
+
+springdoc.api-docs.path: /api/docs
+
+logging.config: classpath:logback-spring.xml
