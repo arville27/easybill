@@ -38,7 +38,8 @@ pipeline {
                             image.push("dev-${EASYBILL_VERSION}")
                             image.push("dev-latest")
                         } else {
-                            def sanitizeBranchName = env.BRANCH_NAME.replace("feat/", "")
+                            def split = env.BRANCH_NAME.split("/");
+                            def sanitizeBranchName = split[split.length - 1]
                             tags.addAll("- `${sanitizeBranchName}-${EASYBILL_VERSION}`", "- `${sanitizeBranchName}-latest`")
                             image.push("${sanitizeBranchName}-${EASYBILL_VERSION}")
                             image.push("${sanitizeBranchName}-latest")
