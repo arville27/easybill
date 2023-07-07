@@ -1,10 +1,10 @@
 package net.arville.easybill.model;
 
+import jakarta.persistence.*;
 import lombok.*;
 import net.arville.easybill.model.helper.BillStatus;
 import org.hibernate.Hibernate;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collections;

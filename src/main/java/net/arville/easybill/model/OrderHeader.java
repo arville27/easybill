@@ -1,6 +1,7 @@
 package net.arville.easybill.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
 import lombok.*;
 import net.arville.easybill.model.helper.BillStatus;
 import net.arville.easybill.model.helper.OrderHeaderValidity;
@@ -8,7 +9,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;

@@ -2,12 +2,12 @@ package net.arville.easybill.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 import net.arville.easybill.model.OrderDetail;
 import net.arville.easybill.model.helper.OrderDetailType;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import java.math.BigDecimal;
 
 @Getter

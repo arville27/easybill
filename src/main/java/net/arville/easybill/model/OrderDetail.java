@@ -1,11 +1,11 @@
 package net.arville.easybill.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.*;
 import net.arville.easybill.model.helper.OrderDetailType;
 import org.hibernate.Hibernate;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;

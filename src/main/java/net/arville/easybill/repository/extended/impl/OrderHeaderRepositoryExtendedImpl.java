@@ -1,5 +1,9 @@
 package net.arville.easybill.repository.extended.impl;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
 import net.arville.easybill.model.*;
 import net.arville.easybill.model.helper.BillStatus;
 import net.arville.easybill.model.helper.OrderHeaderValidity;
@@ -8,10 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
 import java.util.*;
 import java.util.stream.Collectors;
 

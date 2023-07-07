@@ -1,5 +1,6 @@
 package net.arville.easybill.service.implementation;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import net.arville.easybill.dto.request.PayBillRequest;
 import net.arville.easybill.dto.response.*;
@@ -19,7 +20,6 @@ import net.arville.easybill.service.manager.BillTransactionManager;
 import net.arville.easybill.service.manager.UserManager;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.stream.Collectors;
