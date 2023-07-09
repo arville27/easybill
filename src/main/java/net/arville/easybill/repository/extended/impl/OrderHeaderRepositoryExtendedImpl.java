@@ -68,7 +68,7 @@ public class OrderHeaderRepositoryExtendedImpl implements OrderHeaderRepositoryE
             wherePredicatesCountQuery.add(builder.or(
                     builder.like(entityCounterWithBuyerRoot.get(User_.USERNAME), "%" + word + "%"),
                     builder.like(
-                            builder.lower(orderHeaderRoot.get(OrderHeader_.ORDER_DESCRIPTION)),
+                            builder.lower(entityCounterRoot.get(OrderHeader_.ORDER_DESCRIPTION)),
                             "%" + word.toLowerCase() + "%"
                     )
             ));
@@ -177,7 +177,7 @@ public class OrderHeaderRepositoryExtendedImpl implements OrderHeaderRepositoryE
             wherePredicatesCountQuery.add(builder.or(
                     builder.like(entityCounterWithBuyerRoot.get(User_.USERNAME), "%" + word + "%"),
                     builder.like(
-                            builder.lower(orderHeaderRoot.get(OrderHeader_.ORDER_DESCRIPTION)),
+                            builder.lower(entityCounterRoot.get(OrderHeader_.ORDER_DESCRIPTION)),
                             "%" + word.toLowerCase() + "%"
                     )
             ));
