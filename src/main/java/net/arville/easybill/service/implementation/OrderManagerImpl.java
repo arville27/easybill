@@ -1,6 +1,7 @@
 package net.arville.easybill.service.implementation;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.arville.easybill.dto.request.AddOrderRequest;
 import net.arville.easybill.dto.request.OrderDetailRequest;
 import net.arville.easybill.dto.response.*;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderManagerImpl implements OrderManager {
     private final OrderHeaderRepository orderHeaderRepository;
     private final UserManager userManager;
@@ -48,8 +50,11 @@ public class OrderManagerImpl implements OrderManager {
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
-        if (!orderHeader.getParticipatingUsers().contains(user) && !Objects.equals(user.getId(), orderHeader.getBuyer().getId()))
+        if (orderHeader.getParticipatingUsers().stream().noneMatch(u -> u.getId().equals(user.getId())) &&
+                !Objects.equals(user.getId(), orderHeader.getBuyer().getId())
+        ) {
             throw new UnauthorizedRequestException("This order doesn't include you!", false);
+        }
 
         return this.createOrderHeaderResponse(orderHeader);
     }
@@ -188,8 +193,11 @@ public class OrderManagerImpl implements OrderManager {
                 .findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
-        if (!orderHeader.getParticipatingUsers().contains(user) && !Objects.equals(user.getId(), orderHeader.getBuyer().getId()))
+        if (orderHeader.getParticipatingUsers().stream().noneMatch(u -> u.getId().equals(user.getId())) &&
+                !Objects.equals(user.getId(), orderHeader.getBuyer().getId())
+        ) {
             throw new UnauthorizedRequestException("This order doesn't include you!", false);
+        }
 
         var result = orderHeader.getOrderDetailList().stream()
                 .collect(Collectors.groupingBy(OrderDetail::getGroupOrderReferenceId))

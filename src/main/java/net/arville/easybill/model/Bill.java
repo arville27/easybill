@@ -3,7 +3,7 @@ package net.arville.easybill.model;
 import jakarta.persistence.*;
 import lombok.*;
 import net.arville.easybill.model.helper.BillStatus;
-import org.hibernate.Hibernate;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -40,19 +40,6 @@ public class Bill {
     @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL)
     @ToString.Exclude
     private Set<BillTransactionHeader> billTransactionHeaderList;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Bill bill = (Bill) o;
-        return id != null && Objects.equals(id, bill.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 
     @Transient
     private BigDecimal oweAmount;
@@ -93,5 +80,21 @@ public class Bill {
                 .stream()
                 .map(BillTransactionHeader::getPaidAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Bill bill = (Bill) o;
+        return getId() != null && Objects.equals(getId(), bill.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return getClass().hashCode();
     }
 }

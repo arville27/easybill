@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import net.arville.easybill.model.helper.BillStatus;
 import net.arville.easybill.model.helper.OrderHeaderValidity;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -177,19 +176,6 @@ public class OrderHeader {
                 .build();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        OrderHeader that = (OrderHeader) o;
-        return id != null && Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
-
     @Getter
     @AllArgsConstructor
     @Builder
@@ -197,5 +183,18 @@ public class OrderHeader {
         private final BigDecimal totalOrder;
         private final BigDecimal totalDiscount;
         private final BigDecimal totalOrderAfterDiscount;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        OrderHeader that = (OrderHeader) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return getClass().hashCode();
     }
 }

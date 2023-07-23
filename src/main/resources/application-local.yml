@@ -1,17 +1,17 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/easybill
+    url: jdbc:postgresql://local.arv.cx:5433/easybill
     username: root
-    password: root
+    password: supersupersecretstringandlongusedfordatabase
   jpa:
-    show-sql: true
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        jdbc.time_zone: UTC
-        format_sql: true
+#    show-sql: true
+#    generate-ddl: true
+#    hibernate:
+#      ddl-auto: update
+#    properties:
+#      hibernate:
+#        jdbc.time_zone: UTC
+#        format_sql: true
 
 easybill:
   token-secret: redacted
